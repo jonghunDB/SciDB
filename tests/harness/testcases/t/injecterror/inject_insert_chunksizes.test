@@ -1,0 +1,40 @@
+--setup
+load_library('misc')
+
+--test
+
+--start-query-logging
+
+# Do an insert() into an array with unspecified chunk sizes.
+# Verify that chunk sizes become specific.
+create array A0 <v:int64>[i=-10:10; j=-5:5]
+show(A0)
+--igdata "insert(build(<v:int64>[i=-10:10:0:7; j=-5:5:0:3], i+j), A0)"
+show(A0)
+
+# Ditto for temp array.
+create temp array TA0 <v:int64>[i=-10:10; j=-5:5]
+show(TA0)
+--igdata "insert(build(<v:int64>[i=-10:10:0:7; j=-5:5:0:3], i+j), TA0)"
+show(TA0)
+
+# Inject a fault into a insert() into an array with unspecified chunk
+# sizes.  Verify that the chunksizes remain unspecified.
+create array A1 <v:int64>[i=-10:10; j=-5:5]
+show(A1)
+--error "insert(build(<v:int64>[i=-10:10:0:7; j=-5:5:0:3], iif((i+j)=15, injectError(-1, 1), i+j)), A1)"
+show(A1)
+
+# Ditto for temp array.  Use InjectedError::ID 4 because temp arrays don't exercuse the Storage code path.
+create temp array TA1 <v:int64>[i=-10:10; j=-5:5]
+show(TA1)
+--error "insert(build(<v:int64>[i=-10:10:0:7; j=-5:5:0:3], iif((i+j)=15, injectError(-1, 4), i+j)), TA1)"
+show(TA1)
+
+--stop-query-logging
+
+--cleanup
+remove(A0)
+remove(TA0)
+remove(A1)
+remove(TA1)

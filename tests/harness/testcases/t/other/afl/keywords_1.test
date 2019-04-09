@@ -1,0 +1,25 @@
+--setup
+--test
+
+# build
+build(<v:int64>[i=0:3], '[(9),(8),(7),(6)]', true)
+build(<v:int64>[i=0:3], from: '[(9),(8),(7),(6)]')
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT2 "build(<v:int64>[i=0:3])"
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM "build(<v:int64>[i=0:3], fromage: '[(9),(8),(7),(6)]')"
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM "build(<v:int64>[i=0:3], from: '[(9),(8),(7),(6)]', extra: i+3)"
+
+# uniq
+show('uniq(build(<v:int64>[i=0:19], i / 5))', 'afl')
+show('uniq(build(<v:int64>[i=0:19], i / 5), chunk_size: 4)', 'afl')
+show('uniq(build(<v:int64>[i=0:19], i / 5), chunk_size: 3 + 2)', 'afl')
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CHUNK_SIZE_MUST_BE_POSITIVE "show('uniq(build(<v:int64>[i=0:19], i / 5), chunk_size: -7)', 'afl')"
+
+# sort (Note: result schema always has dimension named 'n'.)
+show('sort(build(<v:int64>[i=0:9], random()))', 'afl')
+show('sort(build(<v:int64>[i=0:9], random()), 42)', 'afl')
+show('sort(build(<v:int64>[i=0:9], random()), chunk_size: 20)', 'afl')
+
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "sort(build(<v:int64>[i=0:9], random()), 42, chunk_size: 20)"
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_DUPLICATE_KEYWORD_PARAM "sort(build(<v:int64>[i=0:9], random()), chunk_size: 20, chunk_size: 30)"
+
+--cleanup

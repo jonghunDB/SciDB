@@ -1,0 +1,24 @@
+# SDB-5845.  Ensure that array metadata is stable across cluster restarts.
+
+--setup
+--test
+store(build(<val:int64>[i=0:9:0:2], i), SCAN1)
+store(build(<val:int64 compression 'zlib'>[i=10:19:0:2], i), SCAN2)
+store(build(<val:int64 compression 'bzlib'>[i=20:29:0:2], i), SCAN3)
+
+--echo Restarting SciDB...
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--echo ...done.  Sleeping in lieu of 'system' plugin.
+--sleep 10
+--reconnect
+--echo Reconnected.
+
+scan(SCAN1)
+scan(SCAN2)
+scan(SCAN3)
+
+--cleanup
+remove(SCAN1)
+remove(SCAN2)
+remove(SCAN3)

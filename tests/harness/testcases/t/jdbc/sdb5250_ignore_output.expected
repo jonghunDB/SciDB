@@ -1,0 +1,10 @@
+Ignore output:
+build(<v:int64>[i=0:0,1,0],i+10)
+Query was executed successfully
+
+Not ignore output:
+build(<v:int64>[i=0:0,1,0],i+10)
+{i} v
+{0} 10
+
+

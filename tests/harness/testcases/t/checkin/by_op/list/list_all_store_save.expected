@@ -1,0 +1,213 @@
+SCIDB QUERY : <list('arrays')>
+{No} name,uaid,aid,schema,availability,temporary,namespace
+
+SCIDB QUERY : <list('aggregates')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('operators')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('types')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('functions')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('macros')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('queries')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('instances')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('users')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('roles')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('namespaces')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('chunk map')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('disk indexes')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('buffer stats')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('libraries')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('datastores')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <list('counters')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(list('arrays'), A0)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('aggregates'), A1)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('operators'), A2)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('types'), A3)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('functions'), A4)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('functions'), A5)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('macros'), A6)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('queries'), A7)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('instances'), A8)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('users'), A9)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('roles'), A10)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('namespaces'), A11)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('chunk map'), A12)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('disk indexes'), A13)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('buffer stats'), A14)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('libraries'), A15)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('datastores'), A16)>
+Query was executed successfully
+
+SCIDB QUERY : <store(list('counters'), A17)>
+Query was executed successfully
+
+SCIDB QUERY : <save(list('arrays'), '/tmp/foo', -2, 'tsv')>
+{No} name,uaid,aid,schema,availability,temporary,namespace
+
+SCIDB QUERY : <save(list('aggregates'), '/tmp/foo', -2, 'tsv')>
+{No} name,typeid,library
+
+SCIDB QUERY : <save(list('operators'), '/tmp/foo', -2, 'tsv')>
+{No} name,library
+
+SCIDB QUERY : <save(list('types'), '/tmp/foo', -2, 'tsv')>
+{No} name,library
+
+SCIDB QUERY : <save(list('functions'), '/tmp/foo', -2, 'tsv')>
+{No} name,profile,deterministic,library
+
+SCIDB QUERY : <save(list('functions'), '/tmp/foo', -2, 'tsv')>
+{No} name,profile,deterministic,library
+
+SCIDB QUERY : <save(list('macros'), '/tmp/foo', -2, 'tsv')>
+{No} name,type
+
+SCIDB QUERY : <save(list('queries'), '/tmp/foo', -2, 'tsv')>
+{inst,n} query_id,coordinator,query_string,creation_time,error_code,error,idle,user_id,user
+
+SCIDB QUERY : <save(list('instances'), '/tmp/foo', -2, 'tsv')>
+{No} name,port,instance_id,online_since,instance_path
+
+SCIDB QUERY : <save(list('users'), '/tmp/foo', -2, 'tsv')>
+{No} name,id
+
+SCIDB QUERY : <save(list('roles'), '/tmp/foo', -2, 'tsv')>
+{No} name,id
+
+SCIDB QUERY : <save(list('namespaces'), '/tmp/foo', -2, 'tsv')>
+{No} name
+
+SCIDB QUERY : <save(list('chunk map'), '/tmp/foo', -2, 'tsv')>
+{inst,n} svrsn,instn,dsid,doffs,uaid,aid,attid,coord,comp,flags,nelem,csize,usize,asize
+
+SCIDB QUERY : <save(list('disk indexes'), '/tmp/foo', -2, 'tsv')>
+{inst,n} dsid,nsid,uaid,aid,attid,coord,boffs,bsize,csize,asize,nelem,svrsn,iid
+
+SCIDB QUERY : <save(list('buffer stats'), '/tmp/foo', -2, 'tsv')>
+{inst,n} cache,dirty,pinned,pending,reserve,limit
+
+SCIDB QUERY : <save(list('libraries'), '/tmp/foo', -2, 'tsv')>
+{inst,n} name,major,minor,patch,build,build_type
+
+SCIDB QUERY : <save(list('datastores'), '/tmp/foo', -2, 'tsv')>
+{inst,n} uaid,file_bytes,file_free_bytes
+
+SCIDB QUERY : <save(list('counters'), '/tmp/foo', -2, 'tsv')>
+{inst,n} name,total,total_msecs,avg_msecs
+
+SCIDB QUERY : <remove(A0)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A1)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A2)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A3)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A4)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A5)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A6)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A7)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A8)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A9)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A10)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A11)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A12)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A13)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A14)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A15)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A16)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A17)>
+Query was executed successfully
+

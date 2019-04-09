@@ -1,0 +1,12 @@
+--setup
+--start-query-logging
+
+--test
+#
+# test coverage for 3 rare blocks in CachedDBChunk.cpp
+#
+
+--start-igdata
+apply(build(<v : int64> [I=0:0,1,0], I), clear_cache, test_clear_cache())
+
+--stop-query-logging

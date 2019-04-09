@@ -1,0 +1,4 @@
+--shell --command "${TESTDIR}/jdbc_example.py AFLTour ${TESTDIR}/AFLTour.txt"
+
+--cleanup
+remove(persistent)

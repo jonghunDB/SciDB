@@ -1,0 +1,35 @@
+--setup
+--start-query-logging
+
+# for injectError()
+load_library('misc')
+
+--test
+#
+# test coverage for 3 rare blocks in CachedDBChunk.cpp
+#
+
+--start-igdata
+
+## causes Debug scidb to core dump, enable this at a later point
+## S_injectErrChunkExists(InjectErrCode::CHUNK_EXISTS);
+##--error "store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,9)), SOME_CHUNKS1)"
+
+# S_injectErrInvalidQuery1(InjectErrCode::INVALID_QUERY1);
+--error "store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,10)), SOME_CHUNKS2)"
+
+# S_injectErrInvalidQuery2(InjectErrCode::INVALID_QUERY2);
+--error "store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,11)), SOME_CHUNKS3)"
+
+--cleanup
+# when working properly, the queries above will not commit any array, so there will be nothing to delete
+# so we must use --justrun for the case where the test is working as designed
+# we bother to remove at all, in case the test is not working as designed
+
+## enable at a later point, see first query
+##--justrun "remove(SOME_CHUNKS1)"
+
+--justrun "remove(SOME_CHUNKS2)"
+--justrun "remove(SOME_CHUNKS3)"
+
+--stop-query-logging

@@ -1,0 +1,32 @@
+# Test autochunking with a target physical chunk size.  SDB-5246.
+
+--setup
+
+# Store one million strings of size 101 in a flat array, along with indeces for redimension into a 2-D.
+create temp array flat <s:string, i:int64, j:int64>[row=0:124999]
+--igdata "store(apply(build(<s:string>[row=0:124999], '%' * 100), i, row / 800, j, row % 800), flat)"
+
+--test
+
+--echo Store redimensioned with default autochunking.
+--igdata "store(redimension(flat, <s:string>[i=0:999; j=0:999]), by_default)"
+show(by_default)
+
+--echo Store etc. w/ target physical chunk size of 3 MiB.  156 * 200 * 101 == 3,151,200
+--igdata "store(redimension(flat, <s:string>[i=0:999; j=0:999], phys_chunk_size:3), by_3mib)"
+show(by_3mib)
+
+--echo Store etc. w/ target physical chunk size of 16 MiB.  360 * 461 * 101 == 16,761,960
+--igdata "store(redimension(flat, <s:string>[i=0:999; j=0:999], phys_chunk_size:16), by_16mib)"
+show(by_16mib)
+
+# Check expected error conditions.
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER "redimension(flat, <s:string>[i=0:999; j=0:999], phys_chunk_size: 0 - 16)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER "redimension(flat, <s:string>[i=0:800; j=0:800], phys_chunk_size: 0)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS "redimension(flat, <s:string>[i=0:800; j=0:800], phys_chunk_size: 4, cells_per_chunk: 72)"
+
+--cleanup
+remove(flat)
+remove(by_default)
+remove(by_3mib)
+remove(by_16mib)

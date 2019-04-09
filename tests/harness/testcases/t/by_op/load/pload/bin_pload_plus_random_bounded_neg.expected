@@ -1,0 +1,28 @@
+Creating array:
+Query was executed successfully
+Loading data into array:
+Count non-empty a_1 attributes in the array after redimension:
+FAIL: array size is not as expected
+Done.
+Cleaning up on exit...
+Done with cleanup.
+UserQueryException in file: src/query/ops/input/LogicalInput.cpp function: inferSchema line: 196
+Error id: scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_INPUT_PLOAD_BOUNDED
+Error description: Error during schema inferring. Parallel load requires an unbounded first dimension.
+load(dummy_01_A,'dummy_01_A_input',-1,'(int64,int64,uint32 NULL,char,int64,bool,int8 NULL,int32 NULL,uint64,float NULL,char NULL,uint64 NULL,float,uint64,int8 NULL,float,int16,uint64 NULL,float,int8,uint32 NULL,bool,bool NULL,int8,char NULL,uint8,string NULL,uint32)')
+     ^^^^^^^^^^
+
+Creating array:
+Query was executed successfully
+Loading data into array:
+Count non-empty a_1 attributes in the array after redimension:
+FAIL: array size is not as expected
+Done.
+Cleaning up on exit...
+Done with cleanup.
+UserQueryException in file: src/query/ops/input/LogicalInput.cpp function: inferSchema line: 196
+Error id: scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_INPUT_PLOAD_BOUNDED
+Error description: Error during schema inferring. Parallel load requires an unbounded first dimension.
+load(dummy_01_A,'dummy_01_A_input',-1,'(int64,int64,uint32 NULL,char,int64,bool,int8 NULL,int32 NULL,uint64,float NULL,char NULL,uint64 NULL,float,uint64,int8 NULL,float,int16,uint64 NULL,float,int8,uint32 NULL,bool,bool NULL,int8,char NULL,uint8,string NULL,uint32)')
+     ^^^^^^^^^^
+

@@ -1,0 +1,18 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(<v:int64> [I=0:15,1,0], I), SRC_CHUNKS)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(SRC_CHUNKS, inj, injectError(0,17))>
+[An error expected at this place for the query "apply(SRC_CHUNKS, inj, injectError(0,17))". And it failed with error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY. Expected error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(SRC_CHUNKS)>
+Query was executed successfully
+

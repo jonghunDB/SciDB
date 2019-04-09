@@ -1,0 +1,32 @@
+--setup
+--start-query-logging
+
+--aql create array intensityFlat <exposure:string,elapsedTime:int64,measuredIntensity:int64 null>[i=0:*,1000000,0]
+--shell --out /dev/null --command "mkdir -p /tmp/${HPID}/doc"
+--shell  --store --command " sed 1d $DOC_DATA/intensity.csv > /tmp/${HPID}/intensity.csv "
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "load intensityFlat from '/tmp/${HPID}/intensity.csv' as 'csv'""
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "save intensityFlat into '/tmp/${HPID}/doc/intensity_data2.bin' as '(string, int64, int64 null)'""
+--aql drop array intensityFlat
+
+--test
+--aql CREATE ARRAY intensityFlat < exposure:string,elapsedTime:int64,measuredIntensity:int64 null > [i=0:*,1000000,0]
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "load intensityFlat FROM '/tmp/${HPID}/doc/intensity_data2.bin' AS '(string, int64, int64 null)'""
+
+
+--aql drop array intensityFlat
+
+--aql CREATE ARRAY intensityFlat < exposure:string,elapsedTime:int64,measuredIntensity:int64 null > [i=0:*,1000000,0]
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "load intensityFlat FROM '/tmp/${HPID}/doc/intensity_data2.bin' AS '(string,int64,int64 null)'""
+
+--aql CREATE ARRAY intensityFlat_NoExposure < elapsedTime:int64,measuredIntensity:int64 null > [i=0:*,1000000,0]
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "load intensityFlat_NoExposure FROM '/tmp/${HPID}/doc/intensity_data2.bin' AS '(skip,int64,int64 null)'""
+
+--aql CREATE ARRAY intensityFlat_NoTime_NoMeasurement < exposure:string > [i=0:*,1000000,0]
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "load intensityFlat_NoTime_NoMeasurement FROM '/tmp/${HPID}/doc/intensity_data2.bin' AS '(string,skip(8),skip(8) null)'""
+
+--cleanup
+--aql drop array intensityFlat
+--aql drop array intensityFlat_NoExposure
+--aql drop array intensityFlat_NoTime_NoMeasurement
+--shell --command " rm -rf /tmp/${HPID} "
+--stop-query-logging

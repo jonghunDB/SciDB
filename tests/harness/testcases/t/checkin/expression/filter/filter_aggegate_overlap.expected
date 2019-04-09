@@ -1,0 +1,14 @@
+{ROW} K,A
+{0} 0,0
+{1} 1,0.5
+{2} 2,1
+{3} 3,1.5
+{4} 4,2
+{5} 5,2.5
+
+SCIDB QUERY : <aggregate(filter(TEST, A = 1.0), count(*) AS CNT)>
+{i} CNT
+{0} 1
+
+Query was executed successfully
+

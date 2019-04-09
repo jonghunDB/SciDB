@@ -1,0 +1,20 @@
+--setup
+--start-query-logging
+
+# Inject Error Support
+load_library('misc')
+
+--test
+--error "store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,12)), chunkOutOfBoundsArray)"
+
+--start-igdata
+store(build(<val:int64>[i=0:100:0:10], i), noCurrentChunkArray)
+--stop-igdata
+--error "apply(scan(noCurrentChunkArray), inject, injectError(0,13))"
+
+--error "apply(scan(noCurrentChunkArray), inject, injectError(0,14))"
+
+--cleanup
+--justrun "remove(chunkOutOfBoundsArray)"
+--justrun "remove(noCurrentChunkArray)"
+--stop-query-logging

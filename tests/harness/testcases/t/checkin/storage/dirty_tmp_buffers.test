@@ -1,0 +1,74 @@
+# SDB-5993: Ensure temporary MemArray buffers are cleaned up.
+
+# While experimenting with the P4 nova test suite and the list('buffer
+# stats') query, we found a lot of dirty buffers hanging around after
+# the nova.06_rankquant test finished.  This test simulates
+# 06_rankquant using a smaller random data set.  There should be no
+# dirty buffers before or after the various quantile() queries run.
+
+# The "group-by" variant of quantile() uses scratch MemArrays (via
+# RowCollection) for grouping data prior to computing the quantiles.
+# Any operator that uses (or produces) intermediate MemArrays might be
+# vulnerable to this problem; we use quantile() only because that's
+# where we first discovered the issue.  Should this test fail, the
+# problem is not with quantile() but with the Query finalize/cleanup
+# machinery: why isn't the scratch MemArray with its dirty buffers
+# being deleted?
+
+--setup
+--start-query-logging
+
+# Create arrays like those in nova.06_rankquant, only smaller.
+create array small_md_expo <response:double> [id_dim=0:99:0:10; affy_id_dim=0:99:0:10]
+create array small_ID_symbols <ID:string> [i=0:99:0:10]
+
+--start-igdata
+store(build(small_md_expo, random()), small_md_expo)
+store(build(small_ID_symbols, 'sym_' + string(i)), small_ID_symbols)
+--stop-igdata
+
+--test
+
+# Array creation above should have given any dirty buffers time to be written.
+--echo Initial dirty bytes cached (should be zero)
+aggregate(project(list('buffer stats'), dirty), sum(dirty))
+
+--start-igdata
+consume( \
+  _sg( \
+    quantile(cross_join(small_md_expo, small_ID_symbols, \
+                        id_dim, i), \
+             9, response, id_dim) \
+  , 1) \
+)
+--stop-igdata
+
+# The instance thread that sent back the result of the last query is
+# still busy discarding dirty buffers, and the harness's next query will
+# start on a different thread... which, unless we sleep, may see some
+# soon-to-be-discarded dirty buffers still in the cache.
+--sleep 2
+
+--echo After SG query
+aggregate(project(list('buffer stats'), dirty), sum(dirty))
+
+--start-igdata
+store( \
+    quantile(cross_join(small_md_expo, small_ID_symbols, \
+                        id_dim, i), \
+             9, response, id_dim), \
+    SDB5993)
+--stop-igdata
+
+# See comment above re. why we sleep.
+--sleep 2
+
+--echo After StoringSG query
+aggregate(project(list('buffer stats'), dirty), sum(dirty))
+
+--cleanup
+--stop-query-logging
+--reset-format
+remove(small_ID_symbols)
+remove(small_md_expo)
+remove(SDB5993)

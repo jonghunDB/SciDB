@@ -1,0 +1,29 @@
+# SDB-5288
+# parallel binary save/input.
+
+--setup
+--test
+
+# nullable without null values
+save(build(<v:double>[i=0:3,2,0, j=0:3,2,0], i*2+j), '5288_tmp_data_nullable_without_null.bin', -1, '(double null)')
+input(<v:double>[i=0:*,2,0, j=0:3,2,0], '5288_tmp_data_nullable_without_null.bin', -1, '(double null)')
+
+# nullable with null values
+save(build(<v:double>[i=0:3,2,0, j=0:3,2,0], iif(i=1, null, i*2+j)), '5288_tmp_data_nullable_with_null.bin', -1, '(double null)')
+input(<v:double>[i=0:*,2,0, j=0:3,2,0], '5288_tmp_data_nullable_with_null.bin', -1, '(double null)')
+
+# not nullable
+save(build(<v:double not null>[i=0:3,2,0, j=0:3,2,0], i*2+j), '5288_tmp_data_not_nullable.bin', -1, '(double)')
+input(<v:double not null>[i=0:*,2,0, j=0:3,2,0], '5288_tmp_data_not_nullable.bin', -1, '(double)')
+
+# All the above are for binary format.
+# Try opaque, with nullable with null values
+save(build(<v:double>[i=0:3,2,0, j=0:3,2,0], iif(i=1, null, i*2+j)), '5288_tmp_data_nullable_with_null.opa', -1, 'opaque')
+input(<v:double>[i=0:*,2,0, j=0:3,2,0], '5288_tmp_data_nullable_with_null.opa', -1, 'opaque')
+
+# Opaque works with sparse array, too. (Note that binary does not!)
+save(filter(build(<v:double>[i=0:3,2,0, j=0:3,2,0], i*2+j), i=j), '5288_tmp_data_sparse.opa', -1, 'opaque')
+input(<v:double>[i=0:*,2,0, j=0:3,2,0], '5288_tmp_data_sparse.opa', -1, 'opaque')
+
+--cleanup
+--shell --command "find ${SCIDB_DATA_PATH} -name '5288_tmp_data*' | xargs rm -f"

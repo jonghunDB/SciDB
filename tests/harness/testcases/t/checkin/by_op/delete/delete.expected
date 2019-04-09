@@ -1,0 +1,314 @@
+SCIDB QUERY : <store(build(<v:int64>[i=1:8:0:2], iif(i=7, null, i*i)), arr2717_A)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <store(arr2717_A, arr2717_B)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_C)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_D)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_E)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_F)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_G)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_A <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_B <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_C <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_D <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_E <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_F <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_G <v:int64>[i=1:8:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_A)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_B)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_C)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_D)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_E)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_F)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_A, arr2717_tmp_G)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(<v:int64>[i=0:1:0:2; j=0:1:1:2; k=0:1:0:2], i+j+k), arr2717_3d)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array arr2717_tmp_3d <v:int64>[i=0:1:0:2; j=0:*:1:2; k=0:1:0:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(arr2717_3d, arr2717_tmp_3d)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(<v:int64>[i=1:12:2:4], i), arr2717_overlap)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create array arr2717_empty<v:int64>[i=1:*:2]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <delete(arr2717_A, v>0 and i>=2 and i<=4)>
+{i} v
+{1} 1
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_tmp_A, v>0 and i>=2 and i<=4)>
+{i} v
+{1} 1
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_B, v is null)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_C, true)>
+{i} v
+
+SCIDB QUERY : <delete(arr2717_D, false)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_E, null)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_F, v is not null)>
+{i} v
+{7} null
+
+SCIDB QUERY : <delete(arr2717_G, v >= 9 and v <= 16 or v=36)>
+{i} v
+{1} 1
+{2} 4
+{5} 25
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_tmp_B, v is null)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_tmp_C, true)>
+{i} v
+
+SCIDB QUERY : <delete(arr2717_tmp_D, false)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_tmp_E, null)>
+{i} v
+{1} 1
+{2} 4
+{3} 9
+{4} 16
+{5} 25
+{6} 36
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_tmp_F, v is not null)>
+{i} v
+{7} null
+
+SCIDB QUERY : <delete(arr2717_tmp_G, v >= 9 and v <= 16 or v=36)>
+{i} v
+{1} 1
+{2} 4
+{5} 25
+{7} null
+{8} 64
+
+SCIDB QUERY : <delete(arr2717_3d, i=1 and j=1 and k=1)>
+{i,j,k} v
+{0,0,0} 0
+{0,0,1} 1
+{0,1,0} 1
+{0,1,1} 2
+{1,0,0} 1
+{1,0,1} 2
+{1,1,0} 2
+
+SCIDB QUERY : <delete(arr2717_tmp_3d, i=1 and j=1 and k=1)>
+{i,j,k} v
+{0,0,0} 0
+{0,0,1} 1
+{0,1,0} 1
+{0,1,1} 2
+{1,0,0} 1
+{1,0,1} 2
+{1,1,0} 2
+
+SCIDB QUERY : <delete(arr2717_overlap, i=1)>
+{i} v
+{2} 2
+{3} 3
+{4} 4
+{5} 5
+{6} 6
+{7} 7
+{8} 8
+{9} 9
+{10} 10
+{11} 11
+{12} 12
+
+SCIDB QUERY : <delete(arr2717_overlap, i=3)>
+{i} v
+{2} 2
+{4} 4
+{5} 5
+{6} 6
+{7} 7
+{8} 8
+{9} 9
+{10} 10
+{11} 11
+{12} 12
+
+SCIDB QUERY : <delete(arr2717_overlap, i=9 or i=10)>
+{i} v
+{2} 2
+{4} 4
+{5} 5
+{6} 6
+{7} 7
+{8} 8
+{11} 11
+{12} 12
+
+SCIDB QUERY : <delete(arr2717_empty, i=5)>
+{i} v
+
+SCIDB QUERY : <delete(arr2717_empty, v>8)>
+{i} v
+
+SCIDB QUERY : <remove(arr2717_A)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_B)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_C)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_D)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_E)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_F)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_G)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_3d)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_overlap)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_empty)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_A)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_B)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_C)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_D)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_E)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_F)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_G)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(arr2717_tmp_3d)>
+Query was executed successfully
+

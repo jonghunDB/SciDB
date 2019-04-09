@@ -1,0 +1,49 @@
+SCIDB QUERY : <create array Ts <a:string> [x=0:9999, 500,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array Ts_z <a:string compression 'zlib'> [x=0:9999,500,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array Ts_bz <a:string compression 'bzlib'> [x=0:9999,500,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array Usage <name:string,bsize:uint64,csize:uint64> [idx=0:*]>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(Ts, string(x)), Ts)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(Ts, Ts_z)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(Ts, Ts_bz)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store( redimension( index_lookup( project( filter( cross_join( list('arrays') as A, list('disk indexes') as DI ), DI.arrid = A.aid and regex(A.name,'Ts(.*)') and attid=0), name, bsize, csize) as A, project( filter( list('arrays'), regex(name,'Ts(.*)')), name) as B, A.name, idx), <name:string, bsize:uint64, csize:uint64>[idx], sum(A.bsize) as bsize, sum(A.csize) as csize, max(A.name) as name), Usage)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <uniq( project( unpack( project( filter( cross_join( list('chunk map') as CM, filter( list('arrays') as A, regex(A.name,'Ts(.*)'))), A.uaid = CM.uaid), nelem), dummy), nelem))>
+{i} nelem
+{0} 500
+
+SCIDB QUERY : <sort(project(filter(Usage, csize = bsize), name), name)>
+{n} name
+{0} 'Ts'
+
+SCIDB QUERY : <sort(project(filter(Usage, csize < bsize), name), name)>
+{n} name
+{0} 'Ts_bz'
+{1} 'Ts_z'
+
+SCIDB QUERY : <remove(Ts)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(Ts_z)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(Ts_bz)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(Usage)>
+Query was executed successfully
+

@@ -1,0 +1,198 @@
+Create arrays whose dimensions have unspecified intervals.
+SCIDB QUERY : <create array I <v:int64>[i=0:99]>
+Query was executed successfully
+
+SCIDB QUERY : <show(I)>
+{i} schema
+{0} 'I<v:int64> [i=0:99:0:*]'
+
+SCIDB QUERY : <create array IJ <v:int64>[i=0:99;j=-180:180]>
+Query was executed successfully
+
+SCIDB QUERY : <show(IJ)>
+{i} schema
+{0} 'IJ<v:int64> [i=0:99:0:*; j=-180:180:0:*]'
+
+SCIDB QUERY : <create array bad_comma <v:int64>[i=0:99,j=-180:180]>
+[An error expected at this place for the query "create array bad_comma <v:int64>[i=0:99,j=-180:180]". And it failed with error code = scidb::SCIDB_SE_PARSER::SCIDB_LE_QUERY_PARSING_ERROR. Expected error code = scidb::SCIDB_SE_PARSER::SCIDB_LE_QUERY_PARSING_ERROR.]
+
+SCIDB QUERY : <create array IJK <v:int64>[i=-100:-1:2; j=0:49:4; k=1:5]>
+Query was executed successfully
+
+SCIDB QUERY : <show(IJK)>
+{i} schema
+{0} 'IJK<v:int64> [i=-100:-1:2:*; j=0:49:4:*; k=1:5:0:*]'
+
+Show of query that scans array without intervals shows unspecified intervals.
+SCIDB QUERY : <show('scan(IJK)', 'afl')>
+{i} schema
+{0} 'IJK<v:int64> [i=-100:-1:2:*; j=0:49:4:*; k=1:5:0:*]'
+
+SCIDB QUERY : <show('apply(IJK, w, 42)', 'afl')>
+{i} schema
+{0} 'IJK<v:int64,w:int64 NOT NULL> [i=-100:-1:2:*; j=0:49:4:*; k=1:5:0:*]'
+
+Create temp arrays whose dimensions etc.
+SCIDB QUERY : <create temp array TI <v:int64>[i=0:99]>
+Query was executed successfully
+
+SCIDB QUERY : <show(TI)>
+{i} schema
+{0} 'TI<v:int64> [i=0:99:0:*]'
+
+SCIDB QUERY : <create temp array TIJ <v:int64>[i=0:99;j=-180:180]>
+Query was executed successfully
+
+SCIDB QUERY : <show(TIJ)>
+{i} schema
+{0} 'TIJ<v:int64> [i=0:99:0:*; j=-180:180:0:*]'
+
+SCIDB QUERY : <create temp array bad_comma <v:int64>[i=0:99,j=-180:180]>
+[An error expected at this place for the query "create temp array bad_comma <v:int64>[i=0:99,j=-180:180]". And it failed with error code = scidb::SCIDB_SE_PARSER::SCIDB_LE_QUERY_PARSING_ERROR. Expected error code = scidb::SCIDB_SE_PARSER::SCIDB_LE_QUERY_PARSING_ERROR.]
+
+SCIDB QUERY : <create temp array TIJK <v:int64>[i=-100:-1:2; j=0:49:4; k=1:5]>
+Query was executed successfully
+
+SCIDB QUERY : <show(TIJK)>
+{i} schema
+{0} 'TIJK<v:int64> [i=-100:-1:2:*; j=0:49:4:*; k=1:5:0:*]'
+
+Lone dimension identifiers in "create array" have unspecified chunk sizes.
+SCIDB QUERY : <create temp array E0 <v:int64>[i]>
+Query was executed successfully
+
+SCIDB QUERY : <show(E0)>
+{i} schema
+{0} 'E0<v:int64> [i=0:*:0:*]'
+
+SCIDB QUERY : <create temp array E1 <v:int64>[i,j]>
+Query was executed successfully
+
+SCIDB QUERY : <show(E1)>
+{i} schema
+{0} 'E1<v:int64> [i=0:*:0:*; j=0:*:0:*]'
+
+SCIDB QUERY : <create temp array E2 <v:int64>[i=0:199:0:200; j; k]>
+Query was executed successfully
+
+SCIDB QUERY : <show(E2)>
+{i} schema
+{0} 'E2<v:int64> [i=0:199:0:200; j=0:*:0:*; k=0:*:0:*]'
+
+Use array w/ unspecified intervals as build() template, build() will use Dense1M.
+SCIDB QUERY : <insert(build(I, 99-i), I)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(I)>
+{i} schema
+{0} 'I<v:int64> [i=0:99:0:1000000]'
+
+SCIDB QUERY : <aggregate(I, sum(v))>
+{i} v_sum
+{0} 4950
+
+Insert with differently specified interval and LAR will repartition to 1000000.
+SCIDB QUERY : <insert(build(<v:int64>[i=0:99,10,0], 99-i), I)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(I)>
+{i} schema
+{0} 'I<v:int64> [i=0:99:0:1000000]'
+
+SCIDB QUERY : <aggregate(I, sum(v))>
+{i} v_sum
+{0} 4950
+
+build() uses Dense1M for temp arrays too.
+SCIDB QUERY : <insert(build(TI, 99-i), TI)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(TI)>
+{i} schema
+{0} 'TI<v:int64> [i=0:99:0:1000000]'
+
+SCIDB QUERY : <aggregate(TI, sum(v))>
+{i} v_sum
+{0} 4950
+
+Insert [will] repartition to 1000000 for temp arrays too.
+SCIDB QUERY : <insert(build(<v:int64>[i=0:99,10,0], 99-i), TI)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(TI)>
+{i} schema
+{0} 'TI<v:int64> [i=0:99:0:1000000]'
+
+SCIDB QUERY : <aggregate(TI, sum(v))>
+{i} v_sum
+{0} 4950
+
+Cannot use lone identifier for build().
+SCIDB QUERY : <build(<v:int32>[i], 42)>
+[An error expected at this place for the query "build(<v:int32>[i], 42)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_BUILD_ERROR3. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_BUILD_ERROR3.]
+
+Lone identifiers trigger autochunking for repart() and redimension()
+SCIDB QUERY : <store(repart(I, <v:int64>[i]), AC0)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(AC0)>
+{i} schema
+{0} 'AC0<v:int64> [i=0:*:0:128]'
+
+SCIDB QUERY : <aggregate(AC0, sum(v))>
+{i} v_sum
+{0} 4950
+
+SCIDB QUERY : <store(redimension(I, <i:int64>[v]), AC1)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(AC1)>
+{i} schema
+{0} 'AC1<i:int64> [v=0:*:0:128]'
+
+SCIDB QUERY : <aggregate(AC1, sum(i))>
+{i} i_sum
+{0} 4950
+
+SCIDB QUERY : <create array AC2 <i:int64>[v=0:*]>
+Query was executed successfully
+
+SCIDB QUERY : <show(AC2)>
+{i} schema
+{0} 'AC2<i:int64> [v=0:*:0:*]'
+
+SCIDB QUERY : <store(redimension(I, <i:int64>[v]), AC2)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(AC2)>
+{i} schema
+{0} 'AC2<i:int64> [v=0:*:0:128]'
+
+SCIDB QUERY : <aggregate(AC2, sum(i))>
+{i} i_sum
+{0} 4950
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

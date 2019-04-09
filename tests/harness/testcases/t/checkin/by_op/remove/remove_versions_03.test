@@ -1,0 +1,67 @@
+# SDB-1632
+
+--setup
+
+--start-igdata
+create array baz<v:int64>[i=0:999:0:100]
+store(build(baz, i), baz)
+store(build(baz, i*2), baz)
+store(build(baz, 100+i), baz)
+store(build(baz, i*i), baz)
+store(build(baz, 42), baz)
+--stop-igdata
+
+--test
+
+--start-query-logging
+
+--echo Behold, we have made five versions.
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+# Some more negative tests.
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_ARRAY_DOESNT_EXIST \
+    "remove_versions(not_an_array)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST \
+    "remove_versions(baz, -1)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST \
+    "remove_versions(baz, -2)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST \
+    "remove_versions(baz, -42)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT \
+    "remove_versions(baz, keep: -1)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT \
+    "remove_versions(baz, keep: 0)"
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_CANT_ACCESS_ARRAY_VERSION \
+    "remove_versions(baz@4, 2)"
+
+--echo Still five versions.
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--echo Keep more versions than exist, no change.
+remove_versions(baz, keep:1000)
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--echo Keep exactly how many exist, no change.
+remove_versions(baz, keep:5)
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--echo Keep last four versions.
+remove_versions(baz, keep:4)
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--echo Keep last two versions.
+remove_versions(baz, keep:2)
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--echo Cannot use removed version anymore.
+--error --code=scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST \
+    "remove_versions(baz, 2)"
+
+--echo Keep only last version.
+remove_versions(baz)
+filter(project(list('arrays', true), name), regex(name, '^baz.*'))
+
+--stop-query-logging
+
+--cleanup
+remove(baz)

@@ -1,0 +1,39 @@
+SCIDB QUERY : <create array small_md_expo <response:double> [id_dim=0:99:0:10; affy_id_dim=0:99:0:10]>
+Query was executed successfully
+
+SCIDB QUERY : <create array small_ID_symbols <ID:string> [i=0:99:0:10]>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(small_md_expo, random()), small_md_expo)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(small_ID_symbols, 'sym_' + string(i)), small_ID_symbols)>
+[Query was executed successfully, ignoring data output by this query.]
+
+Initial dirty bytes cached (should be zero)
+SCIDB QUERY : <aggregate(project(list('buffer stats'), dirty), sum(dirty))>
+{i} dirty_sum
+{0} 0
+
+SCIDB QUERY : <consume( _sg( quantile(cross_join(small_md_expo, small_ID_symbols, id_dim, i), 9, response, id_dim) , 1) )>
+[Query was executed successfully, ignoring data output by this query.]
+
+After SG query
+SCIDB QUERY : <aggregate(project(list('buffer stats'), dirty), sum(dirty))>
+{i} dirty_sum
+{0} 0
+
+SCIDB QUERY : <store( quantile(cross_join(small_md_expo, small_ID_symbols, id_dim, i), 9, response, id_dim), SDB5993)>
+[Query was executed successfully, ignoring data output by this query.]
+
+After StoringSG query
+SCIDB QUERY : <aggregate(project(list('buffer stats'), dirty), sum(dirty))>
+{i} dirty_sum
+{0} 0
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

@@ -1,0 +1,11 @@
+--setup
+create array xyz <a:double> [x=0:99,25,0, y=0:99,25,0]
+create array xyz_plain <a:double> [i=1:10000,625,0]
+--igdata "store(reshape(build(xyz_plain,i), xyz),xyz)"
+
+--test
+reshape(xyz, xyz_plain)
+
+--cleanup
+remove(xyz)
+remove(xyz_plain)

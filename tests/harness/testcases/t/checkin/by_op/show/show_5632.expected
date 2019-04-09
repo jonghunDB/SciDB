@@ -1,0 +1,16 @@
+SCIDB QUERY : <show('build(<x:datetimetz> [i=0:0,1,0], null)', 'afl')>
+{i} schema
+{0} 'build<x:datetimetz> [i=0:0:0:1]'
+
+SCIDB QUERY : <show('build(<x: datetime> [i=0:0,1,0], null)', 'afl')>
+{i} schema
+{0} 'build<x:datetime> [i=0:0:0:1]'
+
+SCIDB QUERY : <show('build(<x:float> [i=0:0,1,0], null)', 'afl')>
+{i} schema
+{0} 'build<x:float> [i=0:0:0:1]'
+
+SCIDB QUERY : <show('build(<x:int64> [i=0:0,1,0], null)', 'afl')>
+{i} schema
+{0} 'build<x:int64> [i=0:0:0:1]'
+

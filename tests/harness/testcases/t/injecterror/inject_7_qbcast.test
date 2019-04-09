@@ -1,0 +1,33 @@
+--setup
+--start-query-logging
+load_library('misc')
+--igdata "store(build(<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)"
+
+--test
+# injectError (instanceid, errorid)
+# Error_IDs for inject error:
+# 7 -  a specific error injected into the scidb executor right after the query context is broadcasted to the workers (in order to trigger an abort potentially before the query context is installed on the workers).
+
+##
+## ERROR7
+##
+
+# test store(X,Y) failure
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (instanceid(), 7))"
+--error "store(MANY_CHUNKS, MANY_CHUNKS2)"
+
+# test apply(X) failure
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (instanceid(), 7))"
+--error "apply(MANY_CHUNKS, foo, No)"
+
+# test store(X,X) failure
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (instanceid(), 7))"
+--error "store(MANY_CHUNKS, MANY_CHUNKS)"
+
+project(apply(join(aggregate(filter(list('queries'), n=0),count(*)) as NQ, aggregate(list('instances'),count(*)) as NI), diff, NQ.count - NI.count), diff)
+
+--cleanup
+remove(MANY_CHUNKS)
+--error "remove(MANY_CHUNKS2)"
+
+--stop-query-logging

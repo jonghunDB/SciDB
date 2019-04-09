@@ -1,0 +1,10 @@
+Query was executed successfully
+
+SCIDB QUERY : <store(build(<val:double compression 'bzlib'>[i=0:10:0:1], 1.0),BadReadThenWrite)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <test_badreadwrite(BadReadThenWrite)>
+Query was executed successfully
+
+Query was executed successfully
+

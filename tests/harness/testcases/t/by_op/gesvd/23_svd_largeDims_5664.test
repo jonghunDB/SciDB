@@ -1,0 +1,70 @@
+--setup
+--start-query-logging
+
+#
+# just large enough to be rejected by single dimension alone
+#
+
+# tallest: 2^31+1 x 1
+create array A_tallest <x:double>[r=0:int64(pow(2.0,31.0))+1,1024,0, c=0:0,1024,0]
+# widest:  1      x 12^31+1
+create array A_widest  <x:double>[r=0:0,1024,0,                    c=0:int64(pow(2.0,31.0))+1,1024,0]
+
+#
+# these pass the single dimension test, but not the area test
+#
+
+# taller: 2^22 x 2^11 = 2^33 ... the extra 2^2 is because its divided over 4 instances 
+create array A_taller <x:double>[r=0:int64(pow(2.0,22.0)),1024,0, c=0:2048-1,1024,0]
+# wider:  2^11 x 2^22 = 2^33
+# NOCHECKIN ... this is passing unexpectedly -- is the grid not 2x2 for 4 instances?
+create array A_wider <x:double>[r=0:2048-1,1024,0,                c=0:int64(pow(2.0,22.0)),1024,0]
+
+#
+# these should barely succeed the area test, and go on to fail the memory allocation test
+# on standard config.ini files on moderate amounts of memory
+#
+
+# taller: 2^22-2*chunk-1 x 2^11
+# SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR
+create array A_tall <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:2048-1,1024,0]
+
+# wider:  2^11   x 2^22-2*chunk-1
+create array A_wide <x:double>[r=0:2048-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]
+
+# we don't want to actually store into the arrays
+# that would take too long.  failures occurs based on
+# their dimensionality alone
+
+load_library('dense_linear_algebra')
+
+--test
+
+# two inputs x three functions = 6 tests
+# consume, because we're only checking for exception
+# build inline, because the buiding is slow, and the
+# failure can be detected before the build is pulled
+#
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gesvd(A_tallest, 'SIGMA'))"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gesvd(A_widest,  'SIGMA'))"
+
+# these should pass the single-dim tests, but fail
+# the area test
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gesvd(A_taller, 'SIGMA'))"
+# Taking this out for now until SDB-6058 is resolved.
+# --error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gesvd(A_wider,  'SIGMA'))"
+
+# and now the ones that should pass (but will fail because they're too large for typical setups)
+
+--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gesvd(build(A_tall, 1 + r*2+c), 'SIGMA'))"
+--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gesvd(build(A_wide, 1 + r*2+c), 'SIGMA'))"
+
+--cleanup
+# inputs
+remove(A_tallest)
+remove(A_taller)
+remove(A_tall)
+remove(A_widest)
+remove(A_wider)
+remove(A_wide)
+

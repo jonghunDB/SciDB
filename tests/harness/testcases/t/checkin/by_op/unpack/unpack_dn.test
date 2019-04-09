@@ -1,0 +1,16 @@
+--setup
+CREATE ARRAY dense <a: double > [x=0:5,3,0, y=0:5,3,0]
+load(dense,'${TEST_DATA_DIR}/dense.txt')
+
+--test
+unpack(dense, row)
+
+show('unpack(dense, row)', 'afl')
+show('unpack(dense, row, 10)', 'afl')
+show('unpack(dense, row, chunk_size: 8)', 'afl')
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "unpack(dense, row, 10, chunk_size: 8)"
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT3 "unpack(dense, row, 10, 42)"
+
+--cleanup
+remove (dense)
+

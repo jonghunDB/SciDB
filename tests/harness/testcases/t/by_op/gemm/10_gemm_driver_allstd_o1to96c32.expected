@@ -1,0 +1,201 @@
+GEMM TEST
+GEMM matrix type zero, nrow 1, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 1, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 1, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 1, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 1, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 27, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 27, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 1, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 27, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 27, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 1, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 27, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 27, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 1, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 27, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 27, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 1, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 27, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 53, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 53, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 53, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 1, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 27, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 53, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 53, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 53, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 1, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 27, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 53, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 53, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 53, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 1, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 27, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 53, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 53, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 53, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 1, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 27, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 53, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 79, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 79, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 79, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 79, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 1, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 27, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 53, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 79, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 79, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 79, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 79, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 1, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 27, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 53, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 79, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 79, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 79, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 79, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 1, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 27, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 53, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 79, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 79, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 79, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 79, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 1, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 27, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 53, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 79, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 96, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 96, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 96, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 96, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type zero, nrow 96, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 1, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 27, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 53, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 79, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 96, ncol 1, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 96, ncol 27, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 96, ncol 53, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 96, ncol 79, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type identity, nrow 96, ncol 96, chunk_size 32, error_limit 0 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 1, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 27, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 53, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 79, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 96, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 96, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 96, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 96, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type int_nz, nrow 96, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 1, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 27, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 53, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 79, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 96, ncol 1, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 96, ncol 27, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 96, ncol 53, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 96, ncol 79, chunk_size 32, error_limit 20 PASS : TRUE
+GEMM TEST
+GEMM matrix type random, nrow 96, ncol 96, chunk_size 32, error_limit 20 PASS : TRUE
+

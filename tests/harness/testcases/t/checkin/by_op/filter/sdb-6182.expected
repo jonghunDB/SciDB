@@ -1,0 +1,10 @@
+{chrom,pos} ref
+{1,723307} 'C'
+
+SCIDB QUERY : <filter(sdb6182, pos >= -1)>
+{chrom,pos} ref
+{1,723307} 'C'
+
+SCIDB QUERY : <remove(sdb6182)>
+Query was executed successfully
+

@@ -1,0 +1,3 @@
+--setup
+--test
+--shell --command "${TESTDIR}/list_queries_race.py -c ${IQUERY_HOST} -p ${IQUERY_PORT} -r ${HPID}"

@@ -1,0 +1,29 @@
+# Test repart() autochunking with a target physical chunk size.
+
+--setup
+# Store half a million strings of size 201 in a 2-D array.
+create temp array A0 <s:string>[i=0:400:0:1000; j=0:400:0:1000]
+--igdata "store(redimension(apply(build(<s:string>[row=0:80399], '/.' * 100), i, row / 400, j, row % 400), A0), A0)"
+show(A0)
+
+--test
+
+--echo Repartition to 3 MiB physical chunk sizes.  89 * 178 * 201 == 3,184,242
+--igdata "store(repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 3), A1)"
+show(A1)
+
+--echo Repartition to 16 MiB physical chunk sizes.  201 * 400 * 201 == 16,160,400
+--igdata "store(repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 16), A2)"
+show(A2)
+
+# Check expected error conditions.
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 0 - 16)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 0)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 4, cells_per_chunk: 72)"
+
+--cleanup
+remove(A0)
+remove(A1)
+remove(A2)
+
+

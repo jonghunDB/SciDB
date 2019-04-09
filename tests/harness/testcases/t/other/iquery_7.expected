@@ -1,0 +1,102 @@
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+
+==== Use csv ====
+2,null,'Yow.'
+1,null,'Yow.'
+0,null,'Yow.'
+
+2,null,'Yow.'
+1,null,'Yow.'
+0,null,'Yow.'
+
+
+==== Use csv:d ====
+2,null,"Yow."
+1,null,"Yow."
+0,null,"Yow."
+
+2,null,"Yow."
+1,null,"Yow."
+0,null,"Yow."
+
+
+==== Use csv:l? ====
+n,nil,s
+2,?0,'Yow.'
+1,?0,'Yow.'
+0,?0,'Yow.'
+
+n,nil,s
+2,?0,'Yow.'
+1,?0,'Yow.'
+0,?0,'Yow.'
+
+
+==== Use csv+:E ====
+0,2,,'Yow.'
+1,1,,'Yow.'
+2,0,,'Yow.'
+
+0,2,,'Yow.'
+1,1,,'Yow.'
+2,0,,'Yow.'
+
+
+==== Use csv:xyzzyN ====
+2,\N,'Yow.'
+1,\N,'Yow.'
+0,\N,'Yow.'
+
+2,\N,'Yow.'
+1,\N,'Yow.'
+0,\N,'Yow.'
+
+
+==== Use tsv ====
+2	\N	Yow.
+1	\N	Yow.
+0	\N	Yow.
+
+2	\N	Yow.
+1	\N	Yow.
+0	\N	Yow.
+
+
+==== Use tsv+:n ====
+0	2	null	Yow.
+1	1	null	Yow.
+2	0	null	Yow.
+
+0	2	null	Yow.
+1	1	null	Yow.
+2	0	null	Yow.
+
+
+==== Use tsv:?l ====
+n	nil	s
+2	?0	Yow.
+1	?0	Yow.
+0	?0	Yow.
+
+n	nil	s
+2	?0	Yow.
+1	?0	Yow.
+0	?0	Yow.
+
+
+==== Use tsv:El ====
+n	nil	s
+2		Yow.
+1		Yow.
+0		Yow.
+
+n	nil	s
+2		Yow.
+1		Yow.
+0		Yow.
+
+Query was executed successfully
+

@@ -1,0 +1,19 @@
+--setup
+CREATE ARRAY vector<x:int64, y:int64>[i=1:4,2,0]
+create array matrix<i:int64>[x=0:9,5,0, y=0:9,5,0]
+load(vector, '${TEST_DATA_DIR}/vector.txt')
+create array A < val:int64> [x=1:1000,100,0, y=1:1000,100,0]
+--igdata "store(between(build(A, x+y), 123, 567, 234, 678), A)"
+aggregate(A, count(*), sum(val), avg(val))
+
+--test
+redimension(vector, matrix)
+store(redimension(vector, matrix), matrix)
+
+aggregate(redimension(A, <val:int64> [x=123:234,50,3,y=567:678,65,5]), count(*), sum(val), avg(val))
+between(redimension(A, <val:int64> [x=100:250,100,10,y=500:700,70,5]), 128,567,129,567)
+
+--cleanup
+remove(vector)
+remove(matrix)
+remove(A)

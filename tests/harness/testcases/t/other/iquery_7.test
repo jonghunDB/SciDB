@@ -1,0 +1,63 @@
+# SDB-5374: Test that format option chars work with 'set format ...;'
+--setup
+create temp array IQ7<n:int64, nil:double, s:string>[i=0:2]
+--igdata "store(apply(build(<n:int64>[i=0:2], 2-i), nil, double(null), s, 'Yow.'), IQ7)"
+
+# NOTE: The GNU readline library used by iquery appears to have an odd
+# bug, at least on my CentOS 6.8 system.  On the very first call only,
+# readline() prints an escape sequence before the prompt.  The problem
+# is definitely in readline() and not with the harness.  I didn't want
+# to chase it down further, so to prevent issues due to readline
+# incompatibility across our supported platforms I use a sed script to
+# strip away the escape sequence.  Sigh.
+
+--test
+
+--echo
+--echo ==== Use csv ====
+--shell --store --command "iquery -ocsv -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format csv; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use csv:d ====
+--shell --store --command "iquery -ocsv:d -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format csv:d; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use csv:l? ====
+--shell --store --command "iquery -ocsv:l? -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format csv:l?; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use csv+:E ====
+--shell --store --command "iquery -ocsv+:E -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format csv+:E; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+# The N is the only recognized option in 'xyzzyN'.
+--echo
+--echo ==== Use csv:xyzzyN ====
+--shell --store --command "iquery -ocsv:xyzzyN -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format csv:xyzzyN; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use tsv ====
+--shell --store --command "iquery -otsv -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format tsv; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use tsv+:n ====
+--shell --store --command "iquery -otsv+:n -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format tsv+:n; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use tsv:?l ====
+--shell --store --command "iquery -otsv:?l -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format tsv:?l; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--echo
+--echo ==== Use tsv:El ====
+--shell --store --command "iquery -otsv:El -c ${IQUERY_HOST} -p ${IQUERY_PORT} -aq 'scan(IQ7)' "
+--shell --store --command "echo 'set format tsv:El; scan(IQ7);' | iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a | sed '1s/^.*A/A/'"
+
+--cleanup
+remove(IQ7)

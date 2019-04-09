@@ -1,0 +1,22 @@
+# ticket no. 998
+
+--setup
+--start-query-logging
+create array B <a:string> [x=-2:*,2,1, y=0:2,2,2]
+create array A <a:string> [x=-2:3,2,1, y=0:2,2,2]
+store(filter(build(A,string(x)+'_'+string(y)),x<>2 and y<>2),A)
+
+
+
+
+--test
+scan(A)
+save(A,'a_test.txt',-1,'store')
+
+load(B,'a_test.txt',-1, 'store')
+scan(B)
+
+--cleanup
+remove(A)
+remove(B)
+--stop-query-logging

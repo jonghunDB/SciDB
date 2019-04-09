@@ -1,0 +1,46 @@
+--setup
+--start-query-logging
+load_library('point')
+load_library('more_math')
+
+--test
+--set-format csv:l
+sort(filter(list('operators'),library='scidb'),name)
+sort(filter(list('functions'),library='scidb'),name, profile)
+--igdata "store(list('queries'),query_array)"
+attributes(query_array)
+filter(list('aggregates'), library='scidb')
+filter(list('aggregates', true), library='scidb' and internal=true)
+
+--start-igdata
+--aql select name,schema from list()
+--aql select name,schema from list('arrays')
+sort(filter(list('types'),library='scidb'),name)
+sort(filter(list('libraries'),regex(name,'libmore_math.so|libpoint.so')),name)
+--aql select name,schema from list()
+--aql select name,schema from list('arrays')
+--stop-igdata
+
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_LIST_ERROR1 "list('error_test')"
+
+--igdata "store(list('chunk map'),chunk_map_array)"
+attributes(chunk_map_array)
+
+--igdata "store(list('disk indexes'),disk_index_array)"
+attributes(disk_index_array)
+
+--igdata "store(list('datastores'),ds_array)"
+attributes(ds_array)
+
+--igdata "store(list('macros'),macro_array)"
+attributes(macro_array)
+
+--cleanup
+
+remove(query_array)
+remove(chunk_map_array)
+remove(disk_index_array)
+remove(ds_array)
+remove(macro_array)
+
+--stop-query-logging

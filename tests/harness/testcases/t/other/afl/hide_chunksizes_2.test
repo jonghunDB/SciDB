@@ -1,0 +1,44 @@
+# Save an array in opaque format and show that it can be load()ed into
+# an array with unspecified chunk intervals.
+
+--setup
+--start-igdata
+store(build(<v:int64>[i=0:99:0:20; j=0:149:0:50; k=-49:50:0:10], i+j+k), A0)
+--stop-igdata
+create temp array A1 <v:int64>[i=0:99; j=0:149; k=-49:50]
+create temp array A2 <v:int64>[i=0:99; j=0:149; k=-49:50:0:25]
+create temp array A3 <v:int64>[i=0:99; j=0:149; k=-49:50:0:10]
+
+--test
+--igdata "save(A0, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+--echo Before load...
+show(A1)
+--igdata "load(A1, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+--echo After load...
+show(A1)
+--echo Verify load...
+filter(join(A0, A1), A0.v <> A1.v)
+
+--echo If any chunk size is specified (k=...:25), it must match.
+--error --code=scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAYS_NOT_CONFORMANT "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+--igdata "load(A3, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+filter(join(A0, A3), A0.v <> A3.v)
+
+--echo Can't load array w/ unspec'd chunk sizes from FIFOs
+--shell --command "mkfifo /tmp/hidechunksizes2.fifo"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CANT_REWIND_FILE "load(A2, '/tmp/hidechunksizes2.fifo', -2, 'opaque')"
+
+--echo File too short
+--shell --command "echo Too short. > /tmp/hidechunksizes2.dat "
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_READ_ERROR "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+
+--echo File long enough but utterly bogus
+--shell --command "echo Something long, and yet utterly bogus. > /tmp/hidechunksizes2.dat "
+--error --code=scidb::SCIDB_SE_EXECUTION::SCIDB_LE_OP_INPUT_ERROR10 "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')"
+
+--cleanup
+remove(A0)
+remove(A1)
+remove(A2)
+remove(A3)
+--shell --command "rm -f /tmp/hidechunksizes2.*"

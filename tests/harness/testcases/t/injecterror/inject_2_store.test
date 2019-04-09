@@ -1,0 +1,35 @@
+--setup
+--start-query-logging
+load_library('misc')
+
+# failing as leftover from prior test? was many_chunks removed? is it time-based?
+--igdata "store (build (<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)"
+
+--test
+# injectError (instanceid, errorid)
+# Error_IDs for inject error:
+# 1 - a specific error injected into the Storage::writeChunk code path which is triggered at the end of writing the first chunk
+# 2 - a specific error injected into the ReplicationManager::sendItem code path which is triggered when the ReplicationManager is trying to send a chunk to a remote node
+# 3 - a specific error injected into the ReplicationManager::wait code path which is triggered when the ReplicationManager is trying to wait until more buffer/queue space is available in NetworkManager. This path is often taken when replication network flow control is pushing back. 
+# 4 - a generic error to be interpreted by a specific operator. store(),redim_store(),sg(),rename() error out after they have done 99% of the work (99% because a coordinator will error out before creating a new version in the catalog). remove() errors out before it does any work.
+
+##
+## ERROR2
+##
+
+# for HASHED distribution the chunks necessarily on every instance, but are always on the coordinator
+# so we inject the error on instance 0 to be sure of gettings an error
+--echo This test will fail if there are no chunks on the coordinator, so the next line should be zero.
+--set-format csv
+aggregate(apply(filter(list('chunk map'), nelem>0), instance, inst), min(instance) as inst)
+--reset-format
+
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (0, 2))"
+
+--error "store(MANY_CHUNKS, MANY_CHUNKS2)"
+
+
+--cleanup
+remove(MANY_CHUNKS)
+--error "remove(MANY_CHUNKS2)"
+--stop-query-logging

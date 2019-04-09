@@ -1,0 +1,19 @@
+--setup
+
+--igdata "store( build( <val:string> [x=0:255,10,0],  string(x % 256) ), zero_to_255 )"
+--igdata "store( build( <val:string> [x=0:255,10,5],  string(x % 256) ), zero_to_255_overlap )"
+--igdata "store(apply(build(<a:double> [x=1:1000000,100000,0], double(x)), b, iif(x%2=0, 'abc','def'), c, int64(0)), temp)"
+
+--test
+summarize(zero_to_255, by_instance:true)
+summarize(zero_to_255_overlap, by_instance:true)
+summarize(temp, by_instance:true)
+
+summarize(zero_to_255, by_attribute:true, by_instance:true)
+summarize(zero_to_255_overlap, by_attribute:true, by_instance:true)
+summarize(temp, by_attribute:true, by_instance:true)
+
+--cleanup
+remove(zero_to_255)
+remove(zero_to_255_overlap)
+remove(temp)

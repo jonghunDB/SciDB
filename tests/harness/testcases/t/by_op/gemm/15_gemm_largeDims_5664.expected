@@ -1,0 +1,84 @@
+SCIDB QUERY : <create array A_tallest <x:double>[r=0:int64(pow(2.0,31.0)),1024,0, c=0:0,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_widest  <x:double>[r=0:0,1024,0,                    c=0:int64(pow(2.0,31.0)),1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_taller <x:double>[r=0:int64(pow(2.0,22.0)),1024,0, c=0:2048-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_wider <x:double>[r=0:2048-1,1024,0,                c=0:int64(pow(2.0,22.0)),1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_tall <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:2048-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_wide <x:double>[r=0:2048-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array C_small <x:double>[r=0:2048-1,1024,0, c=0:2048-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array C_tiny <x:double>[r=0:0,1024,0, c=0:0,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array C_largest <x:double>[r=0:int64(pow(2.0,31.0)),1024,         0, c=0:int64(pow(2.0,31.0)),1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array C_larger  <x:double>[r=0:int64(pow(2.0,22.0)),1024,         0, c=0:int64(pow(2.0,22.0)),1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array C_large   <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <load_library('dense_linear_algebra')>
+Query was executed successfully
+
+SCIDB QUERY : <consume(gemm(A_widest, A_tallest, C_tiny))>
+[An error expected at this place for the query "consume(gemm(A_widest, A_tallest, C_tiny))". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <consume(gemm(A_tallest, A_widest, C_largest))>
+[An error expected at this place for the query "consume(gemm(A_tallest, A_widest, C_largest))". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <consume(gemm(A_wider, A_taller, C_small))>
+[An error expected at this place for the query "consume(gemm(A_wider, A_taller, C_small))". And it failed with error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR. Expected error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR.]
+
+SCIDB QUERY : <consume(gemm(A_taller, A_wider, C_larger))>
+[An error expected at this place for the query "consume(gemm(A_taller, A_wider, C_larger))". And it failed with error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR. Expected error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR.]
+
+SCIDB QUERY : <consume(gemm(A_tall, A_wide, C_large))>
+[An error expected at this place for the query "consume(gemm(A_tall, A_wide, C_large))". And it failed with error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR. Expected error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR.]
+
+SCIDB QUERY : <remove(A_tallest)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_taller)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_tall)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_widest)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_wider)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_wide)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(C_largest)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(C_larger)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(C_large)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(C_small)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(C_tiny)>
+Query was executed successfully
+

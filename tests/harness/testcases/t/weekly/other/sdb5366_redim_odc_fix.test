@@ -1,0 +1,28 @@
+# SDB-5366.  This redimension() call should arrive at a chunk interval
+# of about 4M (rather than 8M, before the fix).
+#
+# Of course, the exact value chosen may change in the future as we
+# refine the ChunkEstimator algorithm.  If that should happen and this
+# test begins to fail, the important thing is to check the logs and
+# see that, for this example, we see an ODC ("overall distinct count")
+# metric that is close to 20,000,000.  Here it's 19,977,148:
+#
+#   ... [DEBUG]: void scidb::ChunkEstimator::go(): ChunkEstimator(odc=19977148,target=1000000,coll=0,stats=[ ...
+#
+# The root cause was undercounting in that metric... here we have 20M
+# distinct cell positions, so the ODC approxdc metric should come
+# close to that.  If it does, the fix is still good, so just re-record
+# the test.
+
+--setup
+create temp array bar4 <grp:int32, val:double> [i = 1:20000000, 1000000, 0]
+--igdata "store(apply(build(<grp:int32> [i = 1:20000000, 1000000, 0], random() % 2), val, double(random())), bar4)"
+create temp array bar4_redim <val:double> [igrp=0:*,*,0,n=0:*,*,0]
+
+--test
+--igdata "store(redimension(apply(sort(bar4), igrp, int64(grp)), bar4_redim), bar4_redim)"
+show(bar4_redim)
+
+--cleanup
+remove(bar4)
+remove(bar4_redim)

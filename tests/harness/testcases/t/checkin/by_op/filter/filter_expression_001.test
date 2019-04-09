@@ -1,0 +1,16 @@
+--setup
+
+--test
+# One
+filter(build(<v:double>[i=1230:1240,1,0], i), i=1234)
+
+# Two
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_FUNCTION_NOT_FOUND --afl "filter(build(<v:double>[i=1230:1240,1,0], 2), i='1234')"
+
+# The previous broken behavior of "Two" above can be had this way:
+filter(build(<v:double>[i=0:51,1,0], i), i=strchar('1234'))
+
+# Three
+filter(build(<v:double>[i=1230:1240,1,0], i), i=int64('1234'))
+
+--cleanup

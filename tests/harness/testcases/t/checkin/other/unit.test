@@ -1,0 +1,11 @@
+# A "users" directory will be created in `.' as a side effect of the
+# input() operators run from inside the test.  Don't let the contents
+# of this directory from a prior test run mess us up.
+--setup
+--shell --command "rm -rf ./users"
+
+--test
+--shell --command "unit_tests -c host=${DB_HOST:=$(hostname --short)}\ port=${DB_PORT:=5432}\ dbname=${DB_NAME:=mydb}\ user=${DB_USER:=mydb}"
+
+--cleanup
+--shell --command "rm -rf ./users"

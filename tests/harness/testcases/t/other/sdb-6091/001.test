@@ -1,0 +1,9 @@
+--setup
+--shell --command "${TESTDIR}/001-load.sh"
+
+--test
+--shell --command "${TESTDIR}/001-test.sh"
+
+--cleanup
+remove(gh_secure_COPYNUMBER_MAT)
+--shell --command "rm -rf ${TESTDIR}/${HPID}"

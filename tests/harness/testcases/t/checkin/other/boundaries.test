@@ -1,0 +1,80 @@
+--setup
+--start-query-logging
+#
+# One attribute, one dimension, no overlaps.
+CREATE ARRAY Test_One    < val:double > [ I=-5:19,7,0 ]
+#
+# Two attribute, one dimension, overlaps.
+CREATE ARRAY Test_Two < val_one : double, val_two : double > [ I=-5:19,7,2 ]
+#
+# One attribute, two dimension, no overlaps.
+CREATE ARRAY Test_Three  < val : double > [ I=-5:19,7,0, J=-5:13,7,0 ]
+#
+# Two attribute, two dimension, overlaps.
+CREATE ARRAY Test_Four < val_one : double, val_two : double > [ I=-5:19,7,2, J=-3:13,7,2 ]
+#
+# One attribute, two dimensions, overlaps (used to check boundaries).
+CREATE ARRAY Test_Five < val_one : double > [ I=-5:19,13,2, J=-3:13,8,2 ]
+
+--test
+#
+#  Checks for:
+#
+#    1. Dimensions with boundaries below zero (to check unsignd typing is correct).
+#    2. Arrays with more than one attribute (to check the 'else' side of the ( 1 == nAttr ) cases).
+#    3. Dimensions with overlaps (to check that we're consistent across the scans).
+#    4. More than one dimension (to check the looping in the PhysicalBoundaries functions).
+#    5. Materialized input (Note that in the code, we take different code
+#       paths when the input chunks are materialized, and when they are not.)
+#    6. Two inserts such that the second one expands the size of the MBR in the
+#       boundary chunks. (See SDB-5559).
+#
+#  NOTE 1: Due to a shortcoming of the cast(...) operator, we can't cast an
+#          array with a larger LOWER bound into an array with a smaller LOWER
+#          bounds.
+#
+#  NOTE 2: The general pattern here is to first, store(...) data to a size
+#          that's less than the array's boundaries, then second, to insert(...)
+#          data within the array bounds, but outside the bounds of the initial
+#          store(...), and finally store an entirely new set of data to
+#          the array. At each point, we display what dimensions(...) tells us
+#          about the per-dimension range.
+--igdata "store ( cast ( build ( < val : double > [ I=-5:9,7,0 ], double(I) ), Test_One), Test_One)"
+dimensions ( Test_One )
+--igdata "insert ( filter ( build ( Test_One, double(I) ), I >= 10), Test_One )"
+dimensions ( Test_One )
+--igdata "store ( filter ( build ( Test_One, double(I) ), I <= 10 AND I >= -3), Test_One)"
+dimensions ( Test_One )
+
+--igdata "store ( cast ( apply ( build ( < val_one : double > [ I=-5:9,7,0 ], double(I) ), val_two, double(20-I)), Test_Two), Test_Two)"
+dimensions ( Test_Two )
+--igdata "insert ( _materialize( apply ( filter ( build ( < val : double > [ I=-5:19,7,0 ], double(I) ), I >= 10 ), val_two, double(20-I)), 1), Test_Two)"
+dimensions ( Test_Two )
+--igdata "store ( _materialize ( apply ( filter ( build ( < val : double > [ I=-5:19,7,0 ], double(I) ), I <= 10 AND I >= -3 ), val_two, double(20-I)), 1), Test_Two)"
+dimensions ( Test_Two )
+
+--igdata "store ( cast ( build ( < val : double > [ I=-5:9,7,0, J=-5:6,7,0 ], double(I*13+J) ), Test_Three), Test_Three)"
+dimensions ( Test_Three )
+--igdata "insert ( filter ( build ( Test_Three, double(I*13+J) ), I >= 10 AND J >= 7), Test_Three)"
+dimensions ( Test_Three )
+--igdata "store ( filter ( build ( Test_Three, double(I*13+J) ), (I >= -3 AND I <= 10 AND J >= -2 AND J <= 7 )), Test_Three)"
+dimensions ( Test_Three )
+
+--igdata "store ( cast ( apply ( build ( < val_one : double > [ I=-5:9,7,2, J=-3:6,7,2 ], double(I*13+J) ), val_two, (20*14)-double(I*13+J)), Test_Four), Test_Four)"
+dimensions ( Test_Four )
+--igdata "insert ( _materialize ( apply ( filter ( build ( < val_one : double > [ I=-5:19,7,2, J=-3:13,7,2 ], double(I*13+J) ), I >= 10 AND J >= 7), val_two, (20*14)-double(I*13+J)), 1), Test_Four)"
+dimensions ( Test_Four )
+--igdata "store ( _materialize ( apply ( filter ( build ( < val_one : double > [ I=-5:19,7,2, J=-3:13,7,2 ], double(I*13+J) ), I >= -3 AND I < 10 AND J >= -2 AND J <= 7), val_two, (20*14)-double(I*13+J)), 1), Test_Four)"
+dimensions ( Test_Four )
+
+--igdata "insert ( filter ( build ( Test_Five, I*16+J ), I >= -1 AND I < 9 AND J >= -1 AND J < 9 ), Test_Five )"
+dimensions ( Test_Five )
+--igdata "insert ( filter ( build ( Test_Five, I*16+J ), ( I < -1 OR I >= 9 ) AND ( J < -1 OR J >= 9 ) ), Test_Five )"
+dimensions ( Test_Five )
+
+--cleanup
+remove(Test_One)
+remove(Test_Two)
+remove(Test_Three)
+remove(Test_Four)
+remove(Test_Five)

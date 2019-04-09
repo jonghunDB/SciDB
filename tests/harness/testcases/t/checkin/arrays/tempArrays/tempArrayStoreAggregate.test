@@ -1,0 +1,20 @@
+# Test fix for SDB-5490
+--setup
+--start-query-logging
+create array data_array<val:int64>[i=0:4]
+create temp array dut_temp_array <min:int64,max:int64>[i=0:0]
+create temp array dut_temp_array_2 <sum:int64,count:uint64>[i=0:0]
+
+--start-igdata
+store(build(data_array,'[(11506),(5500),(16988),(2968),(16)]',true), data_array)
+--stop-igdata
+store(aggregate(data_array,min(val) as min, max(val) as max),dut_temp_array)
+store(aggregate(data_array,min(val) as min, max(val) as max, sum(val) as sum, count(val) as count),  on_the_fly)
+
+insert(aggregate(data_array,sum(val) as min, count(val) as count),dut_temp_array_2)
+
+--cleanup
+remove(data_array)
+remove(dut_temp_array)
+remove(on_the_fly)
+remove(dut_temp_array_2)

@@ -1,0 +1,11 @@
+{i} v
+{1234} 1234
+
+[An error expected at this place for the query "filter(build(<v:double>[i=1230:1240,1,0], 2), i='1234')". And it failed with error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_FUNCTION_NOT_FOUND. Expected error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_FUNCTION_NOT_FOUND.]
+
+{i} v
+{49} 49
+
+{i} v
+{1234} 1234
+

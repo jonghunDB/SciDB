@@ -1,0 +1,32 @@
+Test 1: The repro example from the ticket.
+{i,j,k,l} x
+{0,0,0,0} 0
+
+Query was executed successfully
+
+{i,j,k,l} x
+{0,0,0,0} 0
+
+Test 2: Fix all but one interval; the remaining interval should be well below 1e6.
+{i,j,k,l} x
+{0,0,0,0} 0
+
+Test 3: Way too big: 55108**3 * 70000 >> (2**63) - 1
+[An error expected at this place for the query "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:70000; l=0:*:0:55108])  -- Q03". And it failed with error code = scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE. Expected error code = scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE.]
+
+Test 4: Fixed interval synthetic dimension.
+[An error expected at this place for the query "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:55108; l=0:*:0:55108; synth=0:*:0:8])  -- Q04-A". And it failed with error code = scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE. Expected error code = scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE.]
+
+{i,j,k,l,synth} x
+{0,0,0,0,0} 0
+
+Test 5: Autochunked synthetic dimension.
+[An error expected at this place for the query "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:55108; l=0:*:0:55108; synth=0:*])  -- Q05-A". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_REDIMENSION_SYNTH_INTERVAL. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_REDIMENSION_SYNTH_INTERVAL.]
+
+{i,j,k,l,synth} x
+{0,0,0,0,0} 0
+
+Query was executed successfully
+
+Query was executed successfully
+

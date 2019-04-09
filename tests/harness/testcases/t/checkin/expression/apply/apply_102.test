@@ -1,0 +1,13 @@
+# Test added as part of SDB-5814
+--setup
+--shell --command "rm -f /tmp/apply_102_test_data_${HPID}.csv"
+store(build(<val:string> [i=1:451,451,0], string(i)), ap_tmp)
+save(ap_tmp, '/tmp/apply_102_test_data_${HPID}.csv', 0, 'csv')
+
+--test
+apply(input(<val:string>[i=0:451:0:80], '/tmp/apply_102_test_data_${HPID}.csv', 0, 'csv'), v, string('1'))
+redimension(apply(input(<val:string>[i=0:451:0:80], '/tmp/apply_102_test_data_${HPID}.csv', 0, 'csv'), v, string('1')), <val:string, v:string>[i=0:*:80])
+
+--cleanup
+--shell --command "rm -f /tmp/apply_102_test_data_${HPID}.csv"
+remove(ap_tmp)

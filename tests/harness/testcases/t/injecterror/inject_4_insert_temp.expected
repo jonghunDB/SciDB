@@ -1,0 +1,36 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(MANY_CHUNKS, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 1830,0,60
+
+This test will fail if there are no chunks on the coordinator, so the next line should be zero.
+SCIDB QUERY : <aggregate(apply(filter(list('chunk map'), nelem>0), instance, inst), min(instance) as inst)>
+0
+
+SCIDB QUERY : <apply(MANY_CHUNKS, inject_result, injectError (0, 4))>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <insert(project(apply(project(apply(filter(MANY_CHUNKS, I <> 0), v1, v*2), v1), v, v1), v), MANY_CHUNKS)>
+[An error expected at this place for the query "insert(project(apply(project(apply(filter(MANY_CHUNKS, I <> 0), v1, v*2), v1), v, v1), v), MANY_CHUNKS)". And it failed with error code = scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR. Expected error code = scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR.]
+
+SCIDB QUERY : <apply(MANY_CHUNKS, inject_result, injectError (0, 4))>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <scan(MANY_CHUNKS)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(MANY_CHUNKS, inject_result, injectError (0, 4))>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(MANY_CHUNKS, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 1830,0,60
+
+SCIDB QUERY : <remove(MANY_CHUNKS)>
+[An error expected at this place for the query "remove(MANY_CHUNKS)". And it failed.]
+

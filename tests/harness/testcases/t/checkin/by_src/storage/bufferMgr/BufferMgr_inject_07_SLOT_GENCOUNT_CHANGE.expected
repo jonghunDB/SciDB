@@ -1,0 +1,9 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(apply(build(<v : int64> [I=0:15,1,0], I), inj, injectError(0,24)), DST_CHUNKS)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(DST_CHUNKS)>
+Query was executed successfully
+

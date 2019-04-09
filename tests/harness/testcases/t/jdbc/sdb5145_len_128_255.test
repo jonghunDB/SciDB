@@ -1,0 +1,4 @@
+--setup
+--test
+
+--shell --store-all --command "${TESTDIR}/sdb5145_len_128_255.py"

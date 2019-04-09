@@ -1,0 +1,47 @@
+Query was executed successfully
+
+{x,y} a
+{0,0} 1
+{0,1} 2
+{0,2} 3
+{1,0} 4
+{1,1} 5
+{1,2} 6
+{2,0} 7
+{2,1} 8
+{2,2} 9
+
+[An error expected at this place for the query "apply(mult_1, Z, x / 'a string')". And it failed with error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_FUNCTION_NOT_FOUND. Expected error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_FUNCTION_NOT_FOUND.]
+
+{x,y} a,Z
+{0,0} 1,''
+{0,1} 2,''
+{0,2} 3,''
+{1,0} 4,'Ho! '
+{1,1} 5,'Ho! '
+{1,2} 6,'Ho! '
+{2,0} 7,'Ho! Ho! '
+{2,1} 8,'Ho! Ho! '
+{2,2} 9,'Ho! Ho! '
+
+{x,y} a,Z
+{0,0} 1,'Nyah! Nyah! Nyah! '
+{0,1} 2,'Nyah! Nyah! Nyah! '
+{0,2} 3,'Nyah! Nyah! Nyah! '
+{1,0} 4,'Nyah! Nyah! '
+{1,1} 5,'Nyah! Nyah! '
+{1,2} 6,'Nyah! Nyah! '
+{2,0} 7,'Nyah! '
+{2,1} 8,'Nyah! '
+{2,2} 9,'Nyah! '
+
+{i} s
+{-2} ''
+{-1} ''
+{0} ''
+{1} 'What would Bender do? '
+{2} 'What would Bender do? What would Bender do? '
+{3} 'What would Bender do? What would Bender do? What would Bender do? '
+
+Query was executed successfully
+

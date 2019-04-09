@@ -1,0 +1,67 @@
+--setup
+--start-query-logging
+load_library('misc')
+
+--igdata "store(build (<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)"
+
+create temp array ARRAY1 <v:int64> [I=0:100,1,0]
+create temp array ARRAY2 <v:int64> [I=0:100,1,0]
+create      array ARRAY3 <v:int64> [I=0:100,1,0]
+
+--igdata "store (build (ARRAY1, I), ARRAY1)"
+--igdata "store (build (ARRAY2,-I), ARRAY2)"
+--igdata "store (build (ARRAY3,-I), ARRAY3)"
+
+--test
+# injectError (instanceid, errorid)
+# Error_IDs for inject error:
+# 1 - a specific error injected into the Storage::writeChunk code path which is triggered at the end of writing the first chunk
+# 2 - a specific error injected into the ReplicationManager::sendItem code path which is triggered when the ReplicationManager is trying to send a chunk to a remote node
+# 3 - a specific error injected into the ReplicationManager::wait code path which is triggered when the ReplicationManager is trying to wait until more buffer/queue space is available in NetworkManager. This path is often taken when replication network flow control is pushing back. 
+# 4 - a generic error to be interpreted by a specific operator. store(),redim_store(),sg(),rename() error out after they have done 99% of the work (99% because a coordinator will error out before creating a new version in the catalog). remove() errors out before it does any work.
+
+##
+## ERROR4
+##
+
+# show the statistics of each
+aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY3, SUM(v), MIN(v), MAX(v))
+
+# for HASHED distribution the chunks necessarily on every instance, but are always on the coordinator
+# so we inject the error on instance 0 to be sure of gettings an error
+--echo This test will fail if there are no chunks on the coordinator, so the next line should be zero.
+--set-format csv
+aggregate(apply(filter(list('chunk map'), nelem>0), instance, inst), min(instance) as inst)
+--reset-format
+
+# inject error into a store(X,Y)
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (0, 4))"
+--error --code=scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR "store(build(MANY_CHUNKS,0),MANY_CHUNKS2)"
+
+# inject error into a store(X,X)
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (0, 4))"
+--error --code=scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR "store(build(MANY_CHUNKS,0),MANY_CHUNKS)"
+
+# check sums of ARRAY{1,2}
+aggregate(filter(apply(join(ARRAY1,ARRAY2),attrSum,ARRAY1.v + ARRAY2.v), attrSum<>0),count(*))
+
+# inject error into a write query
+--igdata "apply(MANY_CHUNKS, inject_result, injectError (0, 4))"
+--error --code=scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR "store(ARRAY3,ARRAY1)"
+
+# re-check sums of ARRAY{1,2}, that they were not altered
+aggregate(filter(apply(join(ARRAY1,ARRAY2),attrSum,ARRAY1.v + ARRAY2.v), attrSum<>0),count(*))
+
+# re-show the statistics of each
+aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY3, SUM(v), MIN(v), MAX(v))
+
+
+--cleanup
+remove(MANY_CHUNKS)
+remove(ARRAY1)
+remove(ARRAY2)
+remove(ARRAY3)

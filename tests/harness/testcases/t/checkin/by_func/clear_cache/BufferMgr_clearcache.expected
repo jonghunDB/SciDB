@@ -1,0 +1,3 @@
+SCIDB QUERY : <apply(build(<v : int64> [I=0:0,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+

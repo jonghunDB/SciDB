@@ -1,0 +1,49 @@
+Query was executed successfully
+
+"Restarting SciDB..."
+"...done."
+Query was executed successfully
+
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+SUCCESS
+
+{i} count
+{0} 0
+
+{i} count
+{0} 257
+
+{i} count
+{0} 0
+
+{i} count
+{0} 65536
+
+{i} count
+{0} 50
+
+{i} count
+{0} 1
+
+
+
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+"Restarting SciDB..."
+"...done."

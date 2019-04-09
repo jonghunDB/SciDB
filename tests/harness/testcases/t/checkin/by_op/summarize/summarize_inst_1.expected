@@ -1,0 +1,35 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'all',256,5314,52,6,9.84615,10,48,102.192,162
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'all',256,7464,52,6,9.84615,10,48,143.538,252
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'all',1000000,17002720,40,100000,100000,100000,48,425068,900072
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'val',256,4066,26,6,9.84615,10,126,156.385,162
+{0,1} 'EmptyTag',256,1248,26,6,9.84615,10,48,48,48
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'val',256,6216,26,6,9.84615,10,171,239.077,252
+{0,1} 'EmptyTag',256,1248,26,6,9.84615,10,48,48,48
+
+{inst,attid} att,count,bytes,chunks,min_count,avg_count,max_count,min_bytes,avg_bytes,max_bytes
+{0,0} 'a',1000000,8000720,10,100000,100000,100000,800072,800072,800072
+{0,1} 'b',1000000,9000720,10,100000,100000,100000,900072,900072,900072
+{0,2} 'c',1000000,800,10,100000,100000,100000,80,80,80
+{0,3} 'EmptyTag',1000000,480,10,100000,100000,100000,48,48,48
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

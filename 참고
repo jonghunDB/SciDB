@@ -1,0 +1,32 @@
+// rocksdb install << scidb 18.1 설치시 필요
+
+--scidb start
+~/scidbsource/stage/install/bin$ ./scidb.py startall testdb
+
+--scidb stop
+jh@jh-desktop:~/scidbsource/stage/install/bin$ ./scidb.py stopall testdb
+
+--iquery
+jh@jh-desktop:~/scidbsource/stage/install/bin$ ./iquery --port 1243
+
+--iquery -a
+jh@jh-desktop:~/scidbsource/stage/install/bin$ ./iquery -a --port 1243
+
+--config.ini path
+~/scidbsource/stage/install/etc/config.ini
+
+--boost path
+/opt/scidb/16.9/3rdparty/boost
+
+// dev_tools install
+cd dev_tools
+make
+cp *.so ~/devtools/dev_tools/ ~/scidbsource/stage/install/lib/scidb/plugins
+iquery -aq "load_library('dev_tools')"
+
+//equi_join
+iquery -aq "install_github('paradigm4/equi_join')"
+iquery -aq "load_library('equi_join')"
+
+
+

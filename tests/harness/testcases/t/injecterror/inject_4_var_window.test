@@ -1,0 +1,40 @@
+# TEST:    Send a signal 11 to just the child process of a worker instance
+# EXPECT:  After scidb recovers, temp arrays should be unavailable for queries,
+#          but still part of the catalog.
+
+--setup
+--start-query-logging
+load_library('misc')
+--igdata "store(build (<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)"
+
+create array      ARRAY1 <v:double> [I=0:100,1,0]
+create temp array ARRAY2  <v:double NULL DEFAULT null> [I=0:100,1,0]
+create array      ARRAY3  <v:double> [I=0:100,1,0]
+
+--igdata "store(build (ARRAY1, I), ARRAY1)"
+--igdata "store(build (ARRAY2,-I), ARRAY2)"
+--igdata "store(build (ARRAY3, I), ARRAY3)"
+
+--test
+--start-query-logging
+
+# inject error into a write query
+--igdata "apply(MANY_CHUNKS, zz, injectError(0, 4))"
+--error --code=scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR "store(variable_window(ARRAY1, I, 2, 2, max(v)),ARRAY2)"
+
+# note the stats of the arrays 1 and 2
+aggregate(filter(apply(join(ARRAY1,ARRAY2), attrSum, ARRAY1.v + ARRAY2.v), attrSum<>0), count(*))
+
+# inject error into a write query
+--igdata "apply(MANY_CHUNKS, zz, injectError(0, 4))"
+--error --code=scidb::SCIDB_SE_INJECTED_ERROR::SCIDB_LE_INJECTED_ERROR "store(variable_window(ARRAY3, I, 2, 2, max(v)),ARRAY2)"
+
+# check that the stats of arrays 2 and 3 were not altered
+aggregate(filter(apply(join(ARRAY2,ARRAY3), attrSum, ARRAY2.v + ARRAY3.v), attrSum<>0), count(*))
+
+--cleanup
+remove(MANY_CHUNKS)
+remove(ARRAY1)
+remove(ARRAY2)
+remove(ARRAY3)
+

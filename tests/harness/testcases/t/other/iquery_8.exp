@@ -1,0 +1,11 @@
+#!/usr/bin/expect
+
+# Run iquery under a pty to demonstrate that it is in "interactive"
+# mode, not "readStdin" mode.
+
+spawn -noecho $env(SCIDB_INSTALL_PATH)/bin/iquery -c $env(IQUERY_HOST) -p $env(IQUERY_PORT) -a
+expect "AFL% "
+send "build(<v:int64>\[i=0:3], i);\r"
+expect "AFL% "
+close
+exit 0

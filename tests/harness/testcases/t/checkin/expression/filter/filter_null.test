@@ -1,0 +1,42 @@
+--setup
+store(build(<v:int64 null>[i=0:2:0:3], i), A)
+--test
+
+--start-query-logging
+
+filter(A, true)
+filter(A, not true)
+filter(A, false)
+filter(A, not false)
+filter(A, 0)
+filter(A, not 0)
+filter(A, 1)
+filter(A, not 1)
+filter(A, null)
+filter(A, not null)
+filter(A, null or true)
+filter(A, not null or true)
+filter(A, null or false)
+filter(A, not null or false)
+filter(A, true or null)
+filter(A, false or null)
+filter(A, true or not null)
+filter(A, false or not null)
+
+
+filter(A, null and true)
+filter(A, not null and true)
+filter(A, null and false)
+filter(A, not null and false)
+filter(A, true and null)
+filter(A, false and null)
+filter(A, true and not null)
+filter(A, false and not null)
+
+--stop-query-logging
+
+--cleanup
+remove(A)
+
+
+

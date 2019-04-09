@@ -1,0 +1,14 @@
+--setup
+--start-query-logging
+--test
+
+# The query that crashed the engine.
+show('build(<x:datetimetz> [i=0:0,1,0], null)', 'afl')
+
+# The other queries that were mentioned in SDB-5632.
+show('build(<x: datetime> [i=0:0,1,0], null)', 'afl')
+show('build(<x:float> [i=0:0,1,0], null)', 'afl')
+show('build(<x:int64> [i=0:0,1,0], null)', 'afl')
+
+--cleanup
+--stop-query-logging

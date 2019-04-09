@@ -1,0 +1,82 @@
+--setup
+--start-query-logging
+
+# ensure compression is actually compressing #4455
+
+create array Ts <a:string> [x=0:9999, 500,0]
+create array Ts_z <a:string compression 'zlib'> [x=0:9999,500,0]
+create array Ts_bz <a:string compression 'bzlib'> [x=0:9999,500,0]
+create array Usage <name:string,bsize:uint64,csize:uint64> [idx=0:*]
+
+--test
+
+--start-igdata
+
+store(build(Ts, string(x)), Ts)
+store(Ts, Ts_z)
+store(Ts, Ts_bz)
+
+# Sum all the buffer size, and compressed buffer size for each of the
+# Ts Arrays.
+#    {idx} name,bsize,csize
+#    {0} 'Ts',81440,81440
+#    {1} 'Ts_bz',81440,1580
+#    {2} 'Ts_z',81440,1140
+store( \
+  redimension( \
+    index_lookup( \
+      project( \
+        filter( \
+          cross_join( \
+            list('arrays') as A, \
+            list('disk indexes') as DI ), \
+          DI.arrid = A.aid and regex(A.name,'Ts(.*)') and attid=0), \
+        name, \
+        bsize, \
+        csize) as A, \
+      project( \
+        filter( \
+          list('arrays'), \
+          regex(name,'Ts(.*)')), \
+        name) as B, \
+      A.name, \
+      idx), \
+    <name:string, bsize:uint64, csize:uint64>[idx], \
+    sum(A.bsize) as bsize, \
+    sum(A.csize) as csize, \
+    max(A.name) as name), \
+Usage)
+
+--stop-igdata
+
+# check that the nelem field is maintained properly in the chunk map
+# Each chunk, regardless of distribution function or system redundancy should
+# should contain the same number of elements
+uniq( \
+  project( \
+    unpack( \
+      project( \
+        filter( \
+          cross_join( \
+            list('chunk map') as CM, \
+            filter( \
+              list('arrays') as A, \
+              regex(A.name,'Ts(.*)'))), \
+           A.uaid = CM.uaid), \
+        nelem), \
+      dummy), \
+    nelem))
+
+
+# Confirm that the array with no compression (Ts) has the same compressed buffer size and the buffer size.
+sort(project(filter(Usage, csize = bsize), name), name)
+# List the Arrays which successfully compressed.
+sort(project(filter(Usage, csize < bsize), name), name)
+
+--cleanup
+remove(Ts)
+remove(Ts_z)
+remove(Ts_bz)
+remove(Usage)
+
+--stop-query-logging

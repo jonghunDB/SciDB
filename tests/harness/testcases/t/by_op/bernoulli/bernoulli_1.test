@@ -1,0 +1,367 @@
+--setup
+CREATE ARRAY Foo_Dense_Empty < val : double > [ I=0:9999,10000,0]
+CREATE ARRAY Foo_Dense < val : double > [ I=0:9999,10000,0]
+CREATE ARRAY Foo_Sparse < val : double > [ I=0:29999,30000,0]
+CREATE ARRAY ONE_PERCENT_FOO_SPARSE <val:double> [I=0:29999:0:30000]
+CREATE ARRAY Bar_Dense < val : double > [ I=0:1999,500,0, J=0:1999,500,0]
+
+--igdata "store ( build ( < val : double > [ I=0:9999,10000,0], double ( I ) ), Foo_Dense )"
+--igdata "store ( filter ( build ( < val : double > [ I=0:29999,30000,0], double(random()%100000)/100000.0 ), I%3=0), Foo_Sparse )"
+--igdata "store ( build ( Bar_Dense, double(random()%100000)/100000.0 ), Bar_Dense )"
+
+--test
+#
+#   Check that bernoulli(...) works OK on an empty array.
+project ( apply ( aggregate ( bernoulli ( Foo_Dense_Empty, 0.01 ), count(*) AS CNT), PASS_OR_FAIL, iif ( CNT = 0, 'PASS', 'FAIL' )), PASS_OR_FAIL)
+
+#
+#                          NOTE ON TESTING METHODOLOGY
+#                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+#    The first set of these tests assesses the success or failure of the test
+#   by looking at the size of the sample produced. Later, we turn to more formal
+#   tests to check the randomness of the selection.
+#
+#    A bit of notation ...
+#
+#    We use S to refer to the Sample produced by the bernoulli process applied
+#   to a Population of size 'n', with the Sample's marginal probability of
+#   inclusion indicated by 'p'. The size of a Sample produced by the process
+#   is |S|. With a bernoulli sample, |S| is a random variable, and we use E[|S|]
+#   to refer to its expected size, and Var(|S|) to refer to the Sample size's
+#   variance.
+#
+#    We can calculate E[|S|] as:
+#
+#       E[|S|] = n x p
+#
+#    and the variance of the sample's size as:
+#
+#       Var(|S|) = n x p x ( 1.0 - p ).
+#
+#    The std dev of |S| is sqrt ( Var(|S|) )
+#
+#    And a bit of explaination ...
+#
+#    Basic sampling test will pass when |S| falls into an acceptable range
+#   given 'n' and 'p'. Acceptable in this case means |S| falls into a range
+#   we would expect. This is a probabilistic test. So we'll set the range
+#   to five sigma (5 standard deviations) either side of E[|S|]. That way, the
+#   test won't fail very often.
+#
+#     Working an example out in detail:
+#
+#   n = 100,000
+#   p = 0.01
+#
+#     So E[|S|]   = 100,000 x 0.01 = 1,000.
+#        Var(|S|) = 100,000 x 0.01 x 0.99 = 990.
+#        StdDev (|S|) = sqrt ( Var(|S|) ) = sqrt ( 990 ) ~= 31.5
+#
+#    So we say the bernoulli sampler will pass when the result size
+#   |S| = 1,000 +/- ( 5 x 31.5 ), or ~842 to ~1158.
+#
+#    Rather than work all of these out and just plug in the numbers, in the
+#   interests of making the tests as self-contained as possible, all of
+#   the queries below calculate their expected range as part of the
+#   query text.
+
+#   1. Basic test of bernoulli sample size ...
+project ( apply ( aggregate ( bernoulli ( Foo_Dense, 0.01 ), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#   2. Test that two independent samples in the same query are different.
+#
+#   NOTES: The use of the join(...) below has the effect of finding the
+#         intersection of the two samples, which we can approximate as a
+#         single sample with a marginal probability that is the product
+#         of the two independent samples' probabilities.
+#
+#          Using join(...) also has the beneficial side effect of testing
+#         the combination of the bernoulli(..) operator with others. join(...)
+#         is actually rather complicated as it's internals rely on lots of
+#         setPosition() calls on the internal iterators.
+project ( apply ( aggregate ( join ( bernoulli ( Foo_Dense, 0.025) AS FIRST, bernoulli ( Foo_Dense, 0.025) AS SECOND), COUNT(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.025*0.025)) < 5.0 * sqrt (10000.0*pow(0.025,2.0)*(1.0-pow(0.025,2.0)))), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  3. Check that two independent scans, started with the same seed and at
+#     the same time (in the same query) produce identical samples. Success
+#     requires two things to be true of the result:
+#
+#       i. The size of the result must be in the range we expect ...
+#      ii. ... and the size of a join between two version of the
+#          same sample (same seed) must be the same.
+project ( apply ( join ( aggregate ( bernoulli ( Foo_Dense, 0.01, 102), COUNT(*) AS CNT ) AS FIRST, aggregate ( join ( bernoulli ( Foo_Dense, 0.01, 102) AS SECOND, bernoulli ( Foo_Dense, 0.01, 102) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif ( FIRST.CNT - FOURTH.CNT != 0 OR NOT (abs(double(FIRST.CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'FAIL', 'PASS')), PASS_OR_FAIL )
+
+#
+#  4. Check that two independent scans, started with the same seed but at
+#     DIFFERENT times (different queries) produce identical samples.
+--igdata "store ( bernoulli ( Foo_Dense, 0.01, 120), Foo_Dense_120 )"
+project ( apply ( join ( aggregate ( Foo_Dense_120, COUNT(*) AS CNT) AS FIRST, aggregate ( join ( Foo_Dense_120 AS SECOND, bernoulli ( Foo_Dense, 0.01, 120) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif (FIRST.CNT - FOURTH.CNT != 0 OR NOT (abs(double(FIRST.CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'FAIL', 'PASS')), PASS_OR_FAIL )
+
+#
+#  5. Check that two independent scans with *different* seeds get different results.
+project ( apply ( aggregate ( join ( bernoulli ( Foo_Dense, 0.025,101) AS FIRST, bernoulli ( Foo_Dense, 0.025,102) AS SECOND), COUNT(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.025*0.025)) < 5.0 * sqrt (10000.0*pow(0.025,2.0)*(1.0-pow(0.025,2.0)))), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  6. Check that there is no bias in the distribution of the sample.
+#
+#      To do this, we divide the sample up into a number of equal sized
+#    partitions (using regrid(...)). The result of this process should
+#    be a set of independent bernoulli random samples, each with a
+#    predictable E[|S|] and Var(|S|).
+project ( apply ( regrid ( bernoulli ( Foo_Dense, 0.01 ), 1000, count (*) AS CNT_PER_CHUNK), PASS_OR_FAIL, iif ( (abs (double(CNT_PER_CHUNK) - (1000.0 * 0.01)) < (5.0 * sqrt ( 1000.0 * 0.01 * 0.99 ))), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#   Repeat 1..5 for the Sparse array.
+#
+#  7. Basic test of a sparse array.
+project ( apply ( aggregate ( bernoulli ( Foo_Sparse, 0.01 ), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  8. Test that two independent samples are indeed different.
+project ( apply ( aggregate ( join ( bernoulli ( Foo_Dense, 0.025) AS FIRST, bernoulli ( Foo_Dense, 0.025) AS SECOND), COUNT(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.025*0.025)) < 5.0 * sqrt (10000.0*pow(0.025,2.0)*(1.0-pow(0.025,2.0)))), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  9. Check that two independent scans, started with the same seed, and at
+#     the same time (same query), produce identical samples
+project ( apply ( join ( aggregate ( bernoulli ( Foo_Sparse, 0.01, 102), COUNT(*) AS CNT ) AS FIRST, aggregate ( join ( bernoulli ( Foo_Sparse, 0.01, 102) AS SECOND, bernoulli ( Foo_Sparse, 0.01, 102) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif ( FIRST.CNT - FOURTH.CNT != 0 OR NOT ( abs ( double(FOURTH.CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*(1.0-0.01))), 'FAIL', 'PASS' )), PASS_OR_FAIL )
+
+#
+#  10. Check that two independent scans, started with the same seed, but at
+#     DIFFERENT times (different queries) produce identical results.
+--igdata "store ( bernoulli ( Foo_Sparse, 0.01, 121), Foo_Sparse_121)"
+project ( apply ( join ( aggregate ( Foo_Sparse_121, COUNT(*) AS CNT) AS FIRST, aggregate ( join ( Foo_Sparse_121 AS SECOND, bernoulli ( Foo_Sparse, 0.01, 121) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif (FIRST.CNT - FOURTH.CNT != 0  OR NOT (abs(double(FIRST.CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'FAIL', 'PASS')), PASS_OR_FAIL )
+
+#
+#  11. Check that two independent scans with different seeds get different
+#      results.
+project ( apply ( aggregate ( join ( bernoulli ( Foo_Sparse, 0.025,101) AS FIRST, bernoulli ( Foo_Sparse, 0.025,102) AS SECOND), COUNT(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.025*0.025)) < 5.0 * sqrt (10000.0*pow(0.025,2.0)*(1.0-pow(0.025,2.0)))), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  12. Check that we're getting a non-biased distribution of cells over
+#      the input array.
+project ( apply ( regrid ( bernoulli ( Foo_Sparse, 0.01 ), 3000, count (*) AS CNT_PER_CHUNK), PASS_OR_FAIL, iif ( (abs (double(CNT_PER_CHUNK) - (1000.0 * 0.01)) < (5.0 * sqrt ( 1000.0 * 0.01 * 0.99 ))), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#      To cover the full set of API calls, it's helpful if we test the
+#    bernoulli(...) with a selection of other operators. At the same
+#    time, we can check things like the logical properties of operators.
+#    between(...) is commutative with bernoulli(...), for example. But
+#    filter(...), regrid(...) etc, are not.
+#
+#      In all cases, we determine whether the result passes the test
+#    by examining the size of the result relative to the expected size
+#    of the result, calculated by looking at the new 'n' population size
+#    values implied by the effect of the other operator.
+#
+#  13. between( bernoulli ( ... ) )
+project ( apply ( aggregate ( between ( bernoulli ( Foo_Dense, 0.01 ), 1000, 8999), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(9000.0*0.01)) < 5.0 * sqrt (9000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  14. bernoulli( between ( ... ) )
+project ( apply ( aggregate ( bernoulli ( between ( Foo_Dense, 1000, 8999 ), 0.01), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(9000.0*0.01)) < 5.0 * sqrt (9000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  15. bernoulli ( subarray ( ... ) )
+project ( apply ( aggregate ( subarray ( bernoulli ( Foo_Dense, 0.01 ), 1000, 8999), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(9000.0*0.01)) < 5.0 * sqrt (9000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  16. bernoulli ( regrid ( ... ) )
+project ( apply ( aggregate ( bernoulli ( regrid ( Foo_Dense, 100, count (*) AS CNT_PER_CHUNK), 0.075), COUNT(*) AS NUM_IN_SAMPLE), PASS_OR_FAIL, iif ( (abs (double(NUM_IN_SAMPLE) - (100.0 * 0.075)) < (5.0 * sqrt ( 100.0 * 0.075 * 0.925 ))), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#  17. bernoulli ( cross_join (...) )
+project ( apply ( aggregate ( bernoulli ( cross_join ( Foo_Dense AS D, filter ( build ( < val_two : double > [I=0:9999:0:10000], I ), int64(floor(val_two))%2 = 0) AS K, D.I, K.I), 0.05), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(5000.0*0.05)) < 5.0 * sqrt (5000.0*0.05*0.95)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  18. cross_join ( bernoulli (... ) )
+project ( apply ( aggregate ( cross_join ( bernoulli ( Foo_Dense, 0.05 )  AS D, filter ( build ( < val_two : double > [I=0:9999:0:10000], I ), int64(floor(val_two))%2 = 0) AS K, D.I, K.I), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(5000.0*0.05)) < 5.0 * sqrt (5000.0*0.05*0.95)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  19. bernoulli ( filter ( ... ) )
+project ( apply ( aggregate ( filter ( bernoulli ( Foo_Dense, 0.05 ), int64(floor(val))%2=0 ), count(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(5000.0*0.05)) < 5.0 * sqrt (5000.0*0.05*0.95)), 'PASS', 'FAIL' )), PASS_OR_FAIL)
+
+#
+#  20. merge ( bernoulli ( ... ), bernoulli ( ... ) )
+#
+#    NOTE: merge(...) is a UNION. In other words, it has the effect of
+#          doubling 'p' in the result with respect to the E[|S|], but it has
+#          very little effect on the Var(|S|). So we'll keep the test tight.
+project ( apply ( aggregate ( merge ( bernoulli ( Foo_Dense, 0.005 ) AS FIRST, bernoulli ( Foo_Dense, 0.005 ) AS SECOND), COUNT(*) AS MERGE_CNT), PASS_OR_FAIL, iif ( ( abs (double(MERGE_CNT)-(10000.0*0.005*2.0)) < 5.0 * sqrt (10000.0*0.005*0.995)), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#  21. bernoulli ( merge(...) )
+project ( apply ( aggregate ( bernoulli ( merge ( Foo_Dense AS FIRST, Foo_Dense AS SECOND), 0.005), COUNT(*) AS MERGE_CNT), PASS_OR_FAIL, iif ( ( abs (double(MERGE_CNT)-(10000.0*0.005)) < 5.0 * sqrt (10000.0*0.005*0.995)), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#  22.1 store ( bernoulli ( ... ) )
+--igdata "store ( bernoulli ( Foo_Sparse, 0.01 ), ONE_PERCENT_FOO_SPARSE )"
+
+#
+#  22.2 check size. . .
+project ( apply ( aggregate ( ONE_PERCENT_FOO_SPARSE, count(*) AS CNT ), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  22.3 Remove that array ...
+--justrun "remove(ONE_PERCENT_FOO_SPARSE)"
+
+#
+#  23.1 Re-create the target array ...
+--justrun "CREATE ARRAY ONE_PERCENT_FOO_SPARSE <val:double> [I=0:29999:0:30000]"
+
+#
+#  23.2 insert ( bernoulli ( ... ) )
+--igdata "insert ( bernoulli ( Foo_Sparse, 0.01 ), ONE_PERCENT_FOO_SPARSE )"
+
+#
+#  23.3 check size. . .
+project ( apply ( aggregate ( ONE_PERCENT_FOO_SPARSE, count(*) AS CNT ), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(10000.0*0.01)) < 5.0 * sqrt (10000.0*0.01*0.99)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#    Switching up to the larger Bar_Dense array. This one has 4,000,000
+#   cells. The purpose of testing at this scale is to check bernoulli(...)
+#   working on multi-chunk arrays.
+#
+#  24. Basic test of bernoulli(...)
+project ( apply ( aggregate ( bernoulli ( Bar_Dense, 0.0001 ), count(*) AS CNT), PASS_OF_FAIL, iif ( ( abs ( double(CNT)-(4000000.0*0.0001)) < 5.0 * sqrt (4000000.0*0.0001*0.9999)), 'PASS', 'FAIL' )), PASS_OF_FAIL )
+
+#
+#  25. Check that two independent scans, started with the same seed,
+#      and at the same time (same query), get identical sets.
+project ( apply ( join ( aggregate ( bernoulli ( Bar_Dense, 0.000025, 102), COUNT(*) AS CNT ) AS FIRST, aggregate ( join ( bernoulli ( Bar_Dense, 0.000025, 102) AS SECOND, bernoulli ( Bar_Dense, 0.000025, 102) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif ( (FIRST.CNT - FOURTH.CNT != 0 OR NOT ( abs ( double(FOURTH.CNT)-(4000000.0*0.000025)) < 5.0 * sqrt (4000000.0*0.000025*(1.0-0.000025)))), 'FAIL', 'PASS')), PASS_OR_FAIL )
+
+#
+#  26. Check that two independent scans, started with the same seed,
+#      but at DIFFERENT times (different queries) get identical sets.
+--igdata "store ( bernoulli ( Bar_Dense, 0.000025, 1021), Bar_Dense_1021)"
+project ( apply ( join ( aggregate ( Bar_Dense_1021, COUNT(*) AS CNT) AS FIRST, aggregate ( join ( Bar_Dense_1021 AS SECOND, bernoulli ( Bar_Dense, 0.000025, 1021) AS THIRD), COUNT(*) AS CNT) AS FOURTH), PASS_OR_FAIL, iif (FIRST.CNT - FOURTH.CNT != 0  OR NOT (abs(double(FIRST.CNT)-(4000000.0*0.000025)) < 5.0 * sqrt (4000000.0*0.000025*(1.0-0.000025))), 'FAIL', 'PASS')), PASS_OR_FAIL )
+
+#
+#  27. Check that two independent scans with different seeds get different
+#      results.
+project ( apply ( aggregate ( join ( _materialize ( bernoulli ( Bar_Dense, 0.005, 101),1) AS FIRST, _materialize ( bernoulli ( Bar_Dense, 0.005, 102),1) AS SECOND), COUNT(*) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(4000000.0*pow(0.005,2.0))) < 5.0 * sqrt (4000000.0*pow(0.005,2.0)*(1.0-pow(0.005,2.0)))), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#  28. Check that we're getting different counts per segment, and that the
+#      number per segment does not reveal any bias.
+project ( apply ( regrid ( bernoulli ( Bar_Dense, 0.0005 ), 500, 500, count(*) AS CNT_PER_CHUNK), PASS_OR_FAIL, iif ( ( abs( double(CNT_PER_CHUNK)-(250000.0*0.0005))) < 5.0 * sqrt (250000.0*0.0005*(1.0-0.0005)), 'PASS', 'FAIL')), PASS_OR_FAIL )
+
+#
+#   Finally, let's check that the sampling produces a set of random result.
+#  To check this, we will use a "Monte Carlo Estimator" for Pi, and also
+#  check that the sample closely approximates the expected mean for the
+#  I and J values of the 2D array's coordinates.
+#
+#   What we want to do is to check that the aggregates we're computing from
+#  the sample are as close as we would expect to the actual values, given the
+#  requirements that ( a ) we can only adjust sample size, and ( b ) we want
+#  to have this non-deterministic test fail as rarely as possible.
+#
+#   The data set we're going to examine takes its values from the dimensions
+#  of the 2D array. This means that they're integer values that are Uniformly
+#  distributed over the range [0..1999]. Consequently, we *know* the population
+#  mean, and variance.
+#
+#   Given: U[a,b]   ... Uniform distribution ranging over a...b.
+#
+#                     ( a + b )                          ( b - a )^2
+#     Avg(U[a,b]) =  -----------         Var(U[a,b]) =  -------------
+#                         2                                  12
+#
+#     Avg(U[a,b]) =    999.5             Var(U[a,b]) =    333,000
+#
+#                                     StdDev(U[a,b]) =        577.06
+#
+#   The average (mean) of a sample S of value from U[a,b] will have an
+#  E[|S|] = mean ( U[a,b] ) +/- some margin of error. We can compute the
+#  margin of error (ME) as:
+#
+#                     StdDev
+#     ME  =  Ta  x  -----------
+#                    sqrt(|S|)
+#
+#    Where Ta is the t-distribution score at some confidence interval a. To keep
+#  the bounds tight, let's use a very high confidence interval: 0.01. So looking
+#  this up (https://en.wikipedia.org/wiki/Student%27s_t-distribution): as |S| is
+#  larger than 100, we're looking at Ta = 3.291. So ...
+#
+#                        577.06
+#     ME  =  3.291  x  -----------
+#                       sqrt(|S|)
+#
+#    I want to keep the ME to 1% , which is 1,999 * 0.01 ~= 20.
+#
+#                        577.06
+#     20 >=  3.291  x  -----------
+#                       sqrt(|S|)
+#
+#                   _                _
+#                  /                  \ 2
+#                  |  3.291 x 577.06  |
+#         |S|  >=  | ---------------- |     >=    94.9^2     =>   9016.5
+#                  |        20        |
+#                  \_                _/
+#
+#     So. We want a sample size >= 9016.5. So what should the value of 'p'
+#   be? We want |S| > 9016.5 the vast majority of the time: again, 5-sigma.
+#   And once again.
+#
+#    E[|S|] = n x p   ... and
+#
+#    Var (|S|) = n x p x ( 1 - p )  ... StdDev(|S|) = sqrt ( Var(|S|) )
+#
+#     We want to choose 'p', st. |S| >= 9016.5 with very high confidence.
+#
+#     n x p + 5 x sqrt ( n x p x ( 1 - p ) ) >= 9016.5
+#
+#     n = 4,000,000
+#
+#     4,000,000 x p - 5 x sqrt ( 4,000,000 x p x ( 1 - p ) ) >= 9016.5
+#
+#     p is going to be small, so we can ignore the ( 1 - p ) term ...
+#
+#     4,000,000 x p - 5 x sqrt ( 4,000,000 x p ) >= 9016.5
+#
+#     Let's focus on finding sqrt ( p ). Call this Sp
+#
+#     4,000,000 x Sp^2 - 10,000 x Sp - 9016.5 >= 0
+#
+#     Oh look! We're solving a quadratic function!
+#
+#     a . x^2 + b . x + c = y
+#
+#     when y = 0 ...
+#
+#           -b +/- sqrt ( b^2 - 4 . a . c )
+#     x =  --------------------------------
+#                     2 . a
+#
+#
+#          (-1 x 10,000) +/- sqrt(10,000^2 - 4 x 4,000,000 x -9016.5)
+#    Sp =  -----------------------------------------------------------
+#                              2 x 4,000,000
+#
+#                 -10,000 + sqrt ( 10,000^2 + 144,264,000,000 )
+#               ------------------------------------------------
+#                                   8,000,000
+#
+#                 -10,000 + 379951.63
+#        =      ----------------------   = 0.0462
+#                      8,000,000
+#
+#     So we want p = 0.0462, which will get us to within 1% of the actual
+#    mean, > 99.9% of the time.
+#
+#  29. Check the Monte Carlo estimator of Pi and avg(I) and (J).
+project ( apply ( aggregate ( apply ( bernoulli(Bar_Dense, 0.0462),    D, iif ((((double(I)/1999.0 ) * (double(I)/1999.0)) +       ((double(J)/1999.0 ) * (double (J)/1999.0)) < 1.0), 1, 0 ), Ei, double(I), Ej, double(J)), COUNT(*) AS SAMPLE_SIZE, SUM(D) AS NUMBER_INSIDE_CIRCLE, AVG(Ei) AS EST_OF_AVERAGE_I, AVG(Ej) AS EST_OF_AVERAGE_J), MONTE_CARLO_PI_TEST, iif (((abs(0.785398 - (double(NUMBER_INSIDE_CIRCLE) / double(SAMPLE_SIZE))))/0.785398) < 0.01, 'PASS', 'FAIL' ), MEAN_IJ_TEST, iif (((abs(999.5 - EST_OF_AVERAGE_I)/999.5) < 0.01 AND (abs(999.5 - EST_OF_AVERAGE_J)/999.5) < 0.01 ), 'PASS', 'FAIL' )), MONTE_CARLO_PI_TEST, MEAN_IJ_TEST )
+
+--cleanup
+remove ( Bar_Dense_1021 )
+remove ( Foo_Dense_120 )
+remove ( Foo_Sparse_121 )
+remove ( Bar_Dense )
+remove ( ONE_PERCENT_FOO_SPARSE )
+remove ( Foo_Sparse )
+remove ( Foo_Dense )
+remove ( Foo_Dense_Empty )

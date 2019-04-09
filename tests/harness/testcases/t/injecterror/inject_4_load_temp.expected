@@ -1,0 +1,53 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(build (<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array ARRAY1 <v : int64> [I=0:100,20,0, J=0:50,20,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create temp array ARRAY2 <v : int64> [I=0:100,20,0, J=0:50,20,0]>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(ARRAY1,I+J),ARRAY1)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(ARRAY2,I+J),ARRAY2)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 386325,0,150
+
+SCIDB QUERY : <aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 386325,0,150
+
+SCIDB QUERY : <apply(MANY_CHUNKS, injectResult, injectError(0, 4))>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <(... omitted ...)>
+[An error expected at this place for the query "(... omitted ...)". And it failed with error code = scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED. Expected error code = scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED.]
+
+SCIDB QUERY : <aggregate(filter(apply(join(ARRAY1, ARRAY2), attrDiff, ARRAY1.v - ARRAY2.v), attrDiff<>0), count(*))>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 386325,0,150
+
+SCIDB QUERY : <aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))>
+{i} v_sum,v_min,v_max
+{0} 386325,0,150
+
+SCIDB QUERY : <remove(MANY_CHUNKS)>
+[An error expected at this place for the query "remove(MANY_CHUNKS)". And it failed.]
+
+SCIDB QUERY : <remove(ARRAY1)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(ARRAY2)>
+Query was executed successfully
+

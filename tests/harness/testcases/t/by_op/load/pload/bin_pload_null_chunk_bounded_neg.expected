@@ -1,0 +1,20 @@
+Creating array:
+Query was executed successfully
+Loading data into array:
+Count non-empty d_0 attributes in loaded array:
+d_0_count
+0
+Count non-empty d_1 attributes in loaded array:
+d_1_count
+0
+Count non-empty a_1 attributes in array after redimension:
+FAIL: count(a_1) = 0, not the expected value!
+Done.
+Cleaning up on exit...
+Done with cleanup.
+UserQueryException in file: src/query/ops/input/LogicalInput.cpp function: inferSchema line: 196
+Error id: scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_INPUT_PLOAD_BOUNDED
+Error description: Error during schema inferring. Parallel load requires an unbounded first dimension.
+load(dummy_01_A,'dummy_01_A_input',-1,'(int64,int64,uint32 NULL,char NULL,int64 NULL,bool NULL,int8 NULL,int32 NULL,uint64 NULL,float NULL,char NULL,uint64 NULL,float NULL,uint64 NULL,int8 NULL,float NULL,int16 NULL,uint64 NULL,float NULL,int8 NULL,uint32 NULL,bool NULL,bool NULL,int8 NULL,char NULL,uint8 NULL,string NULL,uint32 NULL)')
+     ^^^^^^^^^^
+

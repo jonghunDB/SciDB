@@ -1,0 +1,21 @@
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} PASS_OR_FAIL
+{0} 'PASS'
+
+{i} MONTE_CARLO_PI_TEST,MEAN_IJ_TEST
+{0} 'PASS','PASS'
+
+{i} PASS_OR_FAIL
+{0} 'PASS'
+
+{i} PASS_OR_FAIL
+{0} 'PASS'
+
+{i} MONTE_CARLO_PI_TEST,MEAN_IJ_TEST
+{0} 'PASS','PASS'
+
+Query was executed successfully
+

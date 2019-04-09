@@ -1,0 +1,3 @@
+SCIDB QUERY : <filter(redimension(list('buffer stats'), <n:int64>[inst]), n <> 0)>
+{inst} n
+

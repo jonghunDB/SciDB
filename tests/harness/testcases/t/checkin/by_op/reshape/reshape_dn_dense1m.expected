@@ -1,0 +1,30 @@
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+Query was executed successfully
+
+Query was executed successfully
+
+{i} schema
+{0} 'd334_no_chunksizes<a:double> [i=1:3:0:*; j=1:3:0:*; k=1:4:0:*]'
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'result_2<a:double> [i=1:3:0:99; j=1:3:0:99; k=1:4:0:99]'
+
+{i,j,k} a,a
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

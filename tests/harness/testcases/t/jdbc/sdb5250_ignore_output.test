@@ -1,0 +1,4 @@
+--setup
+--test
+
+--shell --store-all --command "${TESTDIR}/sdb5250_ignore_output.py"

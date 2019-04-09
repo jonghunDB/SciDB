@@ -1,0 +1,16 @@
+# See ticket SDB-5308.  The unpack() operator always creates 1-D
+# output starting at index zero.  For UBU1_A, this is shifting the
+# input indeces to the left; for UBU1_B it's shifting to the right.
+# Either way we shouldn't reject the query.
+
+--setup
+store(redimension(build(<val:double>[i1=1:3:0:3], i1), <val:double>[i1=1:*:0:3]), UBU1_A)
+store(redimension(build(<val:double>[i1=-3:3:0:7], i1), <val:double>[i1=-3:*:0:7]), UBU1_B)
+
+--test
+unpack(aggregate(UBU1_A, avg(val) as val, i1), i)
+unpack(aggregate(UBU1_B, avg(val) as val, i1), i)
+
+--cleanup
+remove(UBU1_A)
+remove(UBU1_B)

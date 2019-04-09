@@ -1,0 +1,38 @@
+#
+#  Test bernoulli(...) at scales larger than is reasonable in the
+#  checkin suites.
+#
+#   1. Check that bernoulli(...) actually cuts down the time
+#      required to compute a result (that's close enough to the
+#      precise result).
+#
+#   2. Check that bernoulli(...) works with multiple attributes,
+#      and over more than 2 dimensions.
+#
+--setup
+CREATE ARRAY Mug_Dense <  a1 : int64, a2 : int64 > [ I=0:49,20,0, J=0:49,20,0, K=0:49,20,0 ]
+#
+#  NOTE: Takes ~6 minutes to generate data for Mug_Dense
+--igdata "store ( apply ( build ( < a1 : int64 > [ I=0:49,20,0, J=0:49,20,0, K=0:49,20,0 ], ( I * 50 * 50 ) + ( J * 50 ) + K), a2, 125000 - (( I * 50 * 50 ) + ( J * 50 ) + K)), Mug_Dense )"
+
+--test
+#
+#  1. Check the basic correctness of the bernoulli ( Mug_Dense )
+project ( apply ( aggregate ( bernoulli ( Mug_Dense, 0.01, 735928559 ), count(a1) AS CNT), PASS_OR_FAIL, iif ( ( abs ( double(CNT)-(125000.0*0.01)) < 5.0 * sqrt (125000.0*0.01*0.9999)), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  2. More rigorous test of correctnss of the bernoulli ( Mug_Dense )
+project ( apply ( aggregate ( apply ( bernoulli ( Mug_Dense, 0.01, 735928559 ), D, iif ( (((double ( I ) / 49.0 ) * (double ( I ) / 49.0 ) ) + ((double ( J ) / 49.0 ) * (double ( J ) / 49.0 ) )  < 1.0 ), 1, 0 ), Ei, double(I), Ej, double(J)), COUNT(*) AS SAMPLE_SIZE, SUM ( D ) AS NUMBER_INSIDE_CIRCLE, AVG ( Ei )  AS EST_OF_AVERAGE_I, AVG ( Ej )  AS EST_OF_AVERAGE_J), MONTE_CARLO_PI_TEST, iif (((abs(0.785398 - ( double ( NUMBER_INSIDE_CIRCLE ) / double ( SAMPLE_SIZE ))))/0.785398) < 0.05, 'PASS', 'FAIL' ), MEAN_IJ_TEST, iif (((abs ( 25 - EST_OF_AVERAGE_I )/25 ) < 0.05 AND (abs ( 25 - EST_OF_AVERAGE_J )/25 ) < 0.05 ), 'PASS', 'FAIL' )), MONTE_CARLO_PI_TEST, MEAN_IJ_TEST )
+
+#
+#  3. Queries to test each of the two attributes.
+project ( apply ( aggregate ( bernoulli ( Mug_Dense, 0.01, 735928559 ), avg ( a1 ) AS AVG_A1), PASS_OR_FAIL, iif (((abs(double(AVG_A1)-(125000.0/2.0)) / (125000.0/2.0)) < 0.05), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+project ( apply ( aggregate ( bernoulli ( Mug_Dense, 0.01, 735928559 ), avg ( a2 ) AS AVG_A2), PASS_OR_FAIL, iif (((abs(double(AVG_A2)-(125000.0/2.0)) / (125000.0/2.0)) < 0.05), 'PASS', 'FAIL' )), PASS_OR_FAIL )
+
+#
+#  4. Repeat Query #4, without the bernoulli(...)
+project ( apply ( aggregate ( apply ( Mug_Dense, D, iif ( (((double ( I ) / 49.0 ) * (double ( I ) / 49.0 ) ) + ((double ( J ) / 49.0 ) * (double ( J ) / 49.0 ) )  < 1.0 ), 1, 0 ), Ei, double(I), Ej, double(J)), COUNT(*) AS SAMPLE_SIZE, SUM ( D ) AS NUMBER_INSIDE_CIRCLE, AVG ( Ei )  AS EST_OF_AVERAGE_I, AVG ( Ej )  AS EST_OF_AVERAGE_J), MONTE_CARLO_PI_TEST, iif (((abs(0.785398 - ( double ( NUMBER_INSIDE_CIRCLE ) / double ( SAMPLE_SIZE ))))/0.785398) < 0.05, 'PASS', 'FAIL' ), MEAN_IJ_TEST, iif (((abs ( 25 - EST_OF_AVERAGE_I )/25 ) < 0.05 AND (abs ( 25 - EST_OF_AVERAGE_J )/25 ) < 0.05 ), 'PASS', 'FAIL' )), MONTE_CARLO_PI_TEST, MEAN_IJ_TEST )
+#
+
+--cleanup
+remove ( Mug_Dense )

@@ -1,0 +1,36 @@
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+Store redimensioned with default autochunking.
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'by_default<s:string> [i=0:999:0:128; j=0:999:0:1024]'
+
+Store etc. w/ target physical chunk size of 3 MiB.  156 * 200 * 101 == 3,151,200
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'by_3mib<s:string> [i=0:999:0:78; j=0:999:0:400]'
+
+Store etc. w/ target physical chunk size of 16 MiB.  360 * 461 * 101 == 16,761,960
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'by_16mib<s:string> [i=0:999:0:157; j=0:999:0:800]'
+
+[An error expected at this place for the query "redimension(flat, <s:string>[i=0:999; j=0:999], phys_chunk_size: 0 - 16)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER.]
+
+[An error expected at this place for the query "redimension(flat, <s:string>[i=0:800; j=0:800], phys_chunk_size: 0)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER.]
+
+[An error expected at this place for the query "redimension(flat, <s:string>[i=0:800; j=0:800], phys_chunk_size: 4, cells_per_chunk: 72)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS.]
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

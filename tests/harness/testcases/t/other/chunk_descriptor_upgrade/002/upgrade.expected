@@ -1,0 +1,158 @@
+"This test will pass only after a fresh installation of SciDB"
+"because of array metadata versioning from the 'donor' database"
+"with respect to chunk descriptor upgrade"
+"This test requires four instances of SciDB"
+"4 instances out of 4 required are present"
+
+SCIDB QUERY : <create array cu002_A <a:int64> [x=0:2,3,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array cu002_B <x:int64> [a=0:14,3,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array cu002_C <x:int64> [a=0:14,3,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array cu002_D <a:int64> [x=0:2,3,0]>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(cu002_A,x+10),cu002_A)>
+{x} a
+{0} 10
+{1} 11
+{2} 12
+
+SCIDB QUERY : <store(cu002_B,cu002_E)>
+{a} x
+
+SCIDB QUERY : <store(cu002_D,cu002_F)>
+{x} a
+
+SCIDB QUERY : <store(filter(build(cu002_D,x+5),x<>1),cu002_D)>
+{x} a
+{0} 5
+{2} 7
+
+SCIDB QUERY : <store(redimension(cu002_A,cu002_B),cu002_B)>
+{a} x
+{10} 0
+{11} 1
+{12} 2
+
+SCIDB QUERY : <store(redimension(cu002_D,cu002_C),cu002_C)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <store(redimension(cu002_D,cu002_E),cu002_E)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <scan(cu002_A)>
+{x} a
+{0} 10
+{1} 11
+{2} 12
+
+SCIDB QUERY : <scan(cu002_B)>
+{a} x
+{10} 0
+{11} 1
+{12} 2
+
+SCIDB QUERY : <scan(cu002_C)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <scan(cu002_D)>
+{x} a
+{0} 5
+{2} 7
+
+SCIDB QUERY : <scan(cu002_E)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <scan(cu002_F)>
+{x} a
+
+"Stopping SciDB"
+"Starting SciDB"
+SCIDB QUERY : <list()>
+{No} name,uaid,aid,schema,availability,temporary
+{0} 'cu002_A',1,1,'cu002_A<a:int64> [x=0:2:0:3]',true,false
+{1} 'cu002_B',2,2,'cu002_B<x:int64> [a=0:14:0:3]',true,false
+{2} 'cu002_C',3,3,'cu002_C<x:int64> [a=0:14:0:3]',true,false
+{3} 'cu002_D',4,4,'cu002_D<a:int64> [x=0:2:0:3]',true,false
+{4} 'cu002_E',6,6,'cu002_E<x:int64> [a=0:14:0:3]',true,false
+{5} 'cu002_F',8,8,'cu002_F<a:int64> [x=0:2:0:3]',true,false
+
+SCIDB QUERY : <scan(cu002_A)>
+{x} a
+
+SCIDB QUERY : <scan(cu002_B)>
+{a} x
+
+SCIDB QUERY : <scan(cu002_C)>
+{a} x
+
+SCIDB QUERY : <scan(cu002_D)>
+{x} a
+
+SCIDB QUERY : <scan(cu002_E)>
+{a} x
+
+SCIDB QUERY : <scan(cu002_F)>
+{x} a
+
+SCIDB QUERY : <load_library('upgrade_chunk_index')>
+Query was executed successfully
+
+SCIDB QUERY : <upgradeChunkIndex()>
+Query was executed successfully
+
+SCIDB QUERY : <scan(cu002_A)>
+{x} a
+{0} 10
+{1} 11
+{2} 12
+
+SCIDB QUERY : <scan(cu002_B)>
+{a} x
+{10} 0
+{11} 1
+{12} 2
+
+SCIDB QUERY : <scan(cu002_C)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <scan(cu002_D)>
+{x} a
+{0} 5
+{2} 7
+
+SCIDB QUERY : <scan(cu002_E)>
+{a} x
+{5} 0
+{7} 2
+
+SCIDB QUERY : <scan(cu002_F)>
+{x} a
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

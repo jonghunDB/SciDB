@@ -1,0 +1,16 @@
+Query was executed successfully
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test )". And it failed with error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT. Expected error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT.]
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test, 0.0 )". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2.]
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test, 5 )". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2.]
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test, -0.5 )". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2.]
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test, 0.1, -200 )". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR1. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR1.]
+
+[An error expected at this place for the query "bernoulli ( Bernoulli_Syntax_Test, 0.1, -200, foo )". And it failed with error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_WRONG_OPERATOR_ARGUMENT2. Expected error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_WRONG_OPERATOR_ARGUMENT2.]
+
+Query was executed successfully
+

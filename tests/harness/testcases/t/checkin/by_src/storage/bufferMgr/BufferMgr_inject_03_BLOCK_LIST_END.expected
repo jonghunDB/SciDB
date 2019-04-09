@@ -1,0 +1,15 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(apply(build(<v : int64> [I=0:15,1,0], I), clear, test_clear_cache(), inj, injectError(0,18)), BLOCK_LIST_END)>
+[An error expected at this place for the query "store(apply(build(<v : int64> [I=0:15,1,0], I), clear, test_clear_cache(), inj, injectError(0,18)), BLOCK_LIST_END)". And it failed with error code = scidb::SCIDB_SE_INTERNAL::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_INTERNAL::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(BLOCK_LIST_END)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+

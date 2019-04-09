@@ -1,0 +1,9 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,15)), rocksInsertFailure)>
+[An error expected at this place for the query "store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,15)), rocksInsertFailure)". And it failed.]
+
+SCIDB QUERY : <remove(rocksInsertFailure)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+

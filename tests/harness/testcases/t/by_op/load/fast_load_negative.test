@@ -1,0 +1,99 @@
+# This is exactly the same as the load_negative test, except that here
+# each failed load() uses its own target array.  The idea is to
+# quantify the Postgres lock contention overhead in the original test.
+# In practice I don't think it's a problem.  See comments in SDB-5680.
+
+--setup
+--test
+--start-query-logging
+
+CREATE ARRAY loadTest0 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest1 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest2 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest3 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest4 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest5 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest6 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest7 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest8 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest9 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest10 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest11 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest12 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+CREATE ARRAY loadTest13 < attr_one : string not null, attr_two : int64 > [i=0:*,5,0]
+
+#
+#  Checks for .csv file format
+#
+
+# Check that a '?' symbol with no associated value is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest0,'${TEST_DATA_DIR}/negative_tests_input_001.csv',-2, 'csv')"
+
+# Check that a '?' symbol with a value > 256 is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest1,'${TEST_DATA_DIR}/negative_tests_input_002.csv',-2, 'csv')"
+
+# Check that a '?' symbol with a value < 0 is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest2,'${TEST_DATA_DIR}/negative_tests_input_003.csv',-2, 'csv')"
+
+# Check that a '?' symbol with a string following is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest3,'${TEST_DATA_DIR}/negative_tests_input_004.csv',-2, 'csv')"
+
+# Formerly checked that a valid missing code was rejected when applied
+# to a not nullable column, but since SDB-6149 that is perfectly OK,
+# at least for STRING NOT NULL.
+--stop-query-logging
+load(loadTest4,'${TEST_DATA_DIR}/negative_tests_input_005.csv',-2, 'csv')
+--start-query-logging
+
+# Check that a load missing a column is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest5,'${TEST_DATA_DIR}/negative_tests_input_006.csv',-2, 'csv')"
+
+# Check that a load with a malformed type is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest6,'${TEST_DATA_DIR}/negative_tests_input_007.csv',-2, 'csv')"
+
+#
+#  Equivalent checks for .tsv file format (which uses a different parser)
+#
+
+# Check that a '?' symbol with no associated value is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest7,'${TEST_DATA_DIR}/negative_tests_input_001.tsv',-2, 'tsv')"
+
+# Check that a '?' symbol with a value > 256 is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest8,'${TEST_DATA_DIR}/negative_tests_input_002.tsv',-2, 'tsv')"
+
+# Check that a '?' symbol with a value < 0 is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest9,'${TEST_DATA_DIR}/negative_tests_input_003.tsv',-2, 'tsv')"
+
+# Check that a '?' symbol with a string following is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest10,'${TEST_DATA_DIR}/negative_tests_input_004.tsv',-2, 'tsv')"
+
+# Formerly checked that a valid missing code was rejected whan applied
+# to a not nullable column, but since SDB-6149 that is perfectly OK,
+# at least for STRING NOT NULL.
+--stop-query-logging
+load(loadTest11,'${TEST_DATA_DIR}/negative_tests_input_005.tsv',-2, 'tsv')
+--start-query-logging
+
+# Check that a load missing a column is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest12,'${TEST_DATA_DIR}/negative_tests_input_006.tsv',-2, 'tsv')"
+
+# Check that a load with a malformed type is rejected
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(loadTest13,'${TEST_DATA_DIR}/negative_tests_input_007.csv',-2, 'csv')"
+
+--stop-query-logging
+
+--cleanup
+remove(loadTest0)
+remove(loadTest1)
+remove(loadTest2)
+remove(loadTest3)
+remove(loadTest4)
+remove(loadTest5)
+remove(loadTest6)
+remove(loadTest7)
+remove(loadTest8)
+remove(loadTest9)
+remove(loadTest10)
+remove(loadTest11)
+remove(loadTest12)
+remove(loadTest13)

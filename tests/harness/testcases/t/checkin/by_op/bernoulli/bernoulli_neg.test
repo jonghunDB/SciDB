@@ -1,0 +1,19 @@
+--setup
+#
+#  Create an empty array. Used to test parameter checking. 
+CREATE ARRAY Bernoulli_Syntax_Test < a1 : int64 > [I]
+
+--test
+
+#
+#  Check that all three of the USER_EXCEPTIONS raised in the code
+#  can be reached. 
+--error --code=scidb::SCIDB_SE_SYNTAX::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT "bernoulli ( Bernoulli_Syntax_Test )"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2 "bernoulli ( Bernoulli_Syntax_Test, 0.0 )"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2 "bernoulli ( Bernoulli_Syntax_Test, 5 )"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR2 "bernoulli ( Bernoulli_Syntax_Test, -0.5 )"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_SAMPLE_ERROR1 "bernoulli ( Bernoulli_Syntax_Test, 0.1, -200 )"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_WRONG_OPERATOR_ARGUMENT2 "bernoulli ( Bernoulli_Syntax_Test, 0.1, -200, foo )"
+
+--cleanup
+remove ( Bernoulli_Syntax_Test )

@@ -1,0 +1,54 @@
+Query was executed successfully
+
+Query was executed successfully
+
+{i,j} v
+{0,0} 9
+{0,1} 8
+{1,0} 7
+{1,1} 6
+{2,0} 12
+{2,1} 19
+{3,0} 11
+{3,1} 17
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[An error expected at this place for the query "save(B, 'kw2.opaque', 1, format: 'opaque', instance: 1)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL.]
+
+[An error expected at this place for the query "save(B, 'kw2.opaque', 1, 'tsv', format: 'opaque')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL.]
+
+[An error expected at this place for the query "store(input(B, 'kw2.opaque', instance:0, format:'opaque'), FOO)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_NOT_FOUND. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_NOT_FOUND.]
+
+{i,j} v
+{0,0} 9
+{0,1} 8
+{1,0} 7
+{1,1} 6
+{2,0} 12
+{2,1} 19
+{3,0} 11
+{3,1} 17
+
+{i,j} v,v
+
+{i,j} v
+{0,0} 9
+{0,1} 8
+{1,0} 7
+{1,1} 6
+{2,0} 12
+{2,1} 19
+{3,0} 11
+{3,1} 17
+
+{i,j} v,v
+
+[An error expected at this place for the query "load(GLEE, 'kw2.opaque', -2, instance:-1, format:'opaque')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL.]
+
+[An error expected at this place for the query "load(GLEE, 'kw2.opaque', -1, 'tsv', format:'opaque')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL.]
+
+Query was executed successfully
+
+Query was executed successfully
+

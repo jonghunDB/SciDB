@@ -1,0 +1,30 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,20)), failPinValueArray)>
+[An error expected at this place for the query "store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,20)), failPinValueArray)". And it failed with error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST. Expected error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST.]
+
+SCIDB QUERY : <create temp array failDeleteRecordArray<u:int64,v:int64>[i=0:100:0:10]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(apply(build(<u:int64>[i=0:100:0:10], i), v, injectError(0,19)), failDeleteRecordArray)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(failDeleteRecordArray)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <create temp array failDeleteRecordArray<u:int64,v:int64>[i=0:100:0:10]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(apply(build(<u:int64>[i=0:100:0:10], i), v, injectError(0,19)), failDeleteRecordArray)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <delete(failDeleteRecordArray, i!=0)>
+[An error expected at this place for the query "delete(failDeleteRecordArray, i!=0)". And it failed with error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST. Expected error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST.]
+
+SCIDB QUERY : <remove(failDeleteRecordArray)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(failPinValueArray)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+

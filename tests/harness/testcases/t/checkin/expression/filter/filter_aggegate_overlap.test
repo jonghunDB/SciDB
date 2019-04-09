@@ -1,0 +1,13 @@
+--setup
+store(apply(build(<K:INT64>[ROW=0:5:1:4], ROW), A, K/2.0),TEST)
+--test
+--start-query-logging
+
+# SDB-5604:
+# Confirm that the chunk iterator of the FilterArray input to aggregate uses
+# the same IGNORE_OVERLAP mode setting.
+aggregate(filter(TEST, A = 1.0), count(*) AS CNT)
+--stop-query-logging
+
+--cleanup
+remove(TEST)

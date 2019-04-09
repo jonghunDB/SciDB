@@ -1,0 +1,17 @@
+--setup
+
+--igdata "store(apply(build(<val:double> [x=1:10000,1000,0], random()), val2, iif(x%2=0, 'abc','def'), val3, 0), temp)"
+
+--test
+
+summarize(temp)
+
+summarize(temp, by_instance:true)
+
+summarize(temp, by_attribute:true)
+
+summarize(temp, by_instance:true, by_attribute:true)
+
+--cleanup
+
+remove(temp)

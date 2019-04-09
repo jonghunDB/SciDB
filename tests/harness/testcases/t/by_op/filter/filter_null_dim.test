@@ -1,0 +1,34 @@
+# See ticket SDB-5967.
+#
+# Filtering with expressions involving dimensions and null should
+# filter out everything (and not crash).  Doing this is useless but
+# syntactically and semantically valid.
+
+--setup
+--igdata "store(build(<val:int64>[i=0:5], 2*i+1), spud)"
+
+--test
+--echo The null expression term should have no effect.
+filter(spud, i is not null)
+filter(spud, val <= 5 and i is not null)
+
+--echo These yields nothing, no comparison (even !=) vs. null should work.
+filter(spud, i != null)
+filter(spud, i = null)
+filter(spud, null != i)
+filter(spud, null = i)
+filter(spud, i is null)
+filter(spud, i <> null)
+filter(spud, val <= 5 and i = null)
+
+--echo These too: all empty.
+filter(spud, i < null)
+filter(spud, i <= null)
+filter(spud, i > null)
+filter(spud, i >= null)
+
+--echo Check weird non-storing filter behavior.  Should yield nothing.
+filter(build(<val:double>[i=0:5], random()), i = null)
+
+--cleanup
+remove(spud)

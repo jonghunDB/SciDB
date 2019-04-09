@@ -1,0 +1,38 @@
+# Rewrite the large_scale_using_test to use redimension() with
+# automatic chunk length calculation.
+
+# See Trac #4606 (SDB-2079).
+#
+#  This is a (large) test of our per-dimension chunk length
+#  calculation code. The point of the test is to ensure that
+#  it works at number of cells > 2^32.
+--setup
+--start-query-logging
+--start-igdata
+
+#  Generate an input data set with 2^32 + 2^28 cells ...
+store ( apply ( build ( < dim1 : int64 > [ R=0:4563402751,1048576, 0 ], \
+                        (R / 4194304) % 2048 ), \
+                dim2, (R/2048) % 2048, \
+                dim3, R % 2048, \
+                count, R % 2048 ), \
+        large1DLoadArray )
+
+--test
+
+# Redimension and store it, dynamically calculating the per-dimension
+# chunk lengths.  (Now that SDB-5625 is fixed, we can default *all*
+# the dimension parameters!)
+store ( redimension ( large1DLoadArray, \
+                      < count : int64 > [dim1; dim2; dim3], \
+                      false ), \
+        testThreeDim )
+
+--stop-igdata
+
+# Check for reasonable and consistent chunk lengths.
+show ( testThreeDim )
+
+--cleanup
+remove ( testThreeDim )
+remove ( large1DLoadArray )

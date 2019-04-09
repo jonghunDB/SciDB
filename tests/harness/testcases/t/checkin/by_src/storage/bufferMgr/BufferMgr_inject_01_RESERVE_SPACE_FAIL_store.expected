@@ -1,0 +1,12 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(apply(build(<v : int64> [I=0:15,1,0], I), inj, injectError(0,17)), RESERVE_SPACE_FAIL)>
+[An error expected at this place for the query "store(apply(build(<v : int64> [I=0:15,1,0], I), inj, injectError(0,17)), RESERVE_SPACE_FAIL)". And it failed with error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY. Expected error code = scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(RESERVE_SPACE_FAIL)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+

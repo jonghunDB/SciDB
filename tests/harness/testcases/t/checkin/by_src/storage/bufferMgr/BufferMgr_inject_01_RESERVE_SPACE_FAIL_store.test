@@ -1,0 +1,39 @@
+#
+# test coverage for rare blocks in BufferMgr.cpp
+#
+--setup
+--start-query-logging
+
+# Inject Error Support
+load_library('misc')
+
+# NOTE: applying over chunks 0:15 makes the hashed distribution cover up to 8 instances
+# NOTE: apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())
+#       is used to ensure that injected errors in the allocation path are cleared from all
+#       instances, because the actual test may cause some instances to abort before clearing
+#       their injection state
+#       doing this after every injection ensures we don't leave a time-bomb for the next
+#       query section or the .test that follows us
+# NOTE --shell --command is used instead of --justrun because the output depends on
+#      whether all instances consume their injected error prior to being aborted by the
+#      coordinator because of one of the other instances failing already
+
+--test
+
+### inject RESERVE_SPACE_FAIL during store (non-const chunk case)
+--start-igdata
+--error --code scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY "store(apply(build(<v : int64> [I=0:15,1,0], I), inj, injectError(0,17)), RESERVE_SPACE_FAIL)"
+# clear injections and validate they are clear
+--shell --command "iquery -aq 'apply(build(<v:int64>[I=0:15,1,0],I),cc,test_clear_cache())' 2> /dev/null || true"
+apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())
+--stop-igdata
+
+--cleanup
+--start-igdata
+# clear injections (save later .tests after jump to cleanup)
+--shell --command "iquery -aq 'apply(build(<v:int64>[I=0:15,1,0],I),cc,test_clear_cache())' 2> /dev/null || true"
+--stop-igdata
+
+--justrun "remove(RESERVE_SPACE_FAIL)"
+
+--stop-query-logging

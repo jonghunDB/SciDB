@@ -1,0 +1,45 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+The null expression term should have no effect.
+{i} val
+{0} 1
+{1} 3
+{2} 5
+{3} 7
+{4} 9
+{5} 11
+
+{i} val
+{0} 1
+{1} 3
+{2} 5
+
+These yields nothing, no comparison (even !=) vs. null should work.
+{i} val
+
+{i} val
+
+{i} val
+
+{i} val
+
+{i} val
+
+{i} val
+
+{i} val
+
+These too: all empty.
+{i} val
+
+{i} val
+
+{i} val
+
+{i} val
+
+Check weird non-storing filter behavior.  Should yield nothing.
+{i} val
+
+Query was executed successfully
+

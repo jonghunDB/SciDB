@@ -1,0 +1,54 @@
+# SDB-5687.
+# Test some boundary conditions when autochunking's default
+# provisional intervals would exceed the maximum cell count for a
+# logical chunk.
+#
+# The product of all the chunk intervals in a dimension spec must be
+# <= (2**63) - 1, that is, it has to fit a signed 64-bit integer.
+# This formerly wasn't always so for the "provisional" dimension spec
+# created by redimension()'s internals.
+#
+# The real proof that this works as expected is in the "Using
+# provisional chunk intervals..."  scidb.log messages.  With infinite
+# time the right test would be a built-in test operator to call
+# RedimensionCommon::makeProvisionalChunking() and check the outputs
+# for known inputs.  But at the very least, these queries shouldn't
+# blow up.
+#
+# Magic number 55,108 below is pow((2**63) - 1, 1.0/4) (4th root of
+# max logical chunk size).
+
+--setup
+
+--test
+--echo Test 1: The repro example from the ticket.
+store(build(<x:int64>[i=0:0; j=0:0; k=0:0; l=0:0], from: '[[[[0]]]]'), zero4d)
+create temp array four_d_unbounded<x:int64>[i=0:*; j=0:*; k=0:*; l=0:*]
+redimension(zero4d, four_d_unbounded)  -- Q01
+
+
+--echo Test 2: Fix all but one interval; the remaining interval should be well below 1e6.
+# In the log, dimension l interval should be about 43387.
+redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:70000; l=0:*])  -- Q02
+
+--echo Test 3: Way too big: 55108**3 * 70000 >> (2**63) - 1
+--error --code=scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE \
+    "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:70000; l=0:*:0:55108])  -- Q03"
+
+--echo Test 4: Fixed interval synthetic dimension.
+--error --code=scidb::SCIDB_SE_METADATA::SCIDB_LE_LOGICAL_CHUNK_SIZE_TOO_LARGE \
+    "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:55108; l=0:*:0:55108; \
+                                   synth=0:*:0:8])  -- Q04-A"
+redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:55108; l=0:*:0:6888; \
+                                   synth=0:*:0:8])  -- Q04-B"
+
+--echo Test 5: Autochunked synthetic dimension.
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OP_REDIMENSION_SYNTH_INTERVAL \
+    "redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*:0:55108; l=0:*:0:55108; \
+                                   synth=0:*])  -- Q05-A"
+redimension(zero4d, <x:int64>[i=0:*:0:55108; j=0:*:0:55108; k=0:*; l=0:*:0:55108; \
+                              synth=0:*])  -- Q05-B
+
+--cleanup
+remove(zero4d)
+remove(four_d_unbounded)

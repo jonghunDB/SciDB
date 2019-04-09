@@ -1,0 +1,2 @@
+# SDB-1632
+--shell --command "${TESTDIR}/remove_versions_02.sh"

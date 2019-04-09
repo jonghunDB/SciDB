@@ -1,0 +1,153 @@
+SCIDB QUERY : <show('build(<v:int32>[i=-9:10:2; j=0:4], i+j)', 'afl')>
+{i} schema
+{0} 'build<v:int32> [i=-9:10:2:1000; j=0:4:0:1000]'
+
+SCIDB QUERY : <show('build(<v:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], i+j+k)', 'afl')>
+{i} schema
+{0} 'build<v:int32> [i=-9:10:2:44; j=0:4:0:500; k=0:1:0:44]'
+
+SCIDB QUERY : <show('input(<v:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], \'/dev/null\', -2, \'tsv\')', 'afl')>
+{i} schema
+{0} 'tmp_input_array<v:int32> [i=-9:10:2:44; j=0:4:0:500; k=0:1:0:44]'
+
+SCIDB QUERY : <store(input(<v0:int32, v1:int32, v2:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], '/tmp/sm10.csv', -2, 'csv'), X)>
+[An error expected at this place for the query "store(input(<v0:int32, v1:int32, v2:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], '/tmp/sm10.csv', -2, 'csv'), X)". And it failed with error code = scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_MULTIDIMENSIONAL_ARRAY_NOT_ALLOWED. Expected error code = scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_MULTIDIMENSIONAL_ARRAY_NOT_ALLOWED.]
+
+SCIDB QUERY : <store(input(<v0:int32, v1:int32, v2:int32>[i=-9:10:2], '/tmp/sm10.csv', -2, 'csv'), A0)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(A0)>
+{i} schema
+{0} 'A0<v0:int32,v1:int32,v2:int32> [i=-9:10:2:1000000]'
+
+SCIDB QUERY : <create array A1<a:int32, b:int32, c:int32>[i=-9:10:2]>
+Query was executed successfully
+
+SCIDB QUERY : <show(A1)>
+{i} schema
+{0} 'A1<a:int32,b:int32,c:int32> [i=-9:10:2:*]'
+
+SCIDB QUERY : <store(project(scan(A1), a), A1A)>
+{i} a
+
+SCIDB QUERY : <show(A1A)>
+{i} schema
+{0} 'A1A<a:int32> [i=-9:10:2:1000000]'
+
+Store stuff into A1...
+SCIDB QUERY : <load(A1, '/tmp/sm10.csv', -2, 'csv')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(A1)>
+{i} schema
+{0} 'A1<a:int32,b:int32,c:int32> [i=-9:10:2:1000000]'
+
+SCIDB QUERY : <create temp array TA1<a:int32, b:int32, c:int32>[i=-9:10:2]>
+Query was executed successfully
+
+SCIDB QUERY : <show(TA1)>
+{i} schema
+{0} 'TA1<a:int32,b:int32,c:int32> [i=-9:10:2:*]'
+
+SCIDB QUERY : <store(project(TA1, b), TA1A)>
+{i} b
+
+SCIDB QUERY : <show(TA1A)>
+{i} schema
+{0} 'TA1A<b:int32> [i=-9:10:2:1000000]'
+
+Store stuff into TA1...
+SCIDB QUERY : <load(TA1, '/tmp/sm10.csv', -2, 'csv')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(TA1)>
+{i} schema
+{0} 'TA1<a:int32,b:int32,c:int32> [i=-9:10:2:1000000]'
+
+SCIDB QUERY : <create array A2<v:int64>[i=0:199:0:200; j=0:*; k=0:*]>
+Query was executed successfully
+
+SCIDB QUERY : <show(A2)>
+{i} schema
+{0} 'A2<v:int64> [i=0:199:0:200; j=0:*:0:*; k=0:*:0:*]'
+
+SCIDB QUERY : <store(apply(scan(A2), w, v+42), A2A)>
+{i,j,k} v,w
+
+SCIDB QUERY : <show(A2A)>
+{i} schema
+{0} 'A2A<v:int64,w:int64> [i=0:199:0:200; j=0:*:0:70; k=0:*:0:70]'
+
+Store redim(stuff, A2) into A2...
+SCIDB QUERY : <store(redimension(apply(input(<i:int32, j:int32, k:int32>[row], '/tmp/sm10.csv', -2, 'csv'), v, int64(i+j)), A2), A2)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(A2)>
+{i} schema
+{0} 'A2<v:int64> [i=0:199:0:200; j=0:*:0:16; k=0:*:0:16]'
+
+SCIDB QUERY : <create temp array TA2<v:int64>[i=0:199:0:200; j=0:*; k=0:*]>
+Query was executed successfully
+
+SCIDB QUERY : <show(TA2)>
+{i} schema
+{0} 'TA2<v:int64> [i=0:199:0:200; j=0:*:0:*; k=0:*:0:*]'
+
+SCIDB QUERY : <store(apply(TA2, w, v+7), TA2A)>
+{i,j,k} v,w
+
+SCIDB QUERY : <show(TA2A)>
+{i} schema
+{0} 'TA2A<v:int64,w:int64> [i=0:199:0:200; j=0:*:0:70; k=0:*:0:70]'
+
+Store redim(stuff, TA2) into TA2...
+SCIDB QUERY : <store(redimension(apply(input(<i:int32, j:int32, k:int32>[row], '/tmp/sm10.csv', -2, 'csv'), v, int64(i+j)), TA2), TA2)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show(TA2)>
+{i} schema
+{0} 'TA2<v:int64> [i=0:199:0:200; j=0:*:0:16; k=0:*:0:16]'
+
+SCIDB QUERY : <create array A3<v:int64>[i=0:199; j=0:*; k=0:*]>
+Query was executed successfully
+
+SCIDB QUERY : <show(A3)>
+{i} schema
+{0} 'A3<v:int64> [i=0:199:0:*; j=0:*:0:*; k=0:*:0:*]'
+
+SCIDB QUERY : <create array B3<v:int64>[i=0:199:0:200; j=0:*:0:10; k=0:*:0:5]>
+Query was executed successfully
+
+SCIDB QUERY : <show(B3)>
+{i} schema
+{0} 'B3<v:int64> [i=0:199:0:200; j=0:*:0:10; k=0:*:0:5]'
+
+SCIDB QUERY : <store(A3, B3)>
+{i,j,k} v
+
+SCIDB QUERY : <show(B3)>
+{i} schema
+{0} 'B3<v:int64> [i=0:199:0:200; j=0:*:0:10; k=0:*:0:5]'
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

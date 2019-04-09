@@ -1,0 +1,26 @@
+# derived from subarray_ebm.test (#4318) but
+# here we focus on the correct behavior of sg
+
+--setup
+--start-query-logging
+
+--test
+
+                                    build(<a:int64 NULL>[d=0:21,7,0],0)
+                                _sg(build(<a:int64 NULL>[d=0:21,7,0],0),1)
+
+                              apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)
+                          _sg(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2),1)
+
+                    transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2))
+                _sg(transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)),1)
+
+             window(transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)),0,5,0,4,0,5,min(a1),max(a2),'probe')
+         _sg(window(transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)),0,5,0,4,0,5,min(a1),max(a2),'probe'),1)
+
+    subarray(window(transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)),0,5,0,4,0,5,min(a1),max(a2),'probe'),66,-26,-5,68,-12,9)
+_sg(subarray(window(transpose(apply(build(<a0:int64 NULL>[d0=-7:14,7,3,d1=-30:-2,27,4,d2=46:70,8,1],0),a1,d1,a2,d2)),0,5,0,4,0,5,min(a1),max(a2),'probe'),66,-26,-5,68,-12,9),1)
+
+
+--cleanup
+--stop-query-logging

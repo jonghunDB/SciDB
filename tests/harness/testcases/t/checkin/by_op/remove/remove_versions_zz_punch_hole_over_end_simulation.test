@@ -1,0 +1,57 @@
+# SDB-1632
+
+--setup
+--start-query-logging
+
+# first, create base_path.txt
+--shell --command "iquery -o csv -aq "project(filter(list('instances'), instance_id=0), instance_path)" | head -n1  | sed -e "s/'\(.*\)'/\1/" > /tmp/${HPID}.base_path.txt"
+# debugging feedback to stderr
+--shell --store --command "echo base_path is $(cat /tmp/${HPID}.base_path.txt) >&2"
+
+--start-igdata
+# store 2001 cells in array version 1
+# so that last chunk is only barely occupied
+store(build(<val:int64>[i=1:257,64,0], i%2), ARRAY)
+--stop-igdata
+
+# delete the only cell in the last chunk
+delete(ARRAY, i>256)
+
+
+--test
+
+# get the current size of the datastore
+--shell --store --command "du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_original.stdout"
+# debugging feedback to stderr
+--shell --command "echo du_original: $(cat /tmp/${HPID}.du_original.stdout) >&2"
+
+# remove array version 1
+remove_versions(ARRAY)
+
+# get the current size of the datastore
+--shell --store --command "du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_after.stdout"
+# debugging feedback to stderr
+--shell --command "echo du_after:    $(cat /tmp/${HPID}.du_after.stdout) >&2"
+
+# the punch_holes functionality will have removed many blocks from the file during remove_versions()
+# and it will include removing the last chunk of the datastore.  Removing that chunk allows
+# the "normally disabled" code in File::fallocPunchHoles() to run and validate what happens if its
+# arguments span eof.
+
+# to make the test pass/fail, just check that the first du is larger than the second du
+# this outputs a 1 into the .out file when true
+# this is not really what is being tested, but is good for checking that the test conditions are correct
+--shell --store-all --command "echo $(cat /tmp/${HPID}.du_original.stdout) '>' $(cat /tmp/${HPID}.du_after.stdout) | bc"
+
+# and now we should be able to find a message in one of the scidb.log files
+# the sizes were chosen so that on a 4 instance config, with the current hash function, the message
+# will occurr in instance 0.
+--shell --store --command "fgrep File::fallocPunchHole $(cat /tmp/${HPID}.base_path.txt)/scidb.log"
+
+--cleanup
+
+remove(ARRAY)
+
+--shell --command "rm /tmp/${HPID}.base_path.txt"
+--shell --command "rm /tmp/${HPID}.du_original.stdout"
+--shell --command "rm /tmp/${HPID}.du_after.stdout"

@@ -1,0 +1,12 @@
+# SDB-5971.  The (unsupported) AFL version of create_array() ought to
+# be able to use autochunked dimensions too.
+
+--setup
+--test
+create_array(behold_the_autochunk, <x:double>[i=0:10:0:*], false)
+create_array(grok_the_autochunk, <x:double>[i=0:10], false)
+show(behold_the_autochunk)
+show(grok_the_autochunk)
+--cleanup
+remove(behold_the_autochunk)
+remove(grok_the_autochunk)

@@ -1,0 +1,17 @@
+--setup
+store(build(<val:bool>[i=0:5], iif(i=2 or i=3, null, iif(i%5=0, false, true))),Base)
+store(cross_join(Base, Base),CJ)
+store(build(<val:bool>[i=0:1], i), T_F)
+
+--test
+--start-query-logging
+apply(Base, pOrq, val or null, qOrp, null or val)
+apply(Base, pAndq, val and null, qAndp, null and val)
+apply(CJ, vorv2, val or val_2, v2orv, val_2 or val, vandv2, val and val_2, v2andv, val_2 and val)
+apply( apply(T_F, negate, not val), pOrq, val or negate, qOrp, negate or val, pAndq, val and negate, qandp, negate and val)
+--stop-query-logging
+
+--cleanup
+remove(Base)
+remove(CJ)
+remove(T_F)

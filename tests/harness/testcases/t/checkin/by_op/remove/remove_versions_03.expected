@@ -1,0 +1,116 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+Behold, we have made five versions.
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@1'
+{2} 'baz@2'
+{3} 'baz@3'
+{4} 'baz@4'
+{5} 'baz@5'
+
+SCIDB QUERY : <remove_versions(not_an_array)>
+[An error expected at this place for the query "remove_versions(not_an_array)". And it failed with error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_ARRAY_DOESNT_EXIST. Expected error code = scidb::SCIDB_SE_QPROC::SCIDB_LE_ARRAY_DOESNT_EXIST.]
+
+SCIDB QUERY : <remove_versions(baz, -1)>
+[An error expected at this place for the query "remove_versions(baz, -1)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST.]
+
+SCIDB QUERY : <remove_versions(baz, -2)>
+[An error expected at this place for the query "remove_versions(baz, -2)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST.]
+
+SCIDB QUERY : <remove_versions(baz, -42)>
+[An error expected at this place for the query "remove_versions(baz, -42)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST.]
+
+SCIDB QUERY : <remove_versions(baz, keep: -1)>
+[An error expected at this place for the query "remove_versions(baz, keep: -1)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT.]
+
+SCIDB QUERY : <remove_versions(baz, keep: 0)>
+[An error expected at this place for the query "remove_versions(baz, keep: 0)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_INVALID_OPERATOR_ARGUMENT.]
+
+SCIDB QUERY : <remove_versions(baz@4, 2)>
+[An error expected at this place for the query "remove_versions(baz@4, 2)". And it failed with error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_CANT_ACCESS_ARRAY_VERSION. Expected error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_CANT_ACCESS_ARRAY_VERSION.]
+
+Still five versions.
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@1'
+{2} 'baz@2'
+{3} 'baz@3'
+{4} 'baz@4'
+{5} 'baz@5'
+
+Keep more versions than exist, no change.
+SCIDB QUERY : <remove_versions(baz, keep:1000)>
+Query was executed successfully
+
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@1'
+{2} 'baz@2'
+{3} 'baz@3'
+{4} 'baz@4'
+{5} 'baz@5'
+
+Keep exactly how many exist, no change.
+SCIDB QUERY : <remove_versions(baz, keep:5)>
+Query was executed successfully
+
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@1'
+{2} 'baz@2'
+{3} 'baz@3'
+{4} 'baz@4'
+{5} 'baz@5'
+
+Keep last four versions.
+SCIDB QUERY : <remove_versions(baz, keep:4)>
+Query was executed successfully
+
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@2'
+{2} 'baz@3'
+{3} 'baz@4'
+{4} 'baz@5'
+
+Keep last two versions.
+SCIDB QUERY : <remove_versions(baz, keep:2)>
+Query was executed successfully
+
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@4'
+{2} 'baz@5'
+
+Cannot use removed version anymore.
+SCIDB QUERY : <remove_versions(baz, 2)>
+[An error expected at this place for the query "remove_versions(baz, 2)". And it failed with error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST. Expected error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAY_VERSION_DOESNT_EXIST.]
+
+Keep only last version.
+SCIDB QUERY : <remove_versions(baz)>
+Query was executed successfully
+
+SCIDB QUERY : <filter(project(list('arrays', true), name), regex(name, '^baz.*'))>
+{No} name
+{0} 'baz'
+{1} 'baz@5'
+
+Query was executed successfully
+

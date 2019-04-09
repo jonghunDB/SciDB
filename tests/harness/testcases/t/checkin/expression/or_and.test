@@ -1,0 +1,18 @@
+--setup
+store(build(<val:bool>[i=0:4], iif(i<2, i, missing((i-2)%3))), BOOLS)
+--test
+
+--start-query-logging
+
+# Test non-tile mode or and/or/=
+apply(cross_join(BOOLS AS first, BOOLS as second), pOrq, first.val or second.val, pAndq , first.val and second.val, p_eq_q, first.val = second.val)
+
+# Test tile mode or and/or/=
+store(cross_join(BOOLS AS first, BOOLS as second), B)
+apply(B, pOrq, val or val_2, pAndq, val and val_2, p_eq_q, val = val_2)
+
+--stop-query-logging
+
+--cleanup
+remove(BOOLS)
+remove(B)

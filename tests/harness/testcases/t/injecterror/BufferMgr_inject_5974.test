@@ -1,0 +1,43 @@
+--setup
+--start-query-logging
+
+
+# Inject Error Support
+load_library('misc')
+#
+# make SRC_CHUNKS, clear it from the cache
+--start-igdata
+store(build(<v : int64> [I=0:9,1,0], I), SRC_CHUNKS)
+apply(build(<v : int64> [I=0:9,1,0], I), clear_cache, test_clear_cache())
+--stop-igdata
+
+--test
+#
+# test coverage for rare blocks in BufferMgr.cpp
+#
+--start-igdata
+
+##
+## inject RESERVE_SPACE_FAIL during store (non-const chunk case)
+##
+--error --code scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY "store(apply(build(<v : int64> [I=0:1,1,0], I), inject, injectError(0,17)), RESERVE_SPACE_FAIL)"
+
+# make sure injectErrors are all consumed
+--justrun "store(build(<v : int64> [I=0:1,1,0], I), TMP)"
+
+##
+## inject RESERVE_SPACE_FAIL on scan
+##
+
+# test read using implicit scan (consume doesn't seem to work)
+--stop-igdata
+--error --code scidb::SCIDB_SE_STORAGE::SCIDB_LE_CANT_ALLOCATE_MEMORY "apply(SRC_CHUNKS, inject, injectError(0,17))"
+
+--cleanup
+
+--justrun "remove(RESERVE_SPACE_FAIL)"
+--justrun "remove(TMP)"
+
+remove(SRC_CHUNKS)
+
+--stop-query-logging

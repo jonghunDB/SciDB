@@ -1,0 +1,109 @@
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, true)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, not true)>
+{i} v
+
+SCIDB QUERY : <filter(A, false)>
+{i} v
+
+SCIDB QUERY : <filter(A, not false)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, 0)>
+{i} v
+
+SCIDB QUERY : <filter(A, not 0)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, 1)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, not 1)>
+{i} v
+
+SCIDB QUERY : <filter(A, null)>
+{i} v
+
+SCIDB QUERY : <filter(A, not null)>
+{i} v
+
+SCIDB QUERY : <filter(A, null or true)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, not null or true)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, null or false)>
+{i} v
+
+SCIDB QUERY : <filter(A, not null or false)>
+{i} v
+
+SCIDB QUERY : <filter(A, true or null)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, false or null)>
+{i} v
+
+SCIDB QUERY : <filter(A, true or not null)>
+{i} v
+{0} 0
+{1} 1
+{2} 2
+
+SCIDB QUERY : <filter(A, false or not null)>
+{i} v
+
+SCIDB QUERY : <filter(A, null and true)>
+{i} v
+
+SCIDB QUERY : <filter(A, not null and true)>
+{i} v
+
+SCIDB QUERY : <filter(A, null and false)>
+{i} v
+
+SCIDB QUERY : <filter(A, not null and false)>
+{i} v
+
+SCIDB QUERY : <filter(A, true and null)>
+{i} v
+
+SCIDB QUERY : <filter(A, false and null)>
+{i} v
+
+SCIDB QUERY : <filter(A, true and not null)>
+{i} v
+
+SCIDB QUERY : <filter(A, false and not null)>
+{i} v
+
+Query was executed successfully
+

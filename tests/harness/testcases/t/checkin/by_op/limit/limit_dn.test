@@ -1,0 +1,28 @@
+--setup
+create array array0 <val:double> [i=0:99:0:23, j=0:99:0:23]
+
+--igdata "store(build(array0, i*99+j), array0)"
+
+--test
+
+# Test that keyword and positional arguments both work.
+limit(sort(array0, val), 10)
+limit(sort(array0, val), count:10)
+
+limit(sort(array0, val), 10, 10)
+limit(sort(array0, val), count:10, offset:10)
+
+# Test that limit will return whole array when argument is greater than number elements.
+op_count(limit(array0, 11000))
+
+# Test that if count + offset goes higher than number of elements, will just return the remainder.
+
+limit(sort(array0, val), 10, 9995)
+
+# Test that the count and offset are correct even when they straddle chunks.
+
+limit(sort(array0, val), 100, 100)
+
+
+--cleanup
+remove(array0)

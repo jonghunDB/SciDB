@@ -1,0 +1,99 @@
+--setup
+--start-query-logging
+
+#
+# arrays just large enough to be rejected by examination of a single dimension
+#
+
+# tallest: 2^31+1 x 1
+create array A_tallest <x:double>[r=0:int64(pow(2.0,31.0)),1024,0, c=0:0,1024,0]
+# widest:  1      x 12^31+1
+create array A_widest  <x:double>[r=0:0,1024,0,                    c=0:int64(pow(2.0,31.0)),1024,0]
+# resultest 1 x 1
+
+#
+# arrays that pass the single dimension test, but not the maximum number of values (area) test
+#
+
+# taller: 2^22 x 2^11 = 2^33 ... the extra 2^2 is because its divided over 4 instances
+create array A_taller <x:double>[r=0:int64(pow(2.0,22.0)),1024,0, c=0:2048-1,1024,0]
+# wider:  2^11 x 2^22 = 2^33
+create array A_wider <x:double>[r=0:2048-1,1024,0,                c=0:int64(pow(2.0,22.0)),1024,0]
+
+#
+# arrays small enought o pass the max values (area) test, and could succeeed on nodes with lots of memory.
+# However these will still fail on a standard config.ini which do not allow scidb to grow to
+# 8*4=32 GB mallocs of a single array
+#
+
+# taller: 2^22-2*chunk-1 x 2^11
+create array A_tall <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:2048-1,1024,0]
+# wider:  2^11   x 2^22-2*chunk-1
+create array A_wide <x:double>[r=0:2048-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]
+
+#
+# result arrays for the above pairs (the last two shared the same result size)
+#
+
+# small a 2048x2048 sized C matrix
+create array C_small <x:double>[r=0:2048-1,1024,0, c=0:2048-1,1024,0]
+
+# tiny: a 1x1 result-sized "C" matrix
+create array C_tiny <x:double>[r=0:0,1024,0, c=0:0,1024,0]
+
+#
+# arrays for results multiplied in the opposite order, producing a large result
+# [NOCHECKIN: some of these? all?] will fail because of the attributes of the result matrix
+#
+create array C_largest <x:double>[r=0:int64(pow(2.0,31.0)),1024,         0, c=0:int64(pow(2.0,31.0)),1024,0]
+create array C_larger  <x:double>[r=0:int64(pow(2.0,22.0)),1024,         0, c=0:int64(pow(2.0,22.0)),1024,0]
+create array C_large   <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]
+
+# [NOCHECKIN: reverse the order of all of these tests? ... smaller to larger?]
+
+load_library('dense_linear_algebra')
+
+--test
+
+# three pairs of arrays in two orders  = 6 tests
+# note that gemm treats the un-stored input arrays as if they were full of zeros, so we can test
+# very large matrices and test the size checks without actually paying the cost of moving the data
+# via chunk operations -- so the tests reach failure within execute quickly.
+
+# these should fail the single-dim tests
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gemm(A_widest, A_tallest, C_tiny))"
+--error --code=scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED "consume(gemm(A_tallest, A_widest, C_largest))"
+
+# these should pass the single-dim tests (but fail actual allocation on run.py configs)
+# (but these examples can be used to prove the positive functionality on a system with enough memory and
+#  large enough settings in the config.ini)
+--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gemm(A_wider, A_taller, C_small))"
+--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gemm(A_taller, A_wider, C_larger))"
+
+# this one will also pass single-dim (but fail allocation on run.py configs because of C_large)
+--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gemm(A_tall, A_wide, C_large))"
+
+# this should pass the dimensionality test (but fail memory allocation on typical setups)
+# SDB-6058:
+#   unfortunately while this usually gets the expected error in CDASH, sometimes it gets
+#   SCIDB_LE_OPERATION_FAILED 'MPI launcher process already terminated'
+#   Debugging the launcher is a large effort, so disable this test until that effort is scheduled
+#--error --code=scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR "consume(gemm(A_wide, A_tall, C_small))"
+
+--cleanup
+# inputs
+remove(A_tallest)
+remove(A_taller)
+remove(A_tall)
+
+remove(A_widest)
+remove(A_wider)
+remove(A_wide)
+
+remove(C_largest)
+remove(C_larger)
+remove(C_large)
+
+remove(C_small)
+remove(C_tiny)
+

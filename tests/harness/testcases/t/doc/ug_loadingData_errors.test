@@ -1,0 +1,21 @@
+--setup
+--start-query-logging
+
+--shell --store --command " sed 1d $DOC_DATA/int4error.csv > /tmp/int4error.csv "
+
+--test
+--aql CREATE ARRAY intensityFlat < exposure:string,elapsedTime:int64,measuredIntensity:int64 null > [i=0:6,1000000,0]
+#--aql LOAD intensityFlat FROM '/tmp/int4error.csv' AS 'csv' ERRORS 99
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "LOAD intensityFlat FROM '/tmp/int4error.csv' AS 'csv' ERRORS 99""
+--aql SELECT * FROM intensityFlat
+
+# NOTE: we lost functionality of shadow arrays here. Review
+
+--aql SELECT intensityFlat.exposure AS exposureDATUM, intensityFlat.elapsedTime AS elapsedTimeDATUM, intensityFlat.measuredIntensity AS measuredIntensityDATUM INTO intensityFlatBadCells FROM intensityFlat
+--aql SELECT * FROM intensityFlatBadCells
+
+--cleanup
+--aql drop array intensityFlat
+--aql drop array intensityFlatBadCells
+--shell --command "rm -f /tmp/int4error.csv"
+--stop-query-logging

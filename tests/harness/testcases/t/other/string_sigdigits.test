@@ -1,0 +1,24 @@
+--setup
+--start-query-logging
+# Set the precision of scidbtestharness to something greater than the sigdigs of
+# a double (15). (see SDB-5535)
+--set-precision 20
+--test
+
+# Test the conversion of floating point numbers to string.  The Default string converter
+# will output with maximum number of meaningful digits for the given data type: float will
+# have 6 significant digits and double will have 15 significant digits
+apply(build(<value:float>[sigdig=0:19],1/67.0),string_rep,string(value))
+apply(build(<value:double>[sigdig=0:19],1/67.0),string_rep,string(value))
+
+# Test the string function where the number of significant digits can be given.
+# Note: significant digits for the output are determined to be the the minimum
+#       of the argument and std::numeric_limits<T>::digits10 (6 for float, and
+#       15 for double).
+# Example: a request to output 10 significant digits for a float will only
+#          output a string with 6 significant digits since that the limit for
+#          float, but doubles will output with 10 significant digits.
+apply(build(<value:float>[sigdig=0:19],1/67.0),string_rep,string(value,sigdig))
+apply(build(<value:double>[sigdig=0:19],1/67.0),string_rep,string(value,sigdig))
+--stop-query-logging
+--cleanup

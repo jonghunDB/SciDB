@@ -1,0 +1,10 @@
+--setup
+store(redimension(input(<chrom:int64, pos:int64, ref:string>[i], '${TESTDIR}/sdb-6182.csv', format:'csv'), <ref:string> [chrom=1:25:0:1; pos=0:1000000:0:10000000]), sdb6182)
+--start-query-logging
+
+--test
+filter(sdb6182, pos >= -1)
+
+--cleanup
+remove(sdb6182)
+--stop-query-logging

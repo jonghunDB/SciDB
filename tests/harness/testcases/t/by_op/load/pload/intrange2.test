@@ -1,0 +1,25 @@
+# Test integer input ranges using in-engine CSV loading.  See ticket #4273.
+
+# It was interesting to compare intrange2.expected (shadow values)
+# vs. intrange.expected.  In the shadow array, the intrange2 offset
+# numbers were  actually more accurate, because they reflect the file
+# offset into the original CSV file, *not* into the translated SciDB
+# text format file!  Win!!!
+# but shadow arrays are no longer supported.
+
+--setup
+--start-query-logging
+
+--test
+
+# Note the i16 attribute is nullable.
+CREATE ARRAY a_flat <i8:int8,i16:int16 null,i32:int32,i64:int64,u8:uint8,u16:uint16,u32:uint32,u64:uint64,s:string>[i=0:*,1000,0]
+
+# On input, 'csv:l' means strip CSV header line.
+--shell --store --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "LOAD a_flat FROM '${TEST_DATA_DIR}/integer_range.csv' AS 'csv:l' ERRORS 99""
+
+--cleanup
+remove(a_flat)
+--shell --command "rm -f /tmp/intrange.csv"
+
+--stop-query-logging

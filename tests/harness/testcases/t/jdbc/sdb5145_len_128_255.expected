@@ -1,0 +1,11 @@
+Use Java version of iquery:
+build(<v:string>[i=0:0,1,0],'B<name:string NOT NULL,port:uint16 NOT NULL,instance_id:uint64 NOT NULL,online_since:string NOT NULL,instance_path:string NOT NULL> [No=0:3,4,0]')
+{i} v
+{0} 'B<name:string NOT NULL,port:uint16 NOT NULL,instance_id:uint64 NOT NULL,online_since:string NOT NULL,instance_path:string NOT NULL> [No=0:3,4,0]'
+
+Use C++ version of iquery:
+build(<v:string>[i=0:0,1,0],'B<name:string NOT NULL,port:uint16 NOT NULL,instance_id:uint64 NOT NULL,online_since:string NOT NULL,instance_path:string NOT NULL> [No=0:3,4,0]')
+{i} v
+{0} 'B<name:string NOT NULL,port:uint16 NOT NULL,instance_id:uint64 NOT NULL,online_since:string NOT NULL,instance_path:string NOT NULL> [No=0:3,4,0]'
+
+

@@ -1,0 +1,262 @@
+ --setup
+# Test with increased execution threads and client queries
+--shell --command "cat ${SCIDB_INSTALL_PATH}/etc/config.ini | grep -v execution-threads \
+                   | grep -v client-queries > /tmp/increased_queries_config.ini"
+--shell --command "echo execution-threads=20 >> /tmp/increased_queries_config.ini"
+--shell --command "echo client-queries=19 >> /tmp/increased_queries_config.ini"
+
+load_library('system')
+
+--echo "Restarting SciDB..."
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME} \
+                   /tmp/increased_queries_config.ini --auth-file ${SCIDB_CONFIG_USER}"
+--echo "...done."
+
+--reconnect
+--shell --command "echo This test requires at least 4 instances"
+--shell --command "until iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -naq \
+                         "sync()" > /dev/null 2>&1; do sleep 1; done"
+
+load_library('dense_linear_algebra')
+load_library('misc')
+
+# Create test arrays
+--igdata "store(build (<a:int64> [I=0:256,80,0], 0), MU_TEST_ARRAY)"
+--igdata "store(build (<a:int64> [I=1:51,15,0], '[()]', true), MU_TEST_ARRAY_RESULTS)"
+--igdata "store(build (<x:double>[i=0:256-1,400,0, j=0:256-1,80,0], 0), MU_TEST_M256x256)"
+--igdata "store(build (<a:int64> [I=0:256,80,0], 0), MU_ADMIN_ARRAY)"
+
+# No setup or teardown needed, so these files (which apparently must exist) are empty.
+--shell --command "cp /dev/null /tmp/$HPID.mu_setup.sh"
+--shell --command "cp /dev/null /tmp/$HPID.mu_cleanup.sh"
+
+# Create the file with a list of ports - the tests will cycle through them.
+--shell --command "iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq \
+                   "project(list('instances'), port)" > /tmp/${HPID}.port_instance.txt "
+--shell --command "cat /tmp/${HPID}.port_instance.txt"
+
+# Create the file with a list of instance node names - the tests will cycle through them.
+--shell --command "iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq \
+                   "project(list('instances'), name)" > /tmp/${HPID}.host_instance.txt "
+--shell --command "cat /tmp/${HPID}.host_instance.txt"
+
+--shell --command "echo Read Load Start > /tmp/${HPID}.mu_tests_1.out"
+
+# Create the shell scripts with the four queries to be run by each user session for test #1
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -1 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -1 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -aq \
+                        $'\'aggregate(filter(join(MU_TEST_ARRAY as L, \
+                                                  MU_TEST_ARRAY as R), L.a=R.a), \
+                                             count(*))\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_1.out | grep \'{0} 257\' &&'  \
+                   >> /tmp/$HPID.mu_tests_1.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -2 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -2 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -aq \
+                        $'\'aggregate(filter(join(MU_TEST_M256x256 as L, \
+                                                  MU_TEST_M256x256 as R), \
+                                             L.x=R.x), \
+                                      count(*))\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_1.out | grep \'{0} 65536\' &&' \
+                   >> /tmp/$HPID.mu_tests_1.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -3 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -3 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -aq \
+                        $'\'aggregate(filter(join(MU_TEST_ARRAY as L, \
+                                                  MU_TEST_ARRAY as R), L.a<>R.a), \
+                                      count(*))\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_1.out | grep \'{0} 0\' &&'  \
+                   >> /tmp/$HPID.mu_tests_1.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -4 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -4 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -aq \
+                        $'\'aggregate(filter(join(MU_TEST_M256x256 as L, \
+                                                  MU_TEST_M256x256 as R), \
+                                             L.x=R.x), \
+                                      count(*))\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_1.out | grep \'{0} 65536\'' \
+                   >> /tmp/$HPID.mu_tests_1.sh"
+
+
+# Create the config file for test #1- this is passed in to the mu_driver.py program.
+--shell --command "echo [multi_query_test]                    > /tmp/$HPID.mu_1.cfg"
+--shell --command "echo base-port=${IQUERY_PORT:=1239}        >> /tmp/$HPID.mu_1.cfg"
+--shell --command "echo target-host=${IQUERY_HOST:=127.0.0.1} >> /tmp/$HPID.mu_1.cfg"
+
+--shell --command "echo setup=/tmp/$HPID.mu_setup.sh          >> /tmp/$HPID.mu_1.cfg"
+--shell --command "echo cleanup=/tmp/$HPID.mu_cleanup.sh      >> /tmp/$HPID.mu_1.cfg"
+--shell --command "echo tests=/tmp/$HPID.mu_tests_1.sh        >> /tmp/$HPID.mu_1.cfg"
+--shell --command "echo num-clients=16                        >> /tmp/$HPID.mu_1.cfg"
+--shell --command "echo num-iterations=5                      >> /tmp/$HPID.mu_1.cfg"
+
+# Write load
+
+--shell --command "echo Write Load Start > /tmp/${HPID}.mu_tests_2.out"
+
+# Create the shell scripts with the two queries to be run by each user session for test #2
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -1 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -1 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -naq \
+                        $'\'store(project(apply(MU_TEST_M256x256, b, x+1),b), \
+                                  MU_TEST_M256x256)\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_2.out &&'  >> /tmp/$HPID.mu_tests_2.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -4 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -4 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} -naq \
+                        $'\'insert(redimension(apply(MU_TEST_ARRAY, b, a+1), \
+                                               <b:int64> [I=0:256,80,0] ), MU_TEST_ARRAY)\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_2.out ' >> /tmp/$HPID.mu_tests_2.sh"
+
+# Create the config file for test #2 - this is passed in to the mu_driver.py program.
+--shell --command "echo [multi_query_test]                    > /tmp/$HPID.mu_2.cfg"
+--shell --command "echo base-port=${IQUERY_PORT:=1239}        >> /tmp/$HPID.mu_2.cfg"
+--shell --command "echo target-host=${IQUERY_HOST:=127.0.0.1} >> /tmp/$HPID.mu_2.cfg"
+
+--shell --command "echo setup=/tmp/$HPID.mu_setup.sh          >> /tmp/$HPID.mu_2.cfg"
+--shell --command "echo cleanup=/tmp/$HPID.mu_cleanup.sh      >> /tmp/$HPID.mu_2.cfg"
+--shell --command "echo tests=/tmp/$HPID.mu_tests_2.sh        >> /tmp/$HPID.mu_2.cfg"
+--shell --command "echo num-clients=25                        >> /tmp/$HPID.mu_2.cfg"
+--shell --command "echo num-iterations=2                      >> /tmp/$HPID.mu_2.cfg"
+
+# Admin load
+
+--shell --command "echo Admin Load Start > /tmp/${HPID}.mu_tests_3.out"
+
+# Create the shell scripts with the three queries to be run by each user session for test #3
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -1 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -1 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} --admin  -naq \
+                        $'\'insert(redimension(apply(MU_ADMIN_ARRAY, b, a+1), \
+                                   <b:int64> [I=0:256,80,0] ), MU_ADMIN_ARRAY)\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_3.out &&' >> /tmp/$HPID.mu_tests_3.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -2 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -2 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} --admin -aq $'\'_obcast_test(777)\' \
+                   |& tee -a /tmp/${HPID}.mu_tests_3.out | grep \'obcast_test_attribute\' &&' \
+                   >> /tmp/$HPID.mu_tests_3.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -3 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -3 | head -1` ; \
+                   echo DIM=\`iquery -c ${HOST} -p ${PORT} --admin -ocsv -aq \
+                                    $'\'aggregate(apply(MU_TEST_ARRAY_RESULTS, i, I), max(i))\'` \
+                   &&'  >> /tmp/$HPID.mu_tests_3.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -3 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -3 | head -1` ; \
+                   echo CNT=\`iquery -c ${HOST} -p ${PORT} --admin -ocsv -aq \
+                                    $'\'aggregate(MU_TEST_ARRAY, max(a))\'` \
+                   &&' >> /tmp/$HPID.mu_tests_3.sh"
+
+--shell --command "HOST=`cat /tmp/${HPID}.host_instance.txt | tail -3 | head -1` \
+                   PORT=`cat /tmp/${HPID}.port_instance.txt | tail -3 | head -1` ; \
+                   echo iquery -c ${HOST} -p ${PORT} --admin -naq \
+                               $'\"insert(redimension(build(<a:int64> [I=$((DIM+1)):$((DIM+1)):0:1], $CNT), \
+                                                        MU_TEST_ARRAY_RESULTS), MU_TEST_ARRAY_RESULTS)\" \
+                   |& tee -a /tmp/${HPID}.mu_tests_3.out '  >> /tmp/$HPID.mu_tests_3.sh"
+
+# Create the config file for test #3 - this is passed in to the mu_driver.py program.
+--shell --command "echo [multi_query_test]                    > /tmp/$HPID.mu_3.cfg"
+--shell --command "echo base-port=${IQUERY_PORT:=1239}        >> /tmp/$HPID.mu_3.cfg"
+--shell --command "echo target-host=${IQUERY_HOST:=127.0.0.1} >> /tmp/$HPID.mu_3.cfg"
+
+--shell --command "echo setup=/tmp/$HPID.mu_setup.sh          >> /tmp/$HPID.mu_3.cfg"
+--shell --command "echo cleanup=/tmp/$HPID.mu_cleanup.sh      >> /tmp/$HPID.mu_3.cfg"
+--shell --command "echo tests=/tmp/$HPID.mu_tests_3.sh        >> /tmp/$HPID.mu_3.cfg"
+--shell --command "echo num-clients=1                         >> /tmp/$HPID.mu_3.cfg"
+
+--shell --command "echo num-iterations=50                    >> /tmp/$HPID.mu_3.cfg"
+
+--test
+
+# Run read+write concurrently
+# Note: if interrupted, this shell command will kill the current process group 
+# (typically scidbtestharness+children).  This way the background iquery started here 
+# does not stay behind - best effort cleanup attempt.
+
+# Call mu_driver.py program to run the three test scripts setup above.
+# Stdout and stderr are captured to be output later.
+--shell --store --command "trap 'kill 0' SIGINT SIGTERM SIGHUP SIGQUIT ; \
+                           ( python ${TEST_BIN_DIR}/mu_driver.py /tmp/$HPID.mu_3.cfg \
+                             1> /tmp/$HPID.3.stdout 2> /tmp/$HPID.3.stderr ) & \
+                           export pid3=$! ; export rc=0 ; \
+                           ( python ${TEST_BIN_DIR}/mu_driver.py /tmp/$HPID.mu_2.cfg \
+                             1> /tmp/$HPID.2.stdout 2> /tmp/$HPID.2.stderr ) & \
+                           export pid2=$! ; \
+                           ( python ${TEST_BIN_DIR}/mu_driver.py /tmp/$HPID.mu_1.cfg \
+                             1> /tmp/$HPID.1.stdout 2> /tmp/$HPID.1.stderr ) \
+                           || export rc=${rc}1 ; wait $pid2 || export rc=${rc}2 ;  \
+                           wait $pid3 || export rc=${rc}3 ; [ $rc == 0 ] && echo SUCCESS ;"
+
+# Verify the final state
+
+aggregate(filter(MU_TEST_ARRAY, a<>50),count(*))
+aggregate(filter(MU_TEST_ARRAY, a=50),count(*))
+
+aggregate(filter(MU_TEST_M256x256,x<>50),count(*))
+aggregate(filter(MU_TEST_M256x256,x=50),count(*))
+
+# This should be 50, the number of test 3 iterations.
+aggregate(MU_TEST_ARRAY_RESULTS, count(*))
+
+# MU_TEST_ARRAY from mu_tests_2.sh increments every time it is run - from 0 to 50.
+# MU_ADMIN_ARRAY_RESULTS from mu_tests_3.sh records this number every time it runs.
+# If mu_tests_2 and mu_tests_3 are running concurrently, MU_TEST_ARRAY_RESULTS should
+# contain many values less than 50.  This query verifies that there are at least 10.
+aggregate(filter(aggregate(filter(MU_TEST_ARRAY_RESULTS, a<50), count(*)), count>10), count(*))
+
+--cleanup
+
+# Push the output, stdout and stderr to the .log file
+--shell --command "cat /tmp/${HPID}.2.stderr"
+--shell --command "cat /tmp/${HPID}.mu_tests_2.out"
+--shell --store --command "cat /tmp/${HPID}.2.stdout"
+
+--shell --command "cat /tmp/${HPID}.1.stderr"
+--shell --command "cat /tmp/${HPID}.mu_tests_1.out"
+--shell --store --command "cat /tmp/${HPID}.1.stdout"
+
+--shell --command "cat /tmp/${HPID}.3.stderr"
+--shell --command "cat /tmp/${HPID}.mu_tests_3.out"
+--shell --store --command "cat /tmp/${HPID}.3.stdout"
+
+remove(MU_TEST_ARRAY)
+remove(MU_TEST_M256x256)
+remove(MU_TEST_ARRAY_RESULTS)
+remove(MU_ADMIN_ARRAY)
+
+--shell --command "rm /tmp/$HPID.mu_setup.sh"
+--shell --command "rm /tmp/$HPID.mu_cleanup.sh"
+--shell --command "rm /tmp/${HPID}.port_instance.txt"
+--shell --command "rm /tmp/${HPID}.host_instance.txt"
+--shell --command "rm /tmp/$HPID.mu_tests_1.sh"
+--shell --command "rm /tmp/$HPID.mu_tests_2.sh"
+--shell --command "rm /tmp/$HPID.mu_tests_3.sh"
+--shell --command "rm /tmp/$HPID.mu_1.cfg"
+--shell --command "rm /tmp/$HPID.mu_2.cfg"
+--shell --command "rm /tmp/$HPID.mu_3.cfg"
+--shell --command "rm /tmp/$HPID.1.stdout"
+--shell --command "rm /tmp/$HPID.1.stderr"
+--shell --command "rm /tmp/${HPID}.mu_tests_1.out"
+--shell --command "rm /tmp/$HPID.2.stdout"
+--shell --command "rm /tmp/$HPID.2.stderr"
+--shell --command "rm /tmp/${HPID}.mu_tests_2.out"
+--shell --command "rm /tmp/$HPID.3.stdout"
+--shell --command "rm /tmp/$HPID.3.stderr"
+--shell --command "rm /tmp/${HPID}.mu_tests_3.out"
+
+--echo "Restarting SciDB..."
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME} \
+                   ${SCIDB_INSTALL_PATH}/etc/config.ini --auth-file ${SCIDB_CONFIG_USER}"
+--echo "...done."
+
+--reconnect
+--shell --command "until iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -naq \
+                         "sync()" > /dev/null 2>&1; do sleep 1; done"

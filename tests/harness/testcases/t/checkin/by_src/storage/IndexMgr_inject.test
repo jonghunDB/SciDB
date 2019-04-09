@@ -1,0 +1,32 @@
+--setup
+--start-query-logging
+
+# Inject Error Support
+load_library('misc')
+
+--test
+--start-igdata
+
+# inject DI_FAIL_PIN_VALUE
+--error --code=scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST "store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,20)), failPinValueArray)"
+
+# inject DI_FAIL_DELETE_RECORD
+create temp array failDeleteRecordArray<u:int64,v:int64>[i=0:100:0:10]
+store(apply(build(<u:int64>[i=0:100:0:10], i), v, injectError(0,19)), failDeleteRecordArray)
+# Some state from a previous test allocates the injected error object but does not set the flag for the
+# injected error.  With that, this test behaves differently when run in isolation versus when run as
+# part of the overall injecterror suite.  To work-around, we suppress all output from delete by running
+# it in the shell and forcing the return condition to true.  Then, we check for the injected error below.
+--shell --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -aq 'delete(failDeleteRecordArray, i!=0)' 2>&1 > /dev/null ; true"
+remove(failDeleteRecordArray)
+create temp array failDeleteRecordArray<u:int64,v:int64>[i=0:100:0:10]
+store(apply(build(<u:int64>[i=0:100:0:10], i), v, injectError(0,19)), failDeleteRecordArray)
+--error --code=scidb::SCIDB_SE_STORAGE::SCIDB_LE_DISK_INDEX_KEY_NOT_EXIST "delete(failDeleteRecordArray, i!=0)"
+remove(failDeleteRecordArray)
+
+--stop-igdata
+
+--cleanup
+--justrun "remove(failPinValueArray)"
+
+--stop-query-logging

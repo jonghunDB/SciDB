@@ -1,0 +1,51 @@
+SCIDB QUERY : <sed 1d $DOC_DATA/int4error.csv > /tmp/int4error.csv>
+
+SCIDB QUERY : <CREATE ARRAY intensityFlat < exposure:string,elapsedTime:int64,measuredIntensity:int64 null > [i=0:6,1000000,0]>
+Query was executed successfully
+
+SCIDB QUERY : <iquery -c $IQUERY_HOST -p $IQUERY_PORT -q "LOAD intensityFlat FROM '/tmp/int4error.csv' AS 'csv' ERRORS 99">
+{i} exposure,elapsedTime,measuredIntensity
+{0} 'High',777,100
+{1} 'High',null,99
+{2} 'Medium',777,100
+{3} 'Medium',888,95
+{4} 'Medium',null,null
+{5} 'Low',null,null
+{6} 'Low',1888,null
+
+SCIDB QUERY : <SELECT * FROM intensityFlat>
+{i} exposure,elapsedTime,measuredIntensity
+{0} 'High',777,100
+{1} 'High',null,99
+{2} 'Medium',777,100
+{3} 'Medium',888,95
+{4} 'Medium',null,null
+{5} 'Low',null,null
+{6} 'Low',1888,null
+
+SCIDB QUERY : <SELECT intensityFlat.exposure AS exposureDATUM, intensityFlat.elapsedTime AS elapsedTimeDATUM, intensityFlat.measuredIntensity AS measuredIntensityDATUM INTO intensityFlatBadCells FROM intensityFlat>
+{i} exposureDATUM,elapsedTimeDATUM,measuredIntensityDATUM
+{0} 'High',777,100
+{1} 'High',null,99
+{2} 'Medium',777,100
+{3} 'Medium',888,95
+{4} 'Medium',null,null
+{5} 'Low',null,null
+{6} 'Low',1888,null
+
+SCIDB QUERY : <SELECT * FROM intensityFlatBadCells>
+{i} exposureDATUM,elapsedTimeDATUM,measuredIntensityDATUM
+{0} 'High',777,100
+{1} 'High',null,99
+{2} 'Medium',777,100
+{3} 'Medium',888,95
+{4} 'Medium',null,null
+{5} 'Low',null,null
+{6} 'Low',1888,null
+
+SCIDB QUERY : <drop array intensityFlat>
+Query was executed successfully
+
+SCIDB QUERY : <drop array intensityFlatBadCells>
+Query was executed successfully
+

@@ -1,0 +1,47 @@
+# SDB-1632
+
+--setup
+--start-query-logging
+
+# first, create base_path.txt
+--shell --command "iquery -o csv -aq "project(filter(list('instances'), instance_id=0), instance_path)" | head -n1  | sed -e "s/'\(.*\)'/\1/" > /tmp/${HPID}.base_path.txt"
+# debug to stderr:
+#--shell --store --command "echo base_path is $(cat /tmp/${HPID}.base_path.txt) >&2"
+
+--start-igdata
+# store 2000 cells in array version 1
+store(build(<val:int64>[i=1:2000,100,0], i%2), ARRAY)
+--stop-igdata
+
+# delete all but 2 cells in array version 2
+delete(ARRAY, i<1000 or i>1001)
+
+
+--test
+
+# get the current size of the datastore
+--shell --store --command "du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_original.stdout"
+# debug to stderr:
+# --shell --command "echo du_original: $(cat /tmp/${HPID}.du_original.stdout) >&2"
+
+# remove array version 1
+remove_versions(ARRAY)
+
+# get the current size of the datastore
+--shell --store --command "du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_after.stdout"
+# debug to stderr:
+# --shell --command "echo du_after:    $(cat /tmp/${HPID}.du_after.stdout) >&2"
+
+# the punch_holes functionality will have removed many blocks from the file during remove_versions()
+
+# to make the test pass/fail, just check that the first du is larger than the second du
+# this outputs a 1 into the .out file when true
+--shell --store-all --command "echo $(cat /tmp/${HPID}.du_original.stdout) '>' $(cat /tmp/${HPID}.du_after.stdout) | bc"
+
+--cleanup
+
+remove(ARRAY)
+
+--shell --command "rm /tmp/${HPID}.base_path.txt"
+--shell --command "rm /tmp/${HPID}.du_original.stdout"
+--shell --command "rm /tmp/${HPID}.du_after.stdout"

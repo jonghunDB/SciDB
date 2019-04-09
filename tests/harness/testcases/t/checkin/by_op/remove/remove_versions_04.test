@@ -1,0 +1,7 @@
+--setup
+--test
+--start-query-logging
+
+--shell --command "${TESTDIR}/remove_versions_04.sh"
+
+--cleanup

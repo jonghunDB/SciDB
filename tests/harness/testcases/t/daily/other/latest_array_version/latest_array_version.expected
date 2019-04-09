@@ -1,0 +1,52 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+latest_array_version has expected content
+
+
+
+latest_array_version has expected content
+
+delete from latest_array_version where namespace_name='public' and array_name='a'
+DELETE 1
+
+
+
+latest_array_version has expected content
+
+drop table latest_array_version
+DROP TABLE
+
+
+
+latest_array_version has expected content
+
+update latest_array_version set namespace_name='foobar' where namespace_name='public' and array_name='b'
+UPDATE 1
+
+
+
+latest_array_version has expected content
+
+update latest_array_version set array_name='foobar' where namespace_name='public' and array_name='b'
+UPDATE 1
+
+
+
+latest_array_version has expected content
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

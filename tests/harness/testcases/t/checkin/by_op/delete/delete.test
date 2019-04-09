@@ -1,0 +1,114 @@
+# see SDB-2717, adding a new delete() operator.
+# This test covers the following cases:
+# - With or without spatial ranges.
+# - Some chunks partially intersect the spatial ranges; some chunks are completely inside the spatial ranges;
+#   some chunks are completely outside.
+# - Some chunks have a subset of cells deleted; some chunks have no cell deleted; and some chunks have all cells deleted.
+# - The special cases when the expression is true, false, or null.
+# - Both regular arrays and temp arrays.
+# - Multi-dimensional arrays.
+# - arrays with overlap
+# - arrays that are unbounded
+# - arrays that are auto chunked and has no data
+
+--setup
+--start-query-logging
+
+store(build(<v:int64>[i=1:8:0:2], iif(i=7, null, i*i)), arr2717_A)
+
+--start-igdata
+store(arr2717_A, arr2717_B)
+store(arr2717_A, arr2717_C)
+store(arr2717_A, arr2717_D)
+store(arr2717_A, arr2717_E)
+store(arr2717_A, arr2717_F)
+store(arr2717_A, arr2717_G)
+
+create temp array arr2717_tmp_A <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_B <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_C <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_D <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_E <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_F <v:int64>[i=1:8:0:2]
+create temp array arr2717_tmp_G <v:int64>[i=1:8:0:2]
+
+store(arr2717_A, arr2717_tmp_A)
+store(arr2717_A, arr2717_tmp_B)
+store(arr2717_A, arr2717_tmp_C)
+store(arr2717_A, arr2717_tmp_D)
+store(arr2717_A, arr2717_tmp_E)
+store(arr2717_A, arr2717_tmp_F)
+store(arr2717_A, arr2717_tmp_G)
+
+store(build(<v:int64>[i=0:1:0:2; j=0:1:1:2; k=0:1:0:2], i+j+k), arr2717_3d)
+create temp array arr2717_tmp_3d <v:int64>[i=0:1:0:2; j=0:*:1:2; k=0:1:0:2]
+store(arr2717_3d, arr2717_tmp_3d)
+
+store(build(<v:int64>[i=1:12:2:4], i), arr2717_overlap)
+create array arr2717_empty<v:int64>[i=1:*:2]
+
+--stop-igdata
+
+--test
+
+# with spatial ranges.
+# chunk 1: partially intersect.
+# chunk 2: completely inside.
+# chunk 3, 4: completely outside.
+
+delete(arr2717_A, v>0 and i>=2 and i<=4)
+
+delete(arr2717_tmp_A, v>0 and i>=2 and i<=4)
+
+# without spatial range.
+
+delete(arr2717_B, v is null)
+delete(arr2717_C, true)
+delete(arr2717_D, false)
+delete(arr2717_E, null)
+delete(arr2717_F, v is not null)
+delete(arr2717_G, v >= 9 and v <= 16 or v=36)
+
+delete(arr2717_tmp_B, v is null)
+delete(arr2717_tmp_C, true)
+delete(arr2717_tmp_D, false)
+delete(arr2717_tmp_E, null)
+delete(arr2717_tmp_F, v is not null)
+delete(arr2717_tmp_G, v >= 9 and v <= 16 or v=36)
+
+#3d + overlap + unbounded
+
+delete(arr2717_3d, i=1 and j=1 and k=1)
+delete(arr2717_tmp_3d, i=1 and j=1 and k=1)
+
+# overlap
+# chunk1:  1 2 3 4 | 5 6
+# chunk2:      3 4 | 5 6 7 8 | 9 10
+# chunk3:                7 8 | 9 10 11 12 |
+delete(arr2717_overlap, i=1)
+delete(arr2717_overlap, i=3)
+delete(arr2717_overlap, i=9 or i=10)
+
+# auto-chunked and empty
+delete(arr2717_empty, i=5)
+delete(arr2717_empty, v>8)
+
+--cleanup
+remove(arr2717_A)
+remove(arr2717_B)
+remove(arr2717_C)
+remove(arr2717_D)
+remove(arr2717_E)
+remove(arr2717_F)
+remove(arr2717_G)
+remove(arr2717_3d)
+remove(arr2717_overlap)
+remove(arr2717_empty)
+remove(arr2717_tmp_A)
+remove(arr2717_tmp_B)
+remove(arr2717_tmp_C)
+remove(arr2717_tmp_D)
+remove(arr2717_tmp_E)
+remove(arr2717_tmp_F)
+remove(arr2717_tmp_G)
+remove(arr2717_tmp_3d)

@@ -1,0 +1,108 @@
+# Tests for wiki:Chunk+Intervals+16.6+Functional+Specification features.
+
+--setup
+--shell --command "cp ${TEST_DATA_DIR}/sm10.csv /tmp"
+
+--test
+
+--start-query-logging
+
+# When build() has unspecified intervals, they should be estimated using Dense1M.
+show('build(<v:int32>[i=-9:10:2; j=0:4], i+j)', 'afl')
+show('build(<v:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], i+j+k)', 'afl')
+
+# Non-opaque input() formats should have unspec'd intervals computed with Dense1M.
+show('input(<v:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], \'/dev/null\', -2, \'tsv\')', 'afl')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_MULTIDIMENSIONAL_ARRAY_NOT_ALLOWED "store(input(<v0:int32, v1:int32, v2:int32>[i=-9:10:2; j=0:4:0:500; k=0:1], '/tmp/sm10.csv', -2, 'csv'), X)"
+--igdata "store(input(<v0:int32, v1:int32, v2:int32>[i=-9:10:2], '/tmp/sm10.csv', -2, 'csv'), A0)"
+show(A0)
+
+## 1-D subtests...
+
+create array A1<a:int32, b:int32, c:int32>[i=-9:10:2]
+
+# Scan array w/ unspec'd intervals yields empty array w/ Dense1M intervals.
+show(A1)
+store(project(scan(A1), a), A1A)
+show(A1A)
+
+# Loading data makes intervals specific.
+--echo Store stuff into A1...
+--igdata "load(A1, '/tmp/sm10.csv', -2, 'csv')"
+show(A1)
+
+# Repeat same for a temp array.
+create temp array TA1<a:int32, b:int32, c:int32>[i=-9:10:2]
+show(TA1)
+
+# Scan temp array w/ unspec'd intervals yields empty array w/ Dense1M intervals.
+store(project(TA1, b), TA1A)
+show(TA1A)
+
+# Storing stuff fixes the intervals.
+--echo Store stuff into TA1...
+--igdata "load(TA1, '/tmp/sm10.csv', -2, 'csv')"
+show(TA1)
+
+## 3-D subtests...
+
+create array A2<v:int64>[i=0:199:0:200; j=0:*; k=0:*]
+
+# Scan 3-D array w/ unspec'd intervals yields empty array w/ Dense1M intervals.
+show(A2)
+store(apply(scan(A2), w, v+42), A2A)
+show(A2A)
+
+# Loading data makes intervals specific.
+# Note that when the autochunking estimation algorithm changes, the
+# resulting redimension() result chunk size will change... but it
+# almost certainly won't be the same as the Dense1M estimate.
+--echo Store redim(stuff, A2) into A2...
+--igdata "store(redimension(apply(input(<i:int32, j:int32, k:int32>[row], '/tmp/sm10.csv', -2, 'csv'), v, int64(i+j)), A2), A2)"
+show(A2)
+
+# Repeat same for a temp array.
+create temp array TA2<v:int64>[i=0:199:0:200; j=0:*; k=0:*]
+show(TA2)
+
+# Scan temp 3-D array w/ unspec'd intervals yields empty array w/ Dense1M intervals.
+store(apply(TA2, w, v+7), TA2A)
+show(TA2A)
+
+# Storing stuff fixes the intervals.
+# Note that when the autochunking estimation algorithm changes, the
+# resulting redimension() result chunk size will change... but it
+# almost certainly won't be the same as the Dense1M estimate.
+--echo Store redim(stuff, TA2) into TA2...
+--igdata "store(redimension(apply(input(<i:int32, j:int32, k:int32>[row], '/tmp/sm10.csv', -2, 'csv'), v, int64(i+j)), TA2), TA2)"
+show(TA2)
+
+## Local automatic repartitioning (LAR) subtests...
+# Scan arrays with unspecified intervals, store them into arrays with specified intervals.
+
+create array A3<v:int64>[i=0:199; j=0:*; k=0:*]
+show(A3)
+create array B3<v:int64>[i=0:199:0:200; j=0:*:0:10; k=0:*:0:5]
+show(B3)
+store(A3, B3)
+show(B3)
+
+--stop-query-logging
+
+
+--cleanup
+remove(A0)
+
+remove(A1)
+remove(A1A)
+remove(TA1)
+remove(TA1A)
+
+remove(A2)
+remove(A2A)
+remove(TA2)
+remove(TA2A)
+
+remove(A3)
+remove(B3)
+--shell --command "rm -f /tmp/sm10.csv"

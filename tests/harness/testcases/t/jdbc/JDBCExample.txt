@@ -1,0 +1,17 @@
+Source array name: build
+3 columns:
+x - int64 - is attribute:false
+y - int64 - is attribute:false
+a - string - is attribute:true
+=====
+x y a
+-----
+0 0 a
+0 1 b
+0 2 c
+1 0 d
+1 1 e
+1 2 f
+2 0 123
+2 1 456
+2 2 789

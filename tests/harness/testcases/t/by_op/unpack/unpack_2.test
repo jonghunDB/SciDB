@@ -1,0 +1,19 @@
+# SDB-5689.
+
+--setup
+# Identical schedmas
+create temp array A<v:int64>[i=1:*; j=1:*]
+create temp array B<v:int64>[i=1:*; j=1:*]
+
+--test
+# This always worked:
+store(build(<v:int64>[i=1:3; j=1:2], i), A)
+unpack(A, k)
+
+# This did not:
+store(build(<v:int64>[i=1:2; j=1:2], i), B)
+unpack(B, k)
+
+--cleanup
+remove(A)
+remove(B)

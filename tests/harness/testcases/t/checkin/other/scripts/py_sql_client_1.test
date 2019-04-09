@@ -1,0 +1,4 @@
+--setup
+# No setup; silences warning in .log file.
+--test
+--shell --command "${TESTDIR}/py_sql_client_1.py -c ${IQUERY_HOST} -p ${IQUERY_PORT} -r ${HPID} -u ${DB_USER} -d ${DB_NAME} -H ${DB_HOST} -P ${DB_PORT}"

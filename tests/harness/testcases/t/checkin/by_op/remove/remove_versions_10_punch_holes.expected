@@ -1,0 +1,21 @@
+SCIDB QUERY : <store(build(<val:int64>[i=1:2000,100,0], i%2), ARRAY)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <delete(ARRAY, i<1000 or i>1001)>
+{i} val
+{1000} 0
+{1001} 1
+
+SCIDB QUERY : <du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_original.stdout>
+
+SCIDB QUERY : <remove_versions(ARRAY)>
+Query was executed successfully
+
+SCIDB QUERY : <du -B1 $(cat /tmp/${HPID}.base_path.txt)/datastores/1_persistent/*.data | cut -f1 1> /tmp/${HPID}.du_after.stdout>
+
+SCIDB QUERY : <echo $(cat /tmp/${HPID}.du_original.stdout) '>' $(cat /tmp/${HPID}.du_after.stdout) | bc>
+1
+
+SCIDB QUERY : <remove(ARRAY)>
+Query was executed successfully
+

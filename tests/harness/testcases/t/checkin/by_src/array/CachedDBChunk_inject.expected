@@ -1,0 +1,15 @@
+SCIDB QUERY : <load_library('misc')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,10)), SOME_CHUNKS2)>
+[An error expected at this place for the query "store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,10)), SOME_CHUNKS2)". And it failed.]
+
+SCIDB QUERY : <store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,11)), SOME_CHUNKS3)>
+[An error expected at this place for the query "store(apply(build(<v : int64> [I=0:60,1,0], I), inject, injectError(0,11)), SOME_CHUNKS3)". And it failed.]
+
+SCIDB QUERY : <remove(SOME_CHUNKS2)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+
+SCIDB QUERY : <remove(SOME_CHUNKS3)>
+[SciDB query execution failed. But continuing, as it was intended to just run.]
+

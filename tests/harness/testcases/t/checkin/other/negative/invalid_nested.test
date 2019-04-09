@@ -1,0 +1,52 @@
+--setup
+create array A <a:int32>[x=0:2,3,0]
+
+# Prior to namespaces, the expected error for all these tests was
+# SCIDB_LE_NESTED_ARRAYS_NOT_SUPPORTED ... hence the name of this
+# test.  (The namespaces syntax "A.B" represents "array B in namespace
+# A", and for good or ill this looks a lot like "attribute B in array A".)
+
+--test
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A,sum(a))"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A,avg(a))"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A,max(a))"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A,min(a))"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A,count(*))"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "save(zz.A,'1.txt')"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "between(zz.A,1,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "filter(zz.A,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "regrid(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "xgrid(zz.A,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "slice(zz.A,x,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "sort(zz.A,1,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "unpack(zz.A,row)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "transpose(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "project(zz.A,a)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "aggregate(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "cross_join(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "cross_join(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "merge(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "merge(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "apply(zz.A,b,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "subarray(zz.A,1,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "bernoulli(zz.A,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "scan(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "build(zz.A,1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "load(zz.A,'1.txt')"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "store(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "store(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "input(zz.A,'1.txt')"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "dimensions(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "attributes(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "reshape(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "reshape(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "rename(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "rename(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "versions(zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "filter(build(zz.A,9),1)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "repart(A,zz.A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "repart(zz.A,A)"
+--error --code=scidb::SCIDB_SE_QPROC::SCIDB_LE_CANNOT_RESOLVE_NAMESPACE "remove(zz.A)"
+
+--cleanup
+remove(A)

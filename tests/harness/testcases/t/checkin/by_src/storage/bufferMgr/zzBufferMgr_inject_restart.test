@@ -1,0 +1,12 @@
+# Prevent booby traps from causing other tests to fail
+--setup
+--start-query-logging
+
+--test
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--stop-query-logging

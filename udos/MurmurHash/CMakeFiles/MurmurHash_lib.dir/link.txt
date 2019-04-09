@@ -1,0 +1,2 @@
+/usr/bin/ar qc libMurmurHash_lib.a  CMakeFiles/MurmurHash_lib.dir/MurmurHash3.cpp.o
+/usr/bin/ranlib libMurmurHash_lib.a

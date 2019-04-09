@@ -1,0 +1,36 @@
+SCIDB QUERY : <create array data_array<val:int64>[i=0:4]>
+Query was executed successfully
+
+SCIDB QUERY : <create temp array dut_temp_array <min:int64,max:int64>[i=0:0]>
+Query was executed successfully
+
+SCIDB QUERY : <create temp array dut_temp_array_2 <sum:int64,count:uint64>[i=0:0]>
+Query was executed successfully
+
+SCIDB QUERY : <store(build(data_array,'[(11506),(5500),(16988),(2968),(16)]',true), data_array)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(aggregate(data_array,min(val) as min, max(val) as max),dut_temp_array)>
+{i} min,max
+{0} 16,16988
+
+SCIDB QUERY : <store(aggregate(data_array,min(val) as min, max(val) as max, sum(val) as sum, count(val) as count),  on_the_fly)>
+{i} min,max,sum,count
+{0} 16,16988,36978,5
+
+SCIDB QUERY : <insert(aggregate(data_array,sum(val) as min, count(val) as count),dut_temp_array_2)>
+{i} sum,count
+{0} 36978,5
+
+SCIDB QUERY : <remove(data_array)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(dut_temp_array)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(on_the_fly)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(dut_temp_array_2)>
+Query was executed successfully
+

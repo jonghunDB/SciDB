@@ -1,0 +1,203 @@
+# SDB-6149: If an attribute is "NOT NULL", don't try to parse nulls
+# from the input data.  This is new behavior in 18.1.8 and later.
+
+--setup
+create temp array DBL_NULL <d:double null>[i=0:7]
+create temp array DBL_NOTNULL <d:double not null>[i=0:7]
+
+create temp array STR_NULL <s:string null>[i=0:7]
+create temp array STR_NOTNULL <s:string not null>[i=0:7]
+
+create temp array I32_NULL <n:int32 null>[i=0:7]
+create temp array I32_NOTNULL <n:int32 not null>[i=0:7]
+
+--test
+
+--start-query-logging
+
+# Doubles!
+
+--echo Parse 'null' if nullable, else cannot convert string 'null' to double.
+--shell --command "printf "3.14\nnull\n6.02e23\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(3.14),(null),(6.02e23)]\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Parse TSV '\N' if nullable, else cannot convert string '\N' to double.
+--shell --command "printf "3.14\n\\N\n6.02e23\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+
+--echo Parse '?0' if nullable, else cannot convert string '?0' to double.
+--shell --command "printf "3.14\n?0\n6.02e23\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(3.14),(?0),(6.02e23)]\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Parse '?42' if nullable, else cannot convert string '?42' to double.
+--shell --command "printf "3.14\n?42\n6.02e23\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(3.14),(?42),(6.02e23)]\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Everbody hates '?216', not a double and not a valid "missing reason" null.
+--shell --command "printf "3.14\n?216\n6.02e23\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NULL, '/tmp/fud.dat', format: 'csv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(3.14),(?216),(6.02e23)]\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NULL, '/tmp/fud.dat', format: 'text')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+# Strings!
+
+--echo Parse 'null' if nullable, else 'null' is a fine string.
+--shell --command "printf "3.14\nnull\n6.02e23\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NULL, '/tmp/fud.dat', format: 'tsv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'tsv')
+--shell --command "printf "[(3.14),(null),(6.02e23)]\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'text')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'text')
+
+--echo Parse TSV '\N' if nullable, else '\N' is a fine string.
+--shell --command "printf "3.14\n\\N\n6.02e23\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'tsv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'tsv')
+
+--echo Parse '?0' if nullable, else '?0' is a fine string.
+--shell --command "printf "3.14\n?0\n6.02e23\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NULL, '/tmp/fud.dat', format: 'tsv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'tsv')
+--shell --command "printf "[(3.14),(?0),(6.02e23)]\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'text')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'text')
+
+--echo Parse '?42' if nullable, else '?42' is a fine string.
+--shell --command "printf "3.14\n?42\n6.02e23\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'csv')
+input(STR_NULL, '/tmp/fud.dat', format: 'tsv')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'tsv')
+--shell --command "printf "[(3.14),(?42),(6.02e23)]\n" > /tmp/fud.dat"
+input(STR_NULL, '/tmp/fud.dat', format: 'text')
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'text')
+
+--echo Hate '?216' if nullable (bad missing reason), else it is a fine string.
+--shell --command "printf "3.14\n?216\n6.02e23\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(STR_NULL, '/tmp/fud.dat', format: 'csv')"
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(STR_NULL, '/tmp/fud.dat', format: 'tsv')"
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'tsv')
+--shell --command "printf "[(3.14),(?216),(6.02e23)]\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(STR_NULL, '/tmp/fud.dat', format: 'text')"
+input(STR_NOTNULL, '/tmp/fud.dat', format: 'text')
+
+# Signed 32-bit integers!
+
+--echo Parse 'null' if nullable, else cannot convert string 'null' to int32.
+--shell --command "printf "1789\nnull\n-78\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(I32_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(1789),(null),(-78)]\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Parse TSV '\N' if nullable, else cannot convert string '\N' to int32.
+--shell --command "printf "1789\n\\N\n6.02e23\n" > /tmp/fud.dat"
+input(DBL_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(DBL_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+
+--echo Parse '?0' if nullable, else cannot convert string '?0' to int32.
+--shell --command "printf "1789\n?0\n-78\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(I32_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(1789),(?0),(-78)]\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Parse '?42' if nullable, else cannot convert string '?42' to int32.
+--shell --command "printf "1789\n?42\n-78\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'csv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+input(I32_NULL, '/tmp/fud.dat', format: 'tsv')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(1789),(?42),(-78)]\n" > /tmp/fud.dat"
+input(I32_NULL, '/tmp/fud.dat', format: 'text')
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--echo Everbody hates '?216', not a int32 and not a valid "missing reason" null.
+--shell --command "printf "1789\n?216\n-78\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NULL, '/tmp/fud.dat', format: 'csv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'csv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NULL, '/tmp/fud.dat', format: 'tsv')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'tsv')"
+--shell --command "printf "[(1789),(?216),(-78)]\n" > /tmp/fud.dat"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NULL, '/tmp/fud.dat', format: 'text')"
+--error --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED \
+    "input(I32_NOTNULL, '/tmp/fud.dat', format: 'text')"
+
+--stop-query-logging
+
+--cleanup
+--shell --command "rm -f /tmp/fud.dat"
+remove(DBL_NULL)
+remove(DBL_NOTNULL)
+remove(STR_NULL)
+remove(STR_NOTNULL)
+remove(I32_NULL)
+remove(I32_NOTNULL)

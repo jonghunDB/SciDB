@@ -1,0 +1,41 @@
+# TEST:   Inject error into insert() path for a temp array.
+# EXPECT:  After scidb recovers, temp arrays should be unavailable for queries,
+#          but still part of the catalog.
+
+--setup
+--start-query-logging
+load_library('misc')
+
+--igdata "store(build (<v : int64> [I=0:60,1,0], I), MANY_CHUNKS)"
+
+create temp array ARRAY1 <v : int64> [I=0:100,20,0, J=0:50,20,0]
+create temp array ARRAY2 <v : int64> [I=0:100,20,0, J=0:50,20,0]
+--igdata "store(build(ARRAY1,I+J),ARRAY1)"
+--igdata "store(build(ARRAY2,I+J),ARRAY2)"
+
+--test
+--start-query-logging
+
+# check data
+aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))
+
+# inject error into a write query
+--igdata "apply(MANY_CHUNKS, injectResult, injectError(0, 4))"
+--error --hideQueryString --code=scidb::SCIDB_SE_IMPORT_ERROR::SCIDB_LE_FILE_IMPORT_FAILED "load(ARRAY1, '${TEST_DATA_DIR}/abrload.txt' )"
+
+# check that the data in the arrays is not altered:
+aggregate(filter(apply(join(ARRAY1, ARRAY2), attrDiff, ARRAY1.v - ARRAY2.v), attrDiff<>0), count(*))
+aggregate(ARRAY1, SUM(v), MIN(v), MAX(v))
+aggregate(ARRAY2, SUM(v), MIN(v), MAX(v))
+
+# can we still scan MANY_CHUNKS?
+
+--cleanup
+# remove(MANY_CHUNKS) is failing from injectError here
+# that does not occur for errors 1 and 2 in other scripts
+# it could be that injectError(,4) is more "sticky" than the other tests
+# this needs further investigation as to how this is *supposed* to work
+--error "remove(MANY_CHUNKS)"
+remove(ARRAY1)
+remove(ARRAY2)

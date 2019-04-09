@@ -1,0 +1,21 @@
+--setup
+
+#--igdata "store(apply(build(<a1:int32>[I=0:9,5,0, J=0:9,5,0], 10*I+J), a2, 'foo'), A)"
+--igdata "store(build(<a1:int32>[I=0:9,5,0, J=0:9,5,0], 10*I+J), A)"
+
+--test
+#
+#   1. Tests that the macro is loaded
+#   2. Tests that it gives the expected output (for 100 cells)
+#
+
+op_count(A)
+# Test if the imbalance * the ideal number equals the max number.
+aggregate(filter(apply(_cell_instance_imbalance('A'),ne_test,int64(imbalance*necells_ideal)),ne_test=necells_max), count(*))
+
+# Test if sum is within the range of ninstances * ideal number and ninstances * ideal number plus one.  Ideal number may
+# have been rouunded down, but the sum should be in this range.
+aggregate(filter(_cell_instance_imbalance('A'), ninstances*necells_ideal <= necells_sum and ninstances*(necells_ideal+1) > necells_sum), count(*))
+
+--cleanup
+remove ( A )

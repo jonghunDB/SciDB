@@ -1,0 +1,70 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+"Build from an autochunked schema now works (all syntaxes)."
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+"Input using an autochunked schema now works (all syntaxes)."
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+Can redim and store though.
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+{i} schema
+{0} 'A_redim<v:int64> [i=0:*:0:65536]'
+
+Can repart and store.
+[Query was executed successfully, ignoring data output by this query.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} v,v
+
+{i} schema
+{0} 'A_repart<v:int64> [i=0:*:0:65536]'
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

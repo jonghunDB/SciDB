@@ -1,0 +1,31 @@
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'A0<s:string> [i=0:400:0:1000; j=0:400:0:1000]'
+
+Repartition to 3 MiB physical chunk sizes.  89 * 178 * 201 == 3,184,242
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'A1<s:string> [i=0:400:0:89; j=0:400:0:178]'
+
+Repartition to 16 MiB physical chunk sizes.  201 * 400 * 201 == 16,160,400
+[Query was executed successfully, ignoring data output by this query.]
+
+{i} schema
+{0} 'A2<s:string> [i=0:400:0:201; j=0:400:0:400]'
+
+[An error expected at this place for the query "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 0 - 16)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER.]
+
+[An error expected at this place for the query "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 0)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_PARAMETER_NOT_POSITIVE_INTEGER.]
+
+[An error expected at this place for the query "repart(A0, <s:string>[i=0:400; j=0:400], phys_chunk_size: 4, cells_per_chunk: 72)". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_MUTUALLY_EXCLUSIVE_PARAMS.]
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

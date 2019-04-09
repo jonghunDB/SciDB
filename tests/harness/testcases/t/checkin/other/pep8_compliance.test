@@ -1,0 +1,4 @@
+--setup
+--test
+--shell --command "${TEST_UTILS_DIR}/pep8_compliance.py ${SCIDB_SOURCE_PATH}"
+--cleanup

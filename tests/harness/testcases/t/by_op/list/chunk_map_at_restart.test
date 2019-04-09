@@ -1,0 +1,51 @@
+# SDB-5969 list('chunk map') is Empty at restart
+
+--setup
+--test
+store(build(<val:uint32>[i=0:1], i), has_chunkmap)
+
+# Confirm that there is information in the chunk map before restarting.
+sort( \
+  project( \
+    filter( \
+      cross_join( \
+        project( \
+          list('arrays'),name,uaid) as a, \
+        uniq( \
+          sort( \
+            project(list('chunk map'), uaid))) as b), \
+      a.uaid = b.uaid and \
+      a.name = 'has_chunkmap' \
+      ), \
+    name \
+    ) \
+  )
+
+--echo Restarting SciDB...
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--echo ...done.  Sleeping in lieu of 'system' plugin.
+--sleep 10
+--reconnect
+--echo Reconnected.
+
+
+# Confirm that the chunk map is shown after restart.
+sort( \
+  project( \
+    filter( \
+      cross_join( \
+        project( \
+          list('arrays'),name,uaid) as a, \
+        uniq( \
+          sort( \
+            project(list('chunk map'), uaid))) as b), \
+      a.uaid = b.uaid and \
+      a.name = 'has_chunkmap' \
+      ), \
+    name \
+    ) \
+  )
+
+--cleanup
+remove(has_chunkmap)

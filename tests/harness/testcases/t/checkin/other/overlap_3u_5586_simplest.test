@@ -1,0 +1,17 @@
+--setup
+--start-query-logging
+create array B <a:string> [x=3:*,2,1, y=2:2,2,0]
+create array A <a:string> [x=3:3,2,1, y=2:2,2,0]
+store(build(A,string(x)+'_'+string(y)),A)
+
+--test
+scan(A)
+save(A,'a_test.txt',-1,'store')
+
+load(B,'a_test.txt',-1,'store')
+scan(B)
+
+--cleanup
+remove(A)
+remove(B)
+--stop-query-logging

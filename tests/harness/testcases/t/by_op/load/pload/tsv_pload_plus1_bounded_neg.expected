@@ -1,0 +1,52 @@
+Creating array:
+Query was executed successfully
+Loading data into array:
+Count non-empty d_0 attributes in loaded array:
+d_0_count
+0
+Count non-empty d_1 attributes in loaded array:
+d_1_count
+0
+Query was executed successfully
+Query was executed successfully
+Count non-empty a_1 attributes in first row of array after redimension:
+a_1_count
+0
+Count non-empty a_1 attributes in last row of array after redimension:
+a_1_count
+0
+Done.
+Cleaning up on exit...
+Done with cleanup.
+UserQueryException in file: src/query/ops/input/LogicalInput.cpp function: inferSchema line: 196
+Error id: scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_INPUT_PLOAD_BOUNDED
+Error description: Error during schema inferring. Parallel load requires an unbounded first dimension.
+load(dummy_01_A,'dummy_01_A_input',-1,'tsv:p')
+     ^^^^^^^^^^
+
+Creating array:
+Query was executed successfully
+Loading data into array:
+Count non-empty d_0 attributes in loaded array:
+d_0_count
+0
+Count non-empty d_1 attributes in loaded array:
+d_1_count
+0
+Query was executed successfully
+Query was executed successfully
+Count non-empty a_1 attributes in first row of array after redimension:
+a_1_count
+0
+Count non-empty a_1 attributes in last row of array after redimension:
+a_1_count
+0
+Done.
+Cleaning up on exit...
+Done with cleanup.
+UserQueryException in file: src/query/ops/input/LogicalInput.cpp function: inferSchema line: 196
+Error id: scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_OP_INPUT_PLOAD_BOUNDED
+Error description: Error during schema inferring. Parallel load requires an unbounded first dimension.
+load(dummy_01_A,'dummy_01_A_input',-1,'tsv:c')
+     ^^^^^^^^^^
+

@@ -1,0 +1,47 @@
+[Query was executed successfully, ignoring data output by this query.]
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+[Query was executed successfully, ignoring data output by this query.]
+
+Before load...
+{i} schema
+{0} 'A1<v:int64> [i=0:99:0:*; j=0:149:0:*; k=-49:50:0:*]'
+
+[Query was executed successfully, ignoring data output by this query.]
+
+After load...
+{i} schema
+{0} 'A1<v:int64> [i=0:99:0:20; j=0:149:0:50; k=-49:50:0:10]'
+
+Verify load...
+{i,j,k} v,v
+
+If any chunk size is specified (k=...:25), it must match.
+[An error expected at this place for the query "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')". And it failed with error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAYS_NOT_CONFORMANT. Expected error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_ARRAYS_NOT_CONFORMANT.]
+
+[Query was executed successfully, ignoring data output by this query.]
+
+{i,j,k} v,v
+
+Can't load array w/ unspec'd chunk sizes from FIFOs
+[An error expected at this place for the query "load(A2, '/tmp/hidechunksizes2.fifo', -2, 'opaque')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CANT_REWIND_FILE. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CANT_REWIND_FILE.]
+
+File too short
+[An error expected at this place for the query "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_READ_ERROR. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_READ_ERROR.]
+
+File long enough but utterly bogus
+[An error expected at this place for the query "load(A2, '/tmp/hidechunksizes2.dat', -2, 'opaque')". And it failed with error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_OP_INPUT_ERROR10. Expected error code = scidb::SCIDB_SE_EXECUTION::SCIDB_LE_OP_INPUT_ERROR10.]
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+
+Query was executed successfully
+

@@ -1,0 +1,293 @@
+#
+# keep this file sorted to avoid accidental merges of duplicate lines, each part has its
+# own sort rules
+#
+
+# PART I
+#
+# THIS PART SHOULD BE FOR TESTS THAT ARE NORMALLY DISABLED, not disabled due to bug/ticket
+# e.g. they take too long to run under any supported Cdash config, they are for design or TDD
+#   and the code that runs them will fail, etc
+#
+# - it is best practice if long tests are pushed to a "long" or "slow" subdirectory of the other
+#   related tests that are not, for example, scalapack/64instance is of this type
+# - it is best practice to give a line explaining why disabled, so others can validate
+#   that it is appropriate that they are disabled (and not just leftover from before we started
+#   adding ticket numbers for disabled-due-to-failure)
+#
+#  KEEP THIS IN ALPHABETICAL ORDER
+#
+
+# Disable suite containing very large data
+other.bigdata
+# next needs conversion to chunksize 32x32
+checkin.by_op.gesvd.20_svd_oldVals
+# The below suite has very long execution time and queries need to be updated for syntax
+other.data_model
+
+# 2 suites of performance tests, too slow for running as 4 instances
+by_op/spgemm/64instance
+by_op/spgemm/performance
+# other/versions tests deltaChunk which no longer exists SDB-901
+other/versions
+#
+# Very long test suite
+by_op.repart.perf
+# 14_gemm_ticket4339 is too slow to be on during functional freeze testing
+by_op.gemm.14_gemm_ticket4339
+# 15_gemm_ticket4346 is too large for 4GB machines like the CDash VMs
+# It must be run by hand on a 1 instance machine in order to repro the symptom of 4346
+by_op.gemm.15_gemm_ticket4346
+# DIR by_op.ge{mm,svd}.64instance are needed for scale-up testing on salty, but take too long to run anywhere else
+by_op.gemm.64instance
+by_op.gesvd.64instance
+# DIR used for performance testing, too slow for normal use
+by_op.gemm.perf
+by_op.gesvd.perf
+# update.updatedeltareallylarge performance tests deltaChunk which no longer exists SDB-901
+other.update.updatedeltareallylarge
+
+# disabled because we disabled the old python connector SDB-2671.
+# Should examine (or replace) after implementing a new python connector SDB-556.
+other.client.python_1
+
+# disabled because we disabled shim SDB_2671
+checkin.other.sciDB-R_interpreter
+checkin.other.R_interpreter
+
+injecterror.inject_4_load_system_library unless redundancy==3
+
+docscript.bernoulli unless instances==4
+
+mu.mu_update unless instances>3
+
+checkin.by_src.array.NewDBArray_inject unless instances==4
+
+# Tests not designed to run with single instance
+other.afl.keywords_2 if instances==1
+checkin.other.parallel_load_5288 if instances==1
+iqueryabort.abort_read if instances==1
+injecterror.inject_2_redim if instances==1
+injecterror.inject_2_store if instances==1
+injecterror.inject_2_update if instances==1
+other.data_integrity if instances==1
+other.data_integrity_dup if instances==1
+other.data_integrity_ooo if instances==1
+other.data_integrity_col if instances==1
+by_op.load.pload.bin_pload_null_chunk_bounded_neg if instances==1
+by_op.z_abort.abort_read if instances==1
+
+# test that supports understanding how
+# fallocate(FL_PUNCH_HOLES) behaves.  run this test with
+# the normally disabled code in FileIO::fallocPunchHoles enabled
+checkin.by_op.remove.remove_versions_zz_punch_hole_over_end_simulation
+
+#
+# PART II
+# THIS PART IS FOR FAILING TESTS.  These represent known defects in the code or in the tests
+# - each disabled test must have a corresponding ticket number
+# - TODO: DAVE, please decide whether you would like this sorted
+#         A) alpabetical, so that each test is surely added only once OR
+#         B) in ticket order
+#         as right now it seems random and is inconsistent between disable{,1i}.tests.in
+#
+
+#This test only works correctly with four instances.  SDB-5732 is the ticket to generalize it.
+checkin.by_op.gesvd.23_svd_largeDims_5664 unless instances==4
+
+#This test only works correctly with fewer than four instances.  SDB-5733 is the
+#ticket to generalize it.
+by_op.gesvd.35_svd_driver_allstd_o1to96c32_intermittents if instances > 4
+
+# SDB-4603: This only works on one instance! Need to edit fits loader to not throw errors on multiple instances!
+other.fits.fits_input
+
+checkin.by_op.summarize.summarize_inst_8 unless instances==8
+checkin.by_op.summarize.summarize_inst_6 unless instances==6
+checkin.by_op.summarize.summarize_inst_4 unless instances==4
+checkin.by_op.summarize.summarize_inst_1 unless instances==1
+docscript.summarize unless instances==4
+
+# SDB-5586.  load/pload now require unbounded array schemas
+# (until such a time as we have true round-robin)
+# but this seems to be incompatible with how overlap
+# is supported.
+checkin.other.overlap_3u_5586_simplest
+checkin.other.overlap_3
+checkin.other.overlap_4
+checkin.other.overlap_4_newdims
+
+# SDB-4603: This only works on one instance! Need to edit fits loader to not throw errors on multiple instances!
+other.fits.fits_input
+
+# SDB-6171: JDBC is trying to send a query that performs invalid string->char conversion
+jdbc.Types
+jdbc.all_types
+jdbc.all_types_cpp_version
+
+# SDB-5818: chunk descriptor conversion upgrade tests (not deploying at the moment)
+other.chunk_descriptor_upgrade
+
+# SDB-5929: disable chunk descriptor upgrade as it doesn't run in CDash environment
+checkin.chunk_descriptor_upgrade
+
+# SDB-5974, has to be disabled again, inteference from BufferMgr_inject.test
+injecterror.BufferMgr_inject_5974
+
+
+# Tests below have an unrobust inject error issue, SDB-6002
+# SDB-6055
+checkin.by_src.storage.bufferMgr.BufferMgr_inject_09_SLOT_GENCOUNT_CHANGE_RBFC
+# SDB-6054 	
+checkin.by_src.storage.bufferMgr.BufferMgr_inject_05_ALLOC_BLOCK_BASE_FAIL_PBL
+# SDB-6053 	
+checkin.by_src.storage.bufferMgr.BufferMgr_inject_06_ALLOC_BLOCK_BASE_FAIL_GCB
+# SDB-6052 	
+checkin.by_src.storage.bufferMgr.BufferMgr_inject_08_SLOT_OTHER_THREAD_LOAD
+# SDB-6051 	
+checkin.by_src.storage.bufferMgr.BufferMgr_inject_01_RESERVE_SPACE_FAIL
+
+# SDB-6117
+checkin.by_src.storage.IndexMgr_inject
+# checkin.by_src.storage.bufferMgr.BufferMgr_inject_01_RESERVE_SPACE_FAIL_store
+
+#*****************************************************************************
+# PART III
+#
+# THIS PART IS FOR TEMPORARILY DISABLED TESTS.  These test files all include
+# statements that use the old NID syntax and are disabled while we rip out and
+# de-NID the code base. Many of these just happen to use NIDS in arrays that
+# are then used to test other features, so we need to either replace them with
+# uses of the uniq/index_look operators - talk to Alex about this - or rewrite
+# the tests to not use NIDdled arrays at all.
+#
+# NID = Non-Integer Dimension
+#
+# See #3691 Re-enable / rewrite tests that use NID's
+#*****************************************************************************
+
+aql.aql_misc.create_5
+aql.aql_misc.udt_point
+aql.aql_misc.udt_rational
+checkin.other.chunk_count
+checkin.by_op.redim.flip_chunksize
+checkin.by_op.redim.flip_n_subarray
+checkin.by_op.redim.flip_n_thin
+checkin.by_op.redim.flip_store_14
+checkin.by_op.redim.flip_store_newdim
+checkin.by_op.redim.flip_store_ni_04
+checkin.by_op.redim.flip_store_rational
+checkin.by_op.redim.select_into_4
+checkin.by_op.redim.select_into_5
+checkin.by_op.redim.select_into_6
+checkin.by_op.redim.select_into_10
+checkin.by_op.redim.neg.flip_store_3
+checkin.by_op.redim.neg.flip_store_5
+checkin.by_op.redim.neg.flip_store_10
+checkin.by_op.repart.repart_neg
+checkin.aql.newaql.create_array_expressions
+checkin.aql.aql_neg_misc.select_into_1
+checkin.other.scidbLoadCsv_02_non_int_dimensions
+checkin.other.array_reference
+checkin.by_op.between.between_range
+checkin.other.dcsv_format
+checkin.by_op.redim.flip_vector2
+checkin.by_op.redim.flip_vectorR2
+checkin.by_op.redim.flip_vector_str
+checkin.by_op.join.join_flip
+checkin.other.iquery_1
+checkin.other.iquery_2
+checkin.other.presidents
+checkin.by_op.remove.remove_nid
+checkin.by_op.subarray.subarray_range
+checkin.other.thin_7
+checkin.by_op.repart.repart_algo_selection
+checkin.by_op.repart.repart_empty
+checkin.by_op.repart.repart_NID
+checkin.by_op.gesvd.21_svd_neg
+other.compression.compression_47
+doc.redimension_1
+doc.redimension_store_1
+doc.ug_loadingData_opaque
+by_op.redim.between_sub_nid
+by_op.redim.complex_query_nid
+by_op.redim.flip_store_11
+by_op.redim.flip_store_12
+by_op.redim.flip_store_15
+by_op.redim.flip_store_ni_01
+by_op.redim.flip_store_ni_02
+by_op.redim.flip_store_ni_03
+by_op.redim.flip_store_ni_05
+by_op.redim.flip_store_ni_06
+by_op.redim.flip_store_ni_07
+by_op.redim.flip_store_ni_08
+by_op.redim.flip_store_ni_11
+by_op.redim.flip_store_ni_12
+by_op.redim.flip_store_ni_13
+by_op.redim.flip_store_ni_14
+by_op.redim.flip_store_ni_15
+by_op.redim.flip_store_ni_16
+by_op.redim.flip_store_ni_17
+by_op.redim.flip_store_ni_18
+by_op.redim.flip_store_ni_21
+by_op.redim.flip_store_ni_22
+by_op.redim.flip_store_ni_23
+by_op.redim.flip_store_ni_24
+by_op.redim.flip_store_ni_25
+by_op.redim.flip_store_ni_26
+by_op.redim.flip_store_ni_27
+by_op.redim.flip_store_ni_28
+by_op.redim.flip_store_ni_31
+by_op.redim.flip_store_ni_32
+by_op.redim.flip_store_ni_33
+by_op.redim.flip_store_ni_34
+by_op.redim.flip_store_ni_35
+by_op.redim.flip_store_ni_36
+by_op.redim.flip_store_ni_37
+by_op.redim.flip_store_ni_38
+by_op.redim.flip_store_nulls
+by_op.redim.flip_with_overlap
+by_op.redim.join_merge_cross_nid
+
+by_op.redim.largemap
+by_op.redim.literal_nid
+
+by_op.redim.mapping2
+by_op.redim.null_nid
+
+by_op.redim.remove_mapping
+by_op.redim.select_into_11
+by_op.redim.select_into_12
+by_op.redim.select_into_13
+by_op.redim.select_into_14
+by_op.redim.select_into_15
+by_op.redim.select_into_8
+by_op.redim.select_into_9
+by_op.redim.sparse_nid1
+by_op.redim.unbounded_ops_double
+by_op.redim.unbounded_ops_int32
+by_op.redim.window_regrid1
+injecterror.inject_4_mapping
+by_op.z_abort.abort_rdstore_1
+by_op.z_abort.abort_rdstore_2
+by_op.z_abort.abort_rdstore_3
+by_op.z_abort.abort_rdstore_7
+aql.newaql.aggregate3
+by_op.load.binary_loader
+by_op.load.binary_loader_unlimited
+other.binary_opaque
+by_op.cross_join.aggregate.cross_agg1
+by_op.cross_join.cross_sparse4
+other.immutable_binary
+other.iquery_5
+other.iquery_6
+by_op.merge.merge_data_array
+other.NID_basics
+other.operator_1
+by_op.redim.redim_NID_UB_misc
+other.UB_basics
+by_op.quantile.quantile_nid4
+by_op.quantile.quantile_nid5
+by_op.quantile.stringdims_withsubarray
+
+#*****************************************************************************

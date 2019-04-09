@@ -1,0 +1,41 @@
+--setup
+--start-query-logging
+
+--test
+--start-igdata
+create array c<val:uint8 compression 'bzlib'>[i=0:94]
+create array c2<val:uint8 compression 'bzlib', val2:uint8 compression 'zlib'>[i=0:94]
+# store a single chunk that does not compress using the bzlib compressor.
+store(build(<val:uint8>[i=0:94], 2*i+1), c)
+
+# During the development process of wiring the CompressorType to all the correct locations
+# in the BufferHandle, MemChunk/CachedDBChunk, and BlockHeader, there were cases where the
+# store and re-read of "c" were successful, but arrays created from the incompressible
+# chunk (which is still kept in the BufferMgr and then added/copied to the newly created
+# array) did not keep all the bits set correctly when creating a new array from the first
+# array. The chunk would apparently be copied into a new block position with some of the
+# values of CompressorType set incorrectly. The result would be that "c" could be read
+# after restart, but "c2" would fail/dump core during the store(apply...). Since this was a
+# good test during the development (TDD), I opted to keep it as a second test that is
+# unique from the first. Note: val2 does compress with zlib compressor.
+store(apply(c, val2, uint8(i)),c2)
+
+--stop-igdata
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+scan(c)
+scan(c2)
+--cleanup
+--stop-query-logging
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+remove(c)
+remove(c2)

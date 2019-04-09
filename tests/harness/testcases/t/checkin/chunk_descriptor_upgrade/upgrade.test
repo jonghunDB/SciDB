@@ -1,0 +1,107 @@
+# SDB-5818
+--setup
+--echo "This test will pass only after a fresh installation of SciDB"
+--echo "because of array metadata versioning from the 'donor' database"
+--echo "with respect to chunk descriptor upgrade"
+--echo "This test requires four instances of SciDB"
+--shell --store --command "echo \"$(iquery -c $IQUERY_HOST -p $IQUERY_PORT -otsv -aq "list('instances')" | wc -l) instances out of 4 required are present\""
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "yes | scidb.py initall ${SCIDB_CLUSTER_NAME}"
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--start-query-logging
+# Create some arrays purely so that their metadata will hang around in
+# postgres.  Since this test is about testing chunk descriptor conversion
+# and upgrade from SHA 63007deec to 856f33c628--and metadata in postgres is
+# unchanged--we can safely leverage the existing postgres metadata after
+# we wipe the array storage and replace it with pre-63007deec arrays upon
+# which the upgrade operator will act to perform the conversion.
+create array cu002_A <a:int64> [x=0:2,3,0]
+create array cu002_B <x:int64> [a=0:14,3,0]
+create array cu002_C <x:int64> [a=0:14,3,0]
+create array cu002_D <a:int64> [x=0:2,3,0]
+store(build(cu002_A,x+10),cu002_A)
+store(cu002_B,cu002_E)
+store(cu002_D,cu002_F)
+store(filter(build(cu002_D,x+5),x<>1),cu002_D)
+store(redimension(cu002_A,cu002_B),cu002_B)
+store(redimension(cu002_D,cu002_C),cu002_C)
+store(redimension(cu002_D,cu002_E),cu002_E)
+scan(cu002_A)
+scan(cu002_B)
+scan(cu002_C)
+scan(cu002_D)
+scan(cu002_E)
+scan(cu002_F)
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+# A user will NOT remove the datastores as part of the normal product
+# upgrade but for testing we assume that they have only 856f33c628 data in
+# them.  So, we remove them and replace them with pre-63007deec datastores
+# which would be what the product finds installed in a user's environment
+# Also, we install pre-63007deec storage.header and storage.cfg files for
+# the test as those are produced by pre-63007deec storage engines.
+# The 'datastores' directories contain the chunk data
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/datastores"
+# The 'metadata' directories contain the RocksDB information
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/metadata"
+# copy-over chunk data, storage.header, and storage.cfg information
+# from pre-63007deec
+--shell --command "cp -r ${TESTDIR}/0/0/* ${SCIDB_DATA_PATH}/0/0/."
+--shell --command "cp -r ${TESTDIR}/0/1/* ${SCIDB_DATA_PATH}/0/1/."
+--shell --command "cp -r ${TESTDIR}/1/2/* ${SCIDB_DATA_PATH}/1/2/."
+--shell --command "cp -r ${TESTDIR}/1/3/* ${SCIDB_DATA_PATH}/1/3/."
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+
+--test
+list()
+scan(cu002_A)
+scan(cu002_B)
+scan(cu002_C)
+scan(cu002_D)
+scan(cu002_E)
+scan(cu002_F)
+load_library('upgrade_chunk_index')
+upgradeChunkIndex()
+scan(cu002_A)
+scan(cu002_B)
+scan(cu002_C)
+scan(cu002_D)
+scan(cu002_E)
+scan(cu002_F)
+--stop-query-logging
+
+--cleanup
+remove(cu002_A)
+remove(cu002_B)
+remove(cu002_C)
+remove(cu002_D)
+remove(cu002_E)
+remove(cu002_F)
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/metadata"
+--shell --command "yes | scidb.py initall ${SCIDB_CLUSTER_NAME}"
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect

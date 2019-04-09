@@ -1,0 +1,42 @@
+{i} v
+{0} 9
+{1} 8
+{2} 7
+{3} 6
+
+{i} v
+{0} 9
+{1} 8
+{2} 7
+{3} 6
+
+[An error expected at this place for the query "build(<v:int64>[i=0:3])". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT2. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_WRONG_OPERATOR_ARGUMENTS_COUNT2.]
+
+[An error expected at this place for the query "build(<v:int64>[i=0:3], fromage: '[(9),(8),(7),(6)]')". And it failed with error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM. Expected error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM.]
+
+[An error expected at this place for the query "build(<v:int64>[i=0:3], from: '[(9),(8),(7),(6)]', extra: i+3)". And it failed with error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM. Expected error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_UNRECOGNIZED_KEYWORD_PARAM.]
+
+{i} schema
+{0} 'build<v:int64 NOT NULL> [i=0:*:0:1000000]'
+
+{i} schema
+{0} 'build<v:int64 NOT NULL> [i=0:*:0:4]'
+
+{i} schema
+{0} 'build<v:int64 NOT NULL> [i=0:*:0:5]'
+
+[An error expected at this place for the query "show('uniq(build(<v:int64>[i=0:19], i / 5), chunk_size: -7)', 'afl')". And it failed with error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CHUNK_SIZE_MUST_BE_POSITIVE. Expected error code = scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_CHUNK_SIZE_MUST_BE_POSITIVE.]
+
+{i} schema
+{0} 'build<v:int64> [n=0:*:0:10]'
+
+{i} schema
+{0} 'build<v:int64> [n=0:*:0:42]'
+
+{i} schema
+{0} 'build<v:int64> [n=0:*:0:20]'
+
+[An error expected at this place for the query "sort(build(<v:int64>[i=0:9], random()), 42, chunk_size: 20)". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL.]
+
+[An error expected at this place for the query "sort(build(<v:int64>[i=0:9], random()), chunk_size: 20, chunk_size: 30)". And it failed with error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_DUPLICATE_KEYWORD_PARAM. Expected error code = scidb::SCIDB_SE_SYNTAX::SCIDB_LE_DUPLICATE_KEYWORD_PARAM.]
+

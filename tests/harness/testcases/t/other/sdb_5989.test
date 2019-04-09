@@ -1,0 +1,14 @@
+--setup
+load_library('misc')
+load_library('system')
+
+# time required for quiescence after loading 'system' library
+--sleep 10
+
+--test
+--start-igdata
+--shell --command "${TESTDIR}/sdb_5989.sh"
+--stop-igdata
+
+--cleanup
+--justrun "remove(sdb_5989_test_array)"

@@ -1,0 +1,53 @@
+# SDB-5818
+# Testing upgrade from 16.9.5 (sha 5df322f) to feature/newDBArray at sha 20b908795a
+--setup
+--echo "This test will pass only after a fresh installation of SciDB"
+--echo "because of array metadata versioning from the 'donor' database"
+--echo "with respect to chunk descriptor upgrade"
+--echo "This test requires four instances of SciDB"
+--shell --store --command "echo \"$(iquery -c $IQUERY_HOST -p $IQUERY_PORT -otsv -aq "list('instances')" | wc -l) instances out of 4 required are present\""
+# Create an array purely so that its metadata will hang around in
+# postgres.  Since this test is about testing chunk descriptor conversion
+# and upgrade from sha 5df322f to sha 20b908795a--and metadata in postgres is
+# unchanged--we can safely leverage the existing postgres metadata after
+# we wipe the array storage and replace it with a sha 5df322f array upon
+# which the upgrade operator will act to perform the conversion.
+--start-query-logging
+store(build(<val:int32>[i=1:10],i),cu003_target_array)
+--echo "Stopping SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+# A user will NOT remove the datastores as part of the normal product
+# upgrade but for testing we assume that they have only sha 20b908795a data in
+# them.  So, we remove them and replace them with sha 5df322f datastores
+# which would be what the product finds installed in a user's environment
+# Also, we install sha 5df322f storage.header and storage.cfg files for
+# the test as those are produced by sha 5df322f storage engines.
+# The 'datastores' directories contain the chunk data
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/datastores"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/datastores"
+# The 'metadata' directories contain the RocksDB information
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/0/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/0/1/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/2/metadata"
+--shell --command "rm -rf ${SCIDB_DATA_PATH}/1/3/metadata"
+# copy-over chunk data, storage.header, and storage.cfg information from sha 5df322f
+--shell --command "cp -r ${TESTDIR}/0/0/* ${SCIDB_DATA_PATH}/0/0/."
+--shell --command "cp -r ${TESTDIR}/0/1/* ${SCIDB_DATA_PATH}/0/1/."
+--shell --command "cp -r ${TESTDIR}/1/2/* ${SCIDB_DATA_PATH}/1/2/."
+--shell --command "cp -r ${TESTDIR}/1/3/* ${SCIDB_DATA_PATH}/1/3/."
+--echo "Starting SciDB"
+--shell --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+
+--test
+list()
+scan(cu003_target_array)
+upgradeChunkMetadata()
+scan(cu003_target_array)
+--stop-query-logging
+
+--cleanup
+remove(cu003_target_array)

@@ -1,0 +1,19 @@
+# SDB-5688.
+
+--setup
+# Identical schemas.
+create temp array A<v:int64> [i=0:1; j=0:*; k=0:1]
+create temp array B<v:int64> [i=0:1; j=0:*; k=0:1]
+
+--test
+# This always worked:
+store(redimension(build(<v:int64> [i=0:1; j=0:1; k=0:1], i), A), A)
+unpack(unpack(A, x), y)
+
+# This did not:
+store(redimension(build(<v:int64> [i=1:1; j=0:1; k=0:1], i), B), B)
+unpack(unpack(B, x), y)
+
+--cleanup
+remove(A)
+remove(B)

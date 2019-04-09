@@ -1,0 +1,41 @@
+# Keyword parameter testing for input() and save().
+
+--setup
+create temp array B<v:int64>[i=0:3:0:4; j=0:1:0:2]
+create temp array GLEE<v:int64>[i=0:3:0:4; j=0:1:0:2]
+
+--test
+
+# Build it into B.
+store(build(B, from: '[[(9),(8)],[(7),(6)],[(12),(19)],[(11),(17)]]'), B)
+
+# Save it on instance 1.
+--igdata "save(B, 'kw2.opaque', format: 'opaque', instance: 1)"
+
+# Conflicting keyword and positional parameters should fail.
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "save(B, 'kw2.opaque', 1, format: 'opaque', instance: 1)"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "save(B, 'kw2.opaque', 1, 'tsv', format: 'opaque')"
+
+# Load from instance zero?  No can do!
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_FILE_NOT_FOUND "store(input(B, 'kw2.opaque', instance:0, format:'opaque'), FOO)"
+
+# Load from one is ok though.
+--start-ignore-warnings
+load(GLEE, 'kw2.opaque', instance:1, format:'opaque', max_errors: 0)
+filter(join(B, GLEE), B.v <> GLEE.v)
+
+# Parallel opaque load is OK too.  (For opaque, strict really doesn't
+# matter... just demonstrating that the keyword is there.)
+load(GLEE, 'kw2.opaque', instance:-1, format:'opaque', strict: false)
+filter(join(B, GLEE), B.v <> GLEE.v)
+--stop-ignore-warnings
+
+# Conflicting keyword and positional parameters should fail.
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "load(GLEE, 'kw2.opaque', -2, instance:-1, format:'opaque')"
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_KEYWORD_CONFLICTS_WITH_OPTIONAL "load(GLEE, 'kw2.opaque', -1, 'tsv', format:'opaque')"
+
+--cleanup
+# This rm command doesn't work on CDash, oh well.
+--shell --command "rm -f ${SCIDB_DATA_PATH}/0/1/kw2.opaque"
+remove(B)
+remove(GLEE)

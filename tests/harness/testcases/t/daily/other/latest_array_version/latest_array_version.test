@@ -1,0 +1,66 @@
+--setup
+# Load up some arrays, and some with multiple versions.
+--start-igdata
+store(build(<v:uint64>[i=0:99],i),a)
+store(build(<v:uint64>[i=0:99],2*i),a)
+store(build(<v:uint64>[i=0:99],3*i),a)
+store(build(<v:uint64>[i=0:99],i),b)
+store(build(<v:uint64>[i=0:99],i),c)
+store(build(<v:uint64>[i=0:99],2*i),c)
+--stop-igdata
+
+--test
+# Inspect both array and latest_array_version to establish test baseline.
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+# Restart scidb, expecting the two tables to continue to have the same
+# information after a restart.
+--shell --store --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --store --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+# Test the case where the latest_array_version table doesn't have the expected
+# array information by removing a row from it.  Restart SciDB, afterwards expecting
+# the latest_array_version table to have been rebuilt automatically.
+--shell --store --command "${TESTDIR}/delete_from_latest_array_version.sh public a"
+--shell --store --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --store --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+# Test the case where the latest_array_version table doesn't exist at all
+# and must be constructed for the first time on restart.
+--shell --store --command "${TESTDIR}/drop_table_latest_array_version.sh"
+--shell --store --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --store --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+# Test the case where the latest_array_version table isn't missing any rows,
+# but where one of the rows references a namespace that doesn't exist; the
+# table should be rebuilt to match as before.
+--shell --store --command "${TESTDIR}/update_latest_array_version.sh namespace_name foobar public b"
+--shell --store --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --store --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+# Test the case where the latest_array_version table isn't missing any rows,
+# but where one of the rows references an array that doesn't exist; the
+# table should be rebuilt to match as before.
+--shell --store --command "${TESTDIR}/update_latest_array_version.sh array_name foobar public b"
+--shell --store --command "${SCIDB_CMD:=scidb.py} stopall ${SCIDB_CLUSTER_NAME}"
+--shell --store --command "${SCIDB_CMD:=scidb.py} startall ${SCIDB_CLUSTER_NAME}"
+--sleep 5
+--reconnect
+--shell --store --command "${TESTDIR}/latest_array_version_matches_array.sh"
+
+--cleanup
+remove(a)
+remove(b)
+remove(c)

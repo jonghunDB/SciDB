@@ -1,0 +1,1 @@
+sed -i 's/log4j.rootLogger=DEBUG, file/log4j.rootLogger=INFO, file/' /opt/scidb/VERSION_MAJOR.VERSION_MINOR/share/scidb/log4cxx.properties

@@ -1,0 +1,15 @@
+# See ticket #1610 (SDB-3071)
+#
+# Filter fails when chunk contains only NULL values
+
+--setup
+create array foo <a: double null> [x=1:1000,1000,0]
+--start-igdata
+store(build(foo, null), foo)
+--stop-igdata
+
+--test
+filter(foo, a<10)
+
+--cleanup
+remove(foo)

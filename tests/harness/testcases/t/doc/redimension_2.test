@@ -1,0 +1,30 @@
+--setup
+--start-query-logging
+create array raw <pos:int64, device:int64, val: float> [offset=1:*,5,0]
+create array A<val:float>[device=1:5,5,0, pos=1:5,5,0]
+create array B<val:double>[device=1:5,5,0, pos=1:5,5,0]
+
+# Don't log, else dev box DOC_DATA expansion causes FILES_DIFFER.
+--stop-query-logging
+--aql load raw from '${DOC_DATA}/raw_2.txt' as 'csv:l'
+--start-query-logging
+
+--test
+
+# (The input file contains a data collision; "false" in these
+# redimension() calls turns off strict collision checking.  Or, just
+# get rid of the colliding input cell.)
+
+redimension(raw, A, false)
+
+# Wrong type because sum() aggregate always returns a double, regardless of whether input is float or double.
+--error --code=scidb::SCIDB_SE_INFER_SCHEMA::SCIDB_LE_WRONG_ATTRIBUTE_TYPE "redimension(raw, A, false, sum(val) as val)"
+
+# It works fine if the target attribute is a double.
+redimension(raw, B, false, sum(val) as val)
+
+--cleanup
+remove(raw)
+remove(A)
+remove(B)
+--stop-query-logging

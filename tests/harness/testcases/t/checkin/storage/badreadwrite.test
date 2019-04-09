@@ -1,0 +1,15 @@
+--setup
+load_library('misc')
+--start-query-logging
+--start-igdata
+store(build(<val:double compression 'bzlib'>[i=0:10:0:1], 1.0),BadReadThenWrite)
+--stop-igdata
+--test
+test_badreadwrite(BadReadThenWrite)
+
+# Now we need to grep the scidb.logs looking for 'Re-writing Compressed BlockBase'
+--shell --command "${TESTDIR}/badreadwrite.sh ${SCIDB_INSTALL_PATH}/etc/config.ini"
+
+--cleanup
+--stop-query-logging
+remove(BadReadThenWrite)

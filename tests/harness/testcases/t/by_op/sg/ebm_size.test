@@ -1,0 +1,26 @@
+--setup
+create array original_sparse <val:int64> [i=0:100:0:5]
+create array reread_sparse <val:int64> [i=0:100:0:5]
+--start-igdata
+# Create a sparsely populated array with a "very large" empty bitmap
+# and save it as opaque format.
+# Read the created opaque file into a new array
+store(filter(build(<val:int64>[i=0:100:0:5], i), i%2=0),original_sparse)
+--shell --out /dev/null --command "mkdir -p /tmp/${HPID}"
+--shell --store-all --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -aq "save(original_sparse, '/tmp/${HPID}/emp_size.opaque', -2, 'opaque')""
+--shell --store-all --command "iquery -c $IQUERY_HOST -p $IQUERY_PORT -aq "load(reread_sparse, '/tmp/${HPID}/emp_size.opaque', -2, 'opaque')""
+--stop-igdata
+
+--start-query-logging
+--test
+
+# Confirm that the sum of the uncompressed sizes of the chunks for
+# 'original_sparse' and the 'reread_sparse' arrays are the same.
+op_count(filter(join(aggregate(filter(cross_join(list('arrays') as arr, list('chunk map') as cm), regex(name, 'original_sparse.*') and  cm.dsid = arr.uaid), sum(usize) AS usize) AS L, aggregate( filter( cross_join(list('arrays') as arr, list('chunk map') as cm), regex(name, 'reread_sparse.*') and  cm.dsid = arr.uaid), sum(usize) AS usize) AS R), L.usize != R.usize))
+
+--stop-query-logging
+
+--cleanup
+--shell --out /dev/null --command "rm /tmp/${HPID}/emp_size.opaque"
+remove(original_sparse)
+remove(reread_sparse)

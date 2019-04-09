@@ -1,0 +1,46 @@
+"This test will pass only after a fresh installation of SciDB"
+"because of array metadata versioning from the 'donor' database"
+"with respect to chunk descriptor upgrade"
+"This test requires four instances of SciDB"
+"4 instances out of 4 required are present"
+
+SCIDB QUERY : <store(build(<val:int32>[i=1:10],i),target_array)>
+{i} val
+{1} 1
+{2} 2
+{3} 3
+{4} 4
+{5} 5
+{6} 6
+{7} 7
+{8} 8
+{9} 9
+{10} 10
+
+"Stopping SciDB"
+"Starting SciDB"
+SCIDB QUERY : <list()>
+{No} name,uaid,aid,schema,availability,temporary
+{0} 'target_array',1,1,'target_array<val:int32> [i=1:10:0:1000000]',true,false
+
+SCIDB QUERY : <scan(target_array)>
+{i} val
+
+SCIDB QUERY : <upgradeChunkMetadata()>
+Query was executed successfully
+
+SCIDB QUERY : <scan(target_array)>
+{i} val
+{1} 1
+{2} 2
+{3} 3
+{4} 4
+{5} 5
+{6} 6
+{7} 7
+{8} 8
+{9} 9
+{10} 10
+
+Query was executed successfully
+

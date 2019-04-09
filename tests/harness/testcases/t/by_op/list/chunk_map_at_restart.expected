@@ -1,0 +1,15 @@
+{i} val
+{0} 0
+{1} 1
+
+{n} name
+{0} 'has_chunkmap'
+
+Restarting SciDB...
+...done.  Sleeping in lieu of 'system' plugin.
+Reconnected.
+{n} name
+{0} 'has_chunkmap'
+
+Query was executed successfully
+

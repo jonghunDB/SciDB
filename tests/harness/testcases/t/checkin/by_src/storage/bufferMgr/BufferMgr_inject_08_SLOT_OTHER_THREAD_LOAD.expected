@@ -1,0 +1,21 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <create array SRC_COMPRESSED<v:int64 compression 'bzlib'>[i=0:15,1,0]>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(<v:int64> [I=0:15,1,0], I), SRC_COMPRESSED)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(SRC_COMPRESSED, inj, injectError(0,25))>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <apply(build(<v : int64> [I=0:15,1,0], I), clear_cache, test_clear_cache())>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <remove(SRC_COMPRESSED)>
+Query was executed successfully
+

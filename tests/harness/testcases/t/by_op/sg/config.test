@@ -1,0 +1,286 @@
+--setup
+
+--start-query-logging
+
+load_library('misc')
+
+--start-igdata
+--shell --command "iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq "filter(_getopt('sg-receive-queue-size'), Inst=0)" > /tmp/${HPID}.sg-receive-queue-size.txt "
+--shell --command "cat /tmp/${HPID}.sg-receive-queue-size.txt"
+--shell --command "iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq "filter(_getopt('sg-send-queue-size'), Inst=0)" > /tmp/${HPID}.sg-send-queue-size.txt "
+--shell --command "cat /tmp/${HPID}.sg-send-queue-size.txt"
+
+store(redimension(build(<i:int64>[v=0:999,1,0], iif(v%4=0, v, 0)), <v:int64>[i=0:999,1,0], false), SG_skewed)
+store(redimension(build(<i:int64>[v=0:999,1,0], iif(v%1=0, v, 0)), <v:int64>[i=0:999,1,0], false), SG_skewed_1)
+store(build(<v:int64>[i=0:999,1,0], i),SG_balanced)
+
+--stop-igdata
+
+--test
+
+# The idea of this test is to make sure that different send/receive queue sizes do not affect correctness
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed,     4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '1')
+_setopt('sg-receive-queue-size', '1')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '1')
+_setopt('sg-receive-queue-size', '500')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '500')
+_setopt('sg-receive-queue-size', '1')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '500')
+_setopt('sg-receive-queue-size', '500')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '50')
+_setopt('sg-receive-queue-size', '50')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '50')
+_setopt('sg-receive-queue-size', '5')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '5')
+_setopt('sg-receive-queue-size', '50')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '4')
+_setopt('sg-receive-queue-size', '4')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--start-igdata
+_setopt('sg-send-queue-size', '8')
+_setopt('sg-receive-queue-size', '8')
+--stop-igdata
+
+# psReplicate
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psHashPartitioned
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psLocalInstance
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByRow
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+# psByCol
+aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )
+
+--cleanup
+
+--shell --command "QSIZE=`cat /tmp/${HPID}.sg-receive-queue-size.txt` ; iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq "_setopt('sg-receive-queue-size', ${QSIZE})" "
+--shell --command "QSIZE=`cat /tmp/${HPID}.sg-send-queue-size.txt` ; iquery -c ${IQUERY_HOST:=127.0.0.1} -p ${IQUERY_PORT:=1239} -o csv -aq "_setopt('sg-send-queue-size', ${QSIZE})" "
+remove(SG_skewed)
+remove(SG_skewed_1)
+remove(SG_balanced)
+
+--stop-query-logging

@@ -1,0 +1,54 @@
+SCIDB QUERY : <create array A_tallest <x:double>[r=0:int64(pow(2.0,31.0))+1,1024,0, c=0:0,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_widest  <x:double>[r=0:0,1024,0,                    c=0:int64(pow(2.0,31.0))+1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_taller <x:double>[r=0:int64(pow(2.0,22.0)),1024,0, c=0:2048-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_wider <x:double>[r=0:2048-1,1024,0,                c=0:int64(pow(2.0,22.0)),1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_tall <x:double>[r=0:int64(pow(2.0,22.0))-2*1024-1,1024,0, c=0:2048-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <create array A_wide <x:double>[r=0:2048-1,1024,0, c=0:int64(pow(2.0,22.0))-2*1024-1,1024,0]>
+Query was executed successfully
+
+SCIDB QUERY : <load_library('dense_linear_algebra')>
+Query was executed successfully
+
+SCIDB QUERY : <consume(gesvd(A_tallest, 'SIGMA'))>
+[An error expected at this place for the query "consume(gesvd(A_tallest, 'SIGMA'))". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <consume(gesvd(A_widest,  'SIGMA'))>
+[An error expected at this place for the query "consume(gesvd(A_widest,  'SIGMA'))". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <consume(gesvd(A_taller, 'SIGMA'))>
+[An error expected at this place for the query "consume(gesvd(A_taller, 'SIGMA'))". And it failed with error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED. Expected error code = scidb::SCIDB_SE_OPERATOR::SCIDB_LE_OPERATION_FAILED.]
+
+SCIDB QUERY : <consume(gesvd(build(A_tall, 1 + r*2+c), 'SIGMA'))>
+[An error expected at this place for the query "consume(gesvd(build(A_tall, 1 + r*2+c), 'SIGMA'))". And it failed with error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR. Expected error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR.]
+
+SCIDB QUERY : <consume(gesvd(build(A_wide, 1 + r*2+c), 'SIGMA'))>
+[An error expected at this place for the query "consume(gesvd(build(A_wide, 1 + r*2+c), 'SIGMA'))". And it failed with error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR. Expected error code = scidb::SCIDB_SE_NO_MEMORY::SCIDB_LE_MEMORY_ALLOCATION_ERROR.]
+
+SCIDB QUERY : <remove(A_tallest)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_taller)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_tall)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_widest)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_wider)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(A_wide)>
+Query was executed successfully
+

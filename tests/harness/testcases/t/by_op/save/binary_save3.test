@@ -1,0 +1,5 @@
+# SDB-5850: Failing binary save should not leak file descriptors.
+--setup
+--test
+--shell --command "${TESTDIR}/binary_save3.py -c ${IQUERY_HOST} -p ${IQUERY_PORT}"
+--cleanup

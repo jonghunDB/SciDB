@@ -1,0 +1,14 @@
+--setup
+--start-query-logging
+
+# Inject Error Support
+load_library('misc')
+
+--test
+--start-igdata
+--error "store(apply(build(<val:int64>[i=0:100:0:10], i), inject, injectError(0,15)), rocksInsertFailure)"
+--stop-igdata
+
+--cleanup
+--justrun "remove(rocksInsertFailure)"
+--stop-query-logging

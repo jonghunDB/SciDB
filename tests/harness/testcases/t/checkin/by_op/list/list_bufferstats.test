@@ -1,0 +1,8 @@
+--setup
+--start-query-logging
+# Don't actually check the output.
+# Simply execute list('buffer stats') for coverage purposes.
+--test
+filter(redimension(list('buffer stats'), <n:int64>[inst]), n <> 0)
+--cleanup
+--stop-query-logging

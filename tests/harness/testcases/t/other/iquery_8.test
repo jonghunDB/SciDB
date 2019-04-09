@@ -1,0 +1,12 @@
+# SDB-235: Don't prompt or echo the query when reading stdin from non-tty.
+--setup
+--test
+--echo No TTY ...
+--shell --store --command "echo "build(<v:int64>[i=0:3], 4-i)" | \
+    iquery -c ${IQUERY_HOST} -p ${IQUERY_PORT} -a"
+
+# Use TERM=ansi so GNU readline emits same escape sequences on all platforms.
+--echo With TTY ...
+--shell --store --command "env TERM=ansi expect ${TESTDIR}/iquery_8.exp"
+
+--cleanup

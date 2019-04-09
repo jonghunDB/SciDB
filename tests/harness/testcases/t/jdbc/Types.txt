@@ -1,0 +1,48 @@
+<i: int64>  getColumnType()=BIGINT  getLong()=0
+  getString()='0'  getDouble()=0.0
+<v_bool: bool>  getColumnType()=BOOLEAN  getBoolean()=true
+  getString()='true'  getDouble()=EXCEPTION
+<v_char: char>  getColumnType()=CHAR  getString()=c
+  getString()='c'  getDouble()=EXCEPTION
+<v_datetime: datetime>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='2016-04-04 13:30:27'  getDouble()=EXCEPTION
+<v_datetimetz: datetimetz>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='2016-04-04 13:30:27 -04:00'  getDouble()=EXCEPTION
+<v_double: double>  getColumnType()=DOUBLE  getDouble()=3.14
+  getString()='3.14'  getDouble()=3.14
+<v_float: float>  getColumnType()=FLOAT  getFloat()=3.14
+  getString()='3.14'  getDouble()=3.140000104904175
+<v_int8min: int8>  getColumnType()=TINYINT  getByte()=-128, getShort()=-128, getInt()=-128, getLong()=-128
+  getString()='-128'  getDouble()=-128.0
+<v_int8max: int8>  getColumnType()=TINYINT  getByte()=127, getShort()=127, getInt()=127, getLong()=127
+  getString()='127'  getDouble()=127.0
+<v_int16min: int16>  getColumnType()=SMALLINT  getShort()=-32768, getInt()=-32768, getLong()=-32768
+  getString()='-32768'  getDouble()=-32768.0
+<v_int16max: int16>  getColumnType()=SMALLINT  getShort()=32767, getInt()=32767, getLong()=32767
+  getString()='32767'  getDouble()=32767.0
+<v_int32min: int32>  getColumnType()=INTEGER  getInt()=-2147483648, getLong()=-2147483648
+  getString()='-2147483648'  getDouble()=-2.147483648E9
+<v_int32max: int32>  getColumnType()=INTEGER  getInt()=2147483647, getLong()=2147483647
+  getString()='2147483647'  getDouble()=2.147483647E9
+<v_int64min: int64>  getColumnType()=BIGINT  getLong()=-9223372036854775808
+  getString()='-9223372036854775808'  getDouble()=-9.223372036854776E18
+<v_int64max: int64>  getColumnType()=BIGINT  getLong()=9223372036854775807
+  getString()='9223372036854775807'  getDouble()=9.223372036854776E18
+<v_string: string>  getColumnType()=VARCHAR  getString()=hello world
+  getString()='hello world'  getDouble()=EXCEPTION
+<v_uint8min: uint8>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='0'  getDouble()=0.0
+<v_uint8max: uint8>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='255'  getDouble()=255.0
+<v_uint16min: uint16>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='0'  getDouble()=0.0
+<v_uint16max: uint16>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='65535'  getDouble()=65535.0
+<v_uint32min: uint32>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='0'  getDouble()=0.0
+<v_uint32max: uint32>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='4294967295'  getDouble()=4.294967295E9
+<v_uint64min: uint32>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='0'  getDouble()=0.0
+<v_uint64max: uint64>  getColumnType()=NULL  NO_SPECIAL_GETTER
+  getString()='18446744073709551615'  getDouble()=1.8446744073709552E19

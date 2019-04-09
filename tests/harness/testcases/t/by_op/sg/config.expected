@@ -1,0 +1,515 @@
+SCIDB QUERY : <load_library('misc')>
+Query was executed successfully
+
+SCIDB QUERY : <store(redimension(build(<i:int64>[v=0:999,1,0], iif(v%4=0, v, 0)), <v:int64>[i=0:999,1,0], false), SG_skewed)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(redimension(build(<i:int64>[v=0:999,1,0], iif(v%1=0, v, 0)), <v:int64>[i=0:999,1,0], false), SG_skewed_1)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store(build(<v:int64>[i=0:999,1,0], i),SG_balanced)>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L,   _sg(SG_skewed,   3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed,     4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '1')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '1')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '1')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '500')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '500')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '1')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '500')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '500')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '50')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '50')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '50')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '5')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '5')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '50')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '4')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '4')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <_setopt('sg-send-queue-size', '8')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <_setopt('sg-receive-queue-size', '8')>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 0) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 1) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed_1 as L, _sg(SG_skewed_1, 2, -2) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 3) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_balanced as L, _sg(SG_balanced, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <aggregate(filter(apply(join ( SG_skewed as L, _sg(SG_skewed, 4) as R ), ok, L.v=R.v), ok=false), count(*) )>
+{i} count
+{0} 0
+
+SCIDB QUERY : <remove(SG_skewed)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(SG_skewed_1)>
+Query was executed successfully
+
+SCIDB QUERY : <remove(SG_balanced)>
+Query was executed successfully
+

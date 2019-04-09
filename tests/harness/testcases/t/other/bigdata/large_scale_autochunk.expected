@@ -1,0 +1,16 @@
+SCIDB QUERY : <store ( apply ( build ( < dim1 : int64 > [ R=0:4563402751, 1048576, 0 ], (R / 4954304) % 2048 ), dim2, (R/2048) % 2048, dim3, R % 2048, count, R % 2048 ), large1DLoadArray )>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <store ( redimension ( large1DLoadArray, < count : int64 > [dim1; dim2; dim3], false ), testThreeDim )>
+[Query was executed successfully, ignoring data output by this query.]
+
+SCIDB QUERY : <show ( testThreeDim )>
+{i} schema
+{0} 'testThreeDim<count:int64> [dim1=0:*:0:64; dim2=0:*:0:128; dim3=0:*:0:128]'
+
+SCIDB QUERY : <remove ( testThreeDim )>
+Query was executed successfully
+
+SCIDB QUERY : <remove ( large1DLoadArray )>
+Query was executed successfully
+
