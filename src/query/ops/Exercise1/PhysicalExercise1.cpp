@@ -67,6 +67,7 @@ namespace scidb {
             /**
              * Get parameters
              */
+             // placeholder 대체자 또는 자리표시자, 어떤위치를 임시로 가지고 있다가 나중에 교체가 됨
             for (size_t i = 0; i < nDims; i ++) {
                 int64_t dimension =
                         ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[i])->getExpression()->evaluate().getInt64();

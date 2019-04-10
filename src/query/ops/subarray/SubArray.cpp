@@ -70,7 +70,6 @@ void SubArrayIterator::fillSparseChunk(size_t i)
             ConstChunk const& inChunk = inputIterator->getChunk();
             std::shared_ptr<ConstChunkIterator> inIterator = inChunk.getConstIterator(ConstChunkIterator::IGNORE_OVERLAPS|
                                                                                         ConstChunkIterator::IGNORE_EMPTY_CELLS);
-
             while (!inIterator->end()) {
                 Coordinates const& inChunkPos = inIterator->getPosition();
                 array.in2out(inChunkPos, outChunkPos);
@@ -93,6 +92,8 @@ void SubArrayIterator::fillSparseChunk(size_t i)
     }
 }
 
+
+//
 ConstChunk const& SubArrayIterator::getChunk()
 {
     if (!chunkInitialized) {
@@ -124,12 +125,15 @@ ConstChunk const& SubArrayIterator::getChunk()
     return sparseChunk;
 }
 
+
+// inputposition, Iterator의 위치를
 bool SubArrayIterator::setInputPosition(size_t i)
 {
     LOG4CXX_TRACE(logger, "SubArrayIterator::setInputPosition" <<
                   " i=" << i << " inPos=" << CoordsToStr(inPos));
     Dimensions const& dims = array.dims;
     chunkInitialized = false;
+    //
     if (i == dims.size()) {
         bool ret = inputIterator->setPosition(inPos);
         return ret; 
@@ -281,6 +285,7 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
   _useChunkSet(false)
 {
     _query = query;
+    // boundary에 subarray의 범위가 있는지.
     aligned = true;
     for (size_t i = 0, n = dims.size(); i < n; i++) {
         if ((lowPos[i] - inputDims[i].getStartMin()) % dims[i].getChunkInterval() != 0) {
@@ -288,12 +293,13 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
             break;
         }
     }
-
+    // subarray의 범위에 원래의 array의 chunk의 개수를 찾는다. 각 dimension별로 subarray의 범위에 chunk가 몇개 속하는지 확인하고
+    //  chunkset을 만든다.
     double numChunksInBox = 1;
     ArrayDesc const& inputDesc = input->getArrayDesc();
     for (size_t i=0, n = inputDesc.getDimensions().size(); i<n; i++)
     {
-        numChunksInBox *= inputDesc.getNumChunksAlongDimension(i, subarrayLowPos[i], subarrayHighPos[i]);
+        numChunksInBox *= inputDesc.getNumChunksAlongDiSubmension(i, subarrayLowPos[i], subarrayHighPos[i]);
     }
 
     if (numChunksInBox > SUBARRAY_MAP_ITERATOR_THRESHOLD)
@@ -303,6 +309,7 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
     }
 }
 
+//만들어진 chunkset에 청크를 넣는다.  chunkset은 mapping model에서만 사용, 현재는 필요없음.
 void SubArray::addChunksToSet(Coordinates outChunkCoords, size_t dim)
 {
     //if we are not aligned, then each input chunk can contribute to up to 2^nDims output chunks
@@ -325,7 +332,7 @@ void SubArray::addChunksToSet(Coordinates outChunkCoords, size_t dim)
         addChunksToSet(outChunkCoords, dim+1);
     }
 }
-
+// subArray연산의 output에 나타날 Input array의 chunk들을 set으로 구성한다. chunkset은 mapping model에서만 사용, 현재는 필요없음.
 void SubArray::buildChunkSet()
 {
     AttributeID inputAttribute = 0;
@@ -339,6 +346,7 @@ void SubArray::buildChunkSet()
     while(!inputIter->end())
     {
         in2out(inputIter->getPosition(), outChunkCoords);
+        // Coordiantes들을 각 Dimension의 chunk interval과 사이즈를 맞춤.
         desc.getChunkPositionFor(outChunkCoords);
         addChunksToSet(outChunkCoords);
         ++(*inputIter);

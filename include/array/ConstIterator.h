@@ -46,7 +46,7 @@ namespace scidb
 /**
  * Common const iterator interface
  */
-class etsdfonstIterator
+class ConstIterator
 {
 public:
     /**

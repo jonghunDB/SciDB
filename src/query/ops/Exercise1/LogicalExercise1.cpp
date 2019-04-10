@@ -1,5 +1,5 @@
 /*
-**
+    teatr df     teatr df     teatr df **
 * BEGIN_COPYRIGHT
 *
 * Copyright (C) 2008-2015 SciDB, Inc.
@@ -125,7 +125,7 @@ namespace scidb {
 
             Dimensions outputDimensions;
             for(size_t i = nDims; i < nDims; i++){
-                outputDimensions.push_back(DimensionDesc(""+i, startingCell[i], endingCell[i], endingCell[i]-startingCell[i]+1, 0));
+                outputDimensions.push_back(DimensionDesc("",+i, startingCell[i], endingCell[i], endingCell[i]-startingCell[i]+1, 0));
             }
             return ArrayDesc("outputArray", outputAttributes, outputDimensions, defaultPartitioning(), query->getDefaultArrayResidency());
             //-----------------------------------------------------------------------------

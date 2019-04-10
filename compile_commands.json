@@ -1066,7 +1066,7 @@
 },
 {
   "directory": "/home/jh/scidbsource/src/array",
-  "command": "/usr/bin/g++-4.9   -I/home/jh/scidbsource/src -I/home/jh/scidbsource/include -I/home/jh/scidbsource/utils -isystem /opt/scidb/16.9/3rdparty/boost/include -I/usr/include/google/protobuf -I/usr/include/postgresql -I/home/jh/scidbsource/extern -I/usr/local/include   -Wno-system-headers -isystem /opt/local/include/ -isystem /usr/local/include/ -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fPIC -g -ggdb3 -fno-omit-frame-pointer -fPIC -std=c++14 -pedantic  -W -Wextra -Wall -Wno-unused-local-typedefs -Wno-strict-aliasing -Wno-long-long -Wno-unused-parameter -Wno-variadic-macros -Wconversion -Werror -Wno-error=array-bounds -DPROJECT_ROOT=\\\"/home/jh/scidbsource/\\\" -O0   -o CMakeFiles/array_lib.dir/DelegateArray.cpp.o -c /home/jh/scidbsource/src/array/DelegateArray.cpp",
+  "command": "/usr/bin/g++-4.9   -I/home/jh/scidbsource/src -I/home/jh/scidbsource/include -I/home/jh/scidbsource/utils -isystem /opt/scidb/16.9/3rdparty/boost/include -I/usr/include/google/protobuf -I/usr/include/postgresql -I/home/jh/scidbsource/extern -I/usr/local/include   -Wno-system-headers -isystem /opt/local/include/ -isystem /usr/local/include/ -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -fPIC -g -ggdb3 -fno-omit-frame-pointer -fPIC -std=c++14 -pedantic  -W -Wextra -Wall -Wno-unused-local-typedefs -Wno-strict-aliasing -Wno-long-long -Wno-unused-parameter -Wno-variadic-macros -Wconversion -Werror -Wno-error=array-bounds -DPROJECT_ROOT=\\\"/home/jh/scidbsource/\\\" -O0   -o CMakeFiles/array_lib.dir/gateArray.cpp.o -c /home/jh/scidbsource/src/array/DelegateArray.cpp",
   "file": "/home/jh/scidbsource/src/array/DelegateArray.cpp"
 },
 {
