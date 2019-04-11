@@ -39,10 +39,10 @@ namespace scidb {
 
     class PhysicalExercise1: public  PhysicalOperator
     {
+        // PhysicalExercise1 and execute
     private:
 
     public:
-
         PhysicalExercise1(const std::string& logicalName, const std::string& physicalName,
                        const Parameters& parameters, const ArrayDesc& schema)
                 : PhysicalOperator(logicalName, physicalName, parameters, schema)
@@ -60,6 +60,9 @@ namespace scidb {
 
             AttributeID inputAttrID;
             size_t nDims = inDesc.getDimensions().size();
+
+            Coordinates losPos;
+            Coordinates highPos;
 
             vector<int64_t> startingCell;
             vector<int64_t> endingCell;

@@ -309,11 +309,13 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
     }
 }
 
-//만들어진 chunkset에 청크를 넣는다.  chunkset은 mapping model에서만 사용, 현재는 필요없음.
+//만들어진 chunkset에 청크를 넣는다.  chunkset은 mapping model에서만 사용
 void SubArray::addChunksToSet(Coordinates outChunkCoords, size_t dim)
 {
     //if we are not aligned, then each input chunk can contribute to up to 2^nDims output chunks
     //therefore, the recursion
+//     if n =2, then output chunk is 4
+// ??? 이해..
     for(size_t i= (dim == 0 ? 0 : dim -1), n = outChunkCoords.size(); i<n; i++)
     {
         if (outChunkCoords[i]<dims[i].getStartMin() || outChunkCoords[i]>dims[i].getEndMax())
@@ -332,7 +334,7 @@ void SubArray::addChunksToSet(Coordinates outChunkCoords, size_t dim)
         addChunksToSet(outChunkCoords, dim+1);
     }
 }
-// subArray연산의 output에 나타날 Input array의 chunk들을 set으로 구성한다. chunkset은 mapping model에서만 사용, 현재는 필요없음.
+// subArray연산의 output에 나타날 Input array의 chunk들을 set으로 구성한다.
 void SubArray::buildChunkSet()
 {
     AttributeID inputAttribute = 0;

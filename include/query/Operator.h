@@ -147,7 +147,7 @@ public:
     /**
      *  @return vector containing a list of the parameters types that can be "next" in a variadic operator
      */
-    virtual Placeholders nextVaryParamPlaceholder(const std::vector< ArrayDesc> &schemas)
+    virtual Placeholders ParamPlaceholder(const std::vector< ArrayDesc> &schemas)
     {
         throw SYSTEM_EXCEPTION(SCIDB_SE_QPROC, SCIDB_LE_UNHANDLED_VAR_PARAMETER) << _logicalName;
     }

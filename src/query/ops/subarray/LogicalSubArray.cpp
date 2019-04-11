@@ -49,7 +49,8 @@ ArrayDesc setDimensions(ArrayDesc desc, Coordinates& lowPos,
 
     for (size_t i = 0, n = dims.size(); i < n; i++) {
         DimensionDesc const& srcDim = dims[i];
-        size_t end = std::max(highPos[i] - lowPos[i],0L);
+
+        size_t end = (size_t)std::max(highPos[i] - lowPos[i],0L);
         newDims[i] = DimensionDesc(srcDim.getBaseName(),
                 srcDim.getNamesAndAliases(), 0, 0, end,
                 end, srcDim.getRawChunkInterval(),

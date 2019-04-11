@@ -67,7 +67,7 @@ public:
 
     /**
      * Set iterator's current positions
-     * @return true if specified position is valid (belongs to the chunk and match current iteratation mode),
+     * @return true if specified position is valid (belongs to the chunk and match current iteration mode),
      * false otherwise
      */
     virtual bool setPosition(Coordinates const& pos) = 0;

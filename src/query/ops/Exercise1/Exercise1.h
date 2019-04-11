@@ -66,13 +66,13 @@ namespace scidb
         Exercise1( ArrayDesc& d, Coordinates lowPos, Coordinates highPos, std::shared_ptr<Array>& input, std::shared_ptr<Query> const& query );
         DelegateArrayIterator* createArrayIterator(AttributeID attrID) const;
 
-        void out2in(Coordinates const& out, Coordinates in) const;
-        void in2out(Coordinates const& in, Coordinates out) const;
+        void out2in(Coordinates const& out, Coordinates& in) const;
+        void in2out(Coordinates const& in, Coordinates& out) const;
     };
     //class Exercise1Iterator
 /*
     * Iterator의 계층적 구조
-    * ConstIterator
+    * ConstIterator                          :
     *   ConstArrayIterator
     *       DelegateArrayIterator
     *           ExerciseIterator
@@ -130,12 +130,14 @@ namespace scidb
         Exercise1Iterator(Exercise1 const& exercise1, AttributeID attrID, bool doRestart = true);
         virtual ~Exercise1Iterator()
         {}
+
+        ConstChunk const& getChunk() override;
+
         bool end() override;
         void operator ++() override;
         Coordinates const& getPosition() override;
         bool setPosition(Coordinates const& pos) override;
         void restart() override;
-        ConstChunk const& getChunk() override;
 
     };
 }// namespace scidb

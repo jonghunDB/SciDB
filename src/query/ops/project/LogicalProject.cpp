@@ -67,10 +67,10 @@ using namespace std;
  *   n/a
  *
  */
-class LogicalProject: public  LogicalOperator
+class LogicalExercise1: public  LogicalOperator
 {
 public:
-	LogicalProject(const std::string& logicalName, const std::string& alias):
+	LogicalExercise1(const std::string& logicalName, const std::string& alias):
 	    LogicalOperator(logicalName, alias)
     {
         _properties.tile = true;

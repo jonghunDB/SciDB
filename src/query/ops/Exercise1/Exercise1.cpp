@@ -2,24 +2,21 @@
 
 namespace scidb
 {
-    Exercise1::Exercise1(scidb::ArrayDesc &array, scidb::Coordinates lowPos, scidb::Coordinates highPos,
+    Exercise1::Exercise1(ArrayDesc &array, Coordinates lowPos, Coordinates highPos,
                          std::shared_ptr<scidb::Array> &input, const std::shared_ptr<scidb::Query> &query): DelegateArray(array, input),
               Exercise1LowPos(lowPos),
               Exercise1HighPos(highPos),
               dims(desc.getDimensions()),
-              inputDims(input->getArrayDesc().getDimension()) {
+              inputDims(input->getArrayDesc().getDimensions()) {
         _query = query;
-
-
     }
-
 
     DelegateArrayIterator *Exercise1::createArrayIterator(scidb::AttributeID attrID) const
     {
         return new Exercise1Iterator(*this, attrID);
     }
 
-    Exercise1Iterator::Exercise1Iterator(scidb::Exercise1 const& Exercise1, scidb::AttributeID attrID, bool doRestart)
+    Exercise1Iterator::Exercise1Iterator(Exercise1 const& Exercise1, AttributeID attrID, bool doRestart)
     : DelegateArrayIterator(Exercise1, attrID, Exercise1.inputArray->getConstIterator(attrID)),
     array(Exercise1),
     outPos(Exercise1.Exercise1LowPos.size()),
@@ -32,7 +29,11 @@ namespace scidb
             restart();
         }
     }
-    //
+    bool Exercise1Iterator::end()
+    {
+        return !hasCurrent;
+    }
+
     void Exercise1Iterator::restart()
     {
         const Dimensions& dims =array.dims;
@@ -98,24 +99,23 @@ namespace scidb
         array.out2in(outPos, inPos);
         return hasCurrent = setInputPosition(0);
     }
-    Cooriantes const& SubArrayIterator::getPosition()
+    Coordinates const& Exercise1Iterator::getPosition()
     {
         if (!hasCurrent)
             throw USER_EXCEPTION(SCIDB_SE_EXECUTION, SCIDB_LE_NO_CURRENT_ELEMENT);
         return outPos;
-
     }
     void Exercise1::out2in(Coordinates const& out, Coordinates& in) const
     {
         for (size_t i = 0, n = out.size(); i < n; i++) {
-            in[i] = out[i] + subarrayLowPos[i];
+            in[i] = out[i] + Exercise1LowPos[i];
         }
     }
 
     void Exercise1::in2out(Coordinates const& in, Coordinates& out) const
     {
         for (size_t i = 0, n = in.size(); i < n; i++) {
-            out[i] = in[i] - subarrayLowPos[i];
+            out[i] = in[i] - Exercise1LowPos[i];
         }
     }
 
