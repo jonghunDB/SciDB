@@ -49,28 +49,95 @@ namespace scidb {
         {
             LOG4CXX_DEBUG(logger,"PhysicalExercise1::PhysicalExercise1 called");
         }
+        //Return the starting coordinates of the subarray window, relative to the input schema
+        inline Coordinates getWindowStart(ArrayDesc const& inputSchema) const
+        {
+            Dimensions const& dims = inputSchema.getDimensions();
+            size_t nDims = dims.size();
+            Coordinates result (nDims);
+            for (size_t i = 0; i < nDims; i++)
+            {
+                Value const& low = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[i])->getExpression()->evaluate();
+                if ( low.isNull() || low.getInt64() < dims[i].getStartMin())
+                {
+                    result[i] = dims[i].getStartMin();
+                }
+                else
+                {
+                    result[i] = low.getInt64();
+                }
+            }
+            return result;
+        }
+
+        //Return the ending coordinates of the subarray window, relative to the input schema
+        inline Coordinates getWindowEnd(ArrayDesc const& inputSchema) const
+        {
+            Dimensions const& dims = inputSchema.getDimensions();
+            size_t nDims = dims.size();
+            Coordinates result (nDims);
+            for (size_t i  = 0; i < nDims; i++)
+            {
+                Value const& high = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[i + nDims])->getExpression()->evaluate();
+                if (high.isNull() || high.getInt64() > dims[i].getEndMax())
+                {
+                    result[i] = dims[i].getEndMax();
+                }
+                else
+                {
+                    result[i] = high.getInt64();
+                }
+            }
+            return result;
+        }
+
 
         std::shared_ptr<Array> execute(std::vector< std::shared_ptr<Array> >& inputArrays, std::shared_ptr<Query> query) override
         {
             //LOG4CXX_DEBUG(logger,"PhysicalExercise1::execute called");
-            SCIDB_ASSERT(inputArrays.size() == 1);
+            SCIDB_ASSERT(inputArrays.size() == 1); // or assert(inputArrays.size() ==1);
+            SCIDB_ASSERT(_schema.getResidency()->isEqual(inputArrays[0]->getArrayDesc().getResidency()));
+            // autochunk interval이면 그 interval을 instance에서 확인하고 설정한다.
+            checkOrUpdateIntervals(_schema, inputArrays[0]);
 
+            //random access으로 Iterator
             std::shared_ptr<Array> inputArray = ensureRandomAccess(inputArrays[0], query);
             ArrayDesc const& inDesc = inputArray->getArrayDesc();
 
-            AttributeID inputAttrID;
-            size_t nDims = inDesc.getDimensions().size();
+            Dimensions const& srcDims = inDesc.getDimensions();
+            size_t nDims = srcDims.size();
 
-            Coordinates losPos;
-            Coordinates highPos;
 
-            vector<int64_t> startingCell;
+            Attributes outputAttr;
+            AttributeID attributeID = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
+            outputAttr.push_back(AttributeDesc( attributeID, "attributeName", TID_DOUBLE, 0, CompressorType::NONE));
+            outputAttr = addEmptyTagAttribute(outputAttr);
+
+            // input AttrID and low and high position of subarray
+            Coordinates lowPos = getWindowStart(inDesc);
+            Coordinates highPos = getWindowEnd(inDesc);
+
+            //low가 high보다 클 경우  empty array를 반환한다.
+            for(size_t i=0; i<nDims; i++)
+            {
+                if (lowPos[i] > highPos[i]) {
+                    return std::shared_ptr<Array>(new MemArray(_schema,query));
+                }
+            }
+            //
+            //std::shared_ptr< Array> arr = std::shared_ptr< Array>( new Exercise1(_schema, lowPos,highPos,inputArray,query));
+            std::shared_ptr< Array> arr = std::shared_ptr< Array>( new Exercise1(_schema, attributeID ,lowPos,highPos,inputArray, query));
+            LOG4CXX_TRACE(logger, "subarray() output array distro: "<< RedistributeContext(_schema.getDistribution(), _schema.getResidency()));
+
+            return arr;
+
+
+            /*vector<int64_t> startingCell;
             vector<int64_t> endingCell;
             vector<double> outputs;
-            /**
+            *
              * Get parameters
-             */
-             // placeholder 대체자 또는 자리표시자, 어떤위치를 임시로 가지고 있다가 나중에 교체가 됨
+
             for (size_t i = 0; i < nDims; i ++) {
                 int64_t dimension =
                         ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[i])->getExpression()->evaluate().getInt64();
@@ -83,7 +150,6 @@ namespace scidb {
                 endingCell.push_back(dimension);
                 LOG4CXX_DEBUG(logger,"ending cell : "<<dimension);
             }
-            inputAttrID =
                     ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
 
             std::shared_ptr<ConstArrayIterator> arrayIterator = inputArray->getConstIterator(inputAttrID);
@@ -103,23 +169,23 @@ namespace scidb {
             }
 
 
-            /**
+            *
              * 결과 반환
-             */
+
             if (query->getInstanceID() == 0)
             {
-                /**
+                *
                  * Instance 0번일 경우 local top-k들 중에서 최종적으로 top-k를 선택함.
-                 */
+
                 return makeFinalTopKArray(startingCell,endingCell,outputs,query);
             }
             else
             {
-                /**
+                *
                  * Instance 0번이 아닐 경우 empty array 반환
-                 */
+
                 return std::shared_ptr<Array>(new MemArray(_schema, query));
-            }
+            }*/
         }
 
 

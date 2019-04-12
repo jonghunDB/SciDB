@@ -144,10 +144,22 @@ class LogicalExercise1 : public LogicalOperator {
          */
         ArrayDesc inferSchema(std::vector<ArrayDesc> schemas, std::shared_ptr<Query> query) {
             SCIDB_ASSERT(schemas.size() == 1);//한개의 array
+            assert(_parameters.size() == 0 || _parameters.size() == schemas[0].getDimensions().size() * 2);
+
+            for(Parameters::const_iterator it = _parameters.begin(); it != _parameters.end(); it++)
+            {
+                assert(((std::shared_ptr<OperatorParam>&)*it)->getParamType() == PARAM_LOGICAL_EXPRESSION);
+                assert(((std::shared_ptr<OperatorParamLogicalExpression>&)*it)->isConstant());
+            }
+
+
 
             ArrayDesc& desc = schemas[0];
             Dimensions const& dims = desc.getDimensions();
             size_t nDims = dims.size();
+
+            Dimensions newDims(dims.size());
+
             //low 와 high coord를 패치한다.
             Coordinates lowPos(nDims);
             Coordinates highPos(nDims);
@@ -173,7 +185,24 @@ class LogicalExercise1 : public LogicalOperator {
                     highPos[i] = lowPos[i] - 1;
                 }
             }
-            return setDimensionsiAndAttribute(desc,lowPos,highPos,query);
+
+            // Attribute의 Vector.
+            Attributes outputAttr;
+            //Value const& attrID = evaluate(((std::shared_ptr<OperatorParamLogicalExpression>&)_parameters[nDims*2])->getExpression(),TID_UINT32);
+            AttributeID attributeID = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
+            outputAttr.push_back(AttributeDesc(attributeID, "attributeName", TID_DOUBLE, 0, CompressorType::NONE));
+            outputAttr = addEmptyTagAttribute(outputAttr);
+
+            for(size_t i = 0 , n = dims.size(); i< n ;i++) {
+                DimensionDesc const &srcDim = dims[i];
+                size_t end =(size_t)std::max(highPos[i] - lowPos[i], 0L);
+                //각각의 dimension에 DimensionDesc의 결과값을 넘겨준다.
+                newDims[i] = DimensionDesc(srcDim.getBaseName(), srcDim.getNamesAndAliases(), 0, 0, end, end,
+                                           srcDim.getRawChunkInterval(), srcDim.getChunkOverlap());
+            }
+            return ArrayDesc(desc.getName(), outputAttr , newDims, createDistribution(psUndefined),desc.getResidency());
+
+            //return setDimensionsiAndAttribute(desc,lowPos,highPos,query);
 
 
 

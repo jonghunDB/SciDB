@@ -68,6 +68,6 @@ lib_Exercise1.so: $(SRCS)
 	$(CXX) $(CCFLAGS) $(INC) -o LogicalExercise1.o -c LogicalExercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o PhysicalExercise1.o -c PhysicalExercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o lib_Exercise1.so plugin.cpp Exercise1.o LogicalExercise1.o PhysicalExercise1.o $(LIBS)
-	cp lib_Exercise1.so /home/otter/Desktop/scidb_plugins
+	cp lib_Exercise1.so /opt/scidb/18.1/lib/scidb/plugins
 	#scp lib_Exercise1.so scidb@master1.korea.ac.kr:~
 	#scp lib_Exercise1.so scidb@master2.korea.ac.kr:~

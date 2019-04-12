@@ -4,14 +4,28 @@ namespace scidb
 {
     Exercise1::Exercise1(ArrayDesc &array, Coordinates lowPos, Coordinates highPos,
                          std::shared_ptr<scidb::Array> &input, const std::shared_ptr<scidb::Query> &query): DelegateArray(array, input),
-              Exercise1LowPos(lowPos),
-              Exercise1HighPos(highPos),
-              dims(desc.getDimensions()),
-              inputDims(input->getArrayDesc().getDimensions()) {
-        _query = query;
-    }
+                         Exercise1LowPos(lowPos),
+                         Exercise1HighPos(highPos),
+                         dims(desc.getDimensions()),
+                         inputDims(input->getArrayDesc().getDimensions()) { _query = query;}
 
-    DelegateArrayIterator *Exercise1::createArrayIterator(scidb::AttributeID attrID) const
+
+
+    Exercise1::Exercise1(ArrayDesc &array, AttributeDesc attrDesc, Coordinates lowPos, Coordinates highPos,
+                         std::shared_ptr<scidb::Array> &input, const std::shared_ptr<scidb::Query> &query): DelegateArray(array, input),
+                                                                                                            Exercise1AttributeDesc(attrDesc),
+                                                                                                            Exercise1LowPos(lowPos),
+                                                                                                            Exercise1HighPos(highPos),
+                                                                                                            dims(desc.getDimensions()),
+                                                                                                            inputDims(input->getArrayDesc().getDimensions()) { _query = query;}
+    Exercise1::Exercise1(ArrayDesc &array, AttributeID attrID, Coordinates lowPos, Coordinates highPos,
+                         std::shared_ptr<scidb::Array> &input, const std::shared_ptr<scidb::Query> &query): DelegateArray(array, input),
+                                                                                                            Exercise1AttributeID(attrID),
+                                                                                                            Exercise1LowPos(lowPos),
+                                                                                                            Exercise1HighPos(highPos),
+                                                                                                            dims(desc.getDimensions()),
+                                                                                                            inputDims(input->getArrayDesc().getDimensions()) { _query = query;}
+    DelegateArrayIterator *Exercise1::createArrayIterator(AttributeID attrID) const
     {
         return new Exercise1Iterator(*this, attrID);
     }

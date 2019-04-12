@@ -285,7 +285,7 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
   _useChunkSet(false)
 {
     _query = query;
-    // boundary에 subarray의 범위가 있는지.
+    // 각각의 chunk boundary에 subarray의 범위가 있는지.
     aligned = true;
     for (size_t i = 0, n = dims.size(); i < n; i++) {
         if ((lowPos[i] - inputDims[i].getStartMin()) % dims[i].getChunkInterval() != 0) {
@@ -299,7 +299,7 @@ SubArray::SubArray(ArrayDesc& array, Coordinates lowPos, Coordinates highPos,
     ArrayDesc const& inputDesc = input->getArrayDesc();
     for (size_t i=0, n = inputDesc.getDimensions().size(); i<n; i++)
     {
-        numChunksInBox *= inputDesc.getNumChunksAlongDiSubmension(i, subarrayLowPos[i], subarrayHighPos[i]);
+        numChunksInBox *= inputDesc.getNumChunksAlongDimension(i, subarrayLowPos[i], subarrayHighPos[i]);
     }
 
     if (numChunksInBox > SUBARRAY_MAP_ITERATOR_THRESHOLD)
@@ -366,13 +366,16 @@ DelegateArrayIterator* SubArray::createArrayIterator(AttributeID attrID) const
         return new SubArrayIterator(*this, attrID);
     }
 }
+
+//calculate input coordinate position with output position
+//ex) in = 1000 ; out =100 ; subarrayLosPos = 900;
 void SubArray::out2in(Coordinates const& out, Coordinates& in) const
 {
     for (size_t i = 0, n = out.size(); i < n; i++) {
         in[i] = out[i] + subarrayLowPos[i];
     }
 }
-
+//calculate output coordinate position with input position.
 void SubArray::in2out(Coordinates const& in, Coordinates& out) const
 {
     for (size_t i = 0, n = in.size(); i < n; i++) {

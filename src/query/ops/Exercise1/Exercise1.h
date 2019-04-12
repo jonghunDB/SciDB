@@ -39,6 +39,8 @@ namespace scidb
     {
         friend class Exercise1Iterator;
     private:
+        AttributeID Exercise1AttributeID;
+        AttributeDesc Exercise1AttributeDesc;
         Coordinates Exercise1LowPos;
         Coordinates Exercise1HighPos;
         Dimensions const& dims;
@@ -64,6 +66,9 @@ namespace scidb
 //      virtual ~Exercise1()
 //      {}
         Exercise1( ArrayDesc& d, Coordinates lowPos, Coordinates highPos, std::shared_ptr<Array>& input, std::shared_ptr<Query> const& query );
+        Exercise1( ArrayDesc& d, AttributeDesc attDesc, Coordinates lowPos, Coordinates highPos, std::shared_ptr<Array>& input, std::shared_ptr<Query> const& query );
+        Exercise1( ArrayDesc& d, AttributeID attrID, Coordinates lowPos, Coordinates highPos, std::shared_ptr<Array>& input, std::shared_ptr<Query> const& query);
+
         DelegateArrayIterator* createArrayIterator(AttributeID attrID) const;
 
         void out2in(Coordinates const& out, Coordinates& in) const;
