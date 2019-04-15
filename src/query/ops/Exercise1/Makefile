@@ -34,7 +34,7 @@ CCFLAGS = -pedantic -W -Wextra -Wall -Wno-variadic-macros -Wno-strict-aliasing \
 INC = -I. -DPROJECT_ROOT="\"$(SCIDB)\"" -I"$(SCIDB_THIRDPARTY_PREFIX)/3rdparty/boost/include/" \
       -I"$(SCIDB)/include" -I./extern
 
-LIBS = -shared -Wl,-soname,lib_Exercise1.so -ldl -L. \
+LIBS = -shared -Wl,-soname,libExercise1.so -ldl -L. \
        -L"$(SCIDB_THIRDPARTY_PREFIX)/3rdparty/boost/lib" -L"$(SCIDB)/lib" \
        -Wl,-rpath,$(SCIDB)/lib:$(RPATH)
 
@@ -57,17 +57,17 @@ else
  endif
 endif
 
-all: lib_Exercise1.so
+all: libExercise1.so
 
 clean:
 	rm -rf *.so *.o
 
-lib_Exercise1.so: $(SRCS)
+libExercise1.so: $(SRCS)
 	@if test ! -d "$(SCIDB)"; then echo  "Error. Try:\n\nmake SCIDB=<PATH TO SCIDB INSTALL PATH>"; exit 1; fi
 	$(CXX) $(CCFLAGS) $(INC) -o Exercise1.o -c Exercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o LogicalExercise1.o -c LogicalExercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o PhysicalExercise1.o -c PhysicalExercise1.cpp
-	$(CXX) $(CCFLAGS) $(INC) -o lib_Exercise1.so plugin.cpp Exercise1.o LogicalExercise1.o PhysicalExercise1.o $(LIBS)
-	cp lib_Exercise1.so /opt/scidb/18.1/lib/scidb/plugins
-	#scp lib_Exercise1.so scidb@master1.korea.ac.kr:~
-	#scp lib_Exercise1.so scidb@master2.korea.ac.kr:~
+	$(CXX) $(CCFLAGS) $(INC) -o libExercise1.so plugin.cpp Exercise1.o LogicalExercise1.o PhysicalExercise1.o $(LIBS)
+	sudo cp libExercise1.so /opt/scidb/18.1/lib/scidb/plugins
+	#scp libExercise1.so scidb@master1.korea.ac.kr:~
+	#scp libExercise1.so scidb@master2.korea.ac.kr:~

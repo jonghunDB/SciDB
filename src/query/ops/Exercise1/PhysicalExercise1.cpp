@@ -107,36 +107,26 @@ namespace scidb {
             Dimensions const& srcDims = inDesc.getDimensions();
             size_t nDims = srcDims.size();
 
-
             Attributes outputAttr;
             AttributeID attributeID = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
             outputAttr.push_back(AttributeDesc( attributeID, "attributeName", TID_DOUBLE, 0, CompressorType::NONE));
             outputAttr = addEmptyTagAttribute(outputAttr);
 
-            // input AttrID and low and high position of subarray
+            /*// input AttrID and low and high position of subarray
             Coordinates lowPos = getWindowStart(inDesc);
             Coordinates highPos = getWindowEnd(inDesc);
 
-            //low가 high보다 클 경우  empty array를 반환한다.
+            //low가 high보다 클 경우 empty array를 반환한다.
             for(size_t i=0; i<nDims; i++)
             {
                 if (lowPos[i] > highPos[i]) {
                     return std::shared_ptr<Array>(new MemArray(_schema,query));
                 }
-            }
-            //
-            //std::shared_ptr< Array> arr = std::shared_ptr< Array>( new Exercise1(_schema, lowPos,highPos,inputArray,query));
-            std::shared_ptr< Array> arr = std::shared_ptr< Array>( new Exercise1(_schema, attributeID ,lowPos,highPos,inputArray, query));
-            LOG4CXX_TRACE(logger, "subarray() output array distro: "<< RedistributeContext(_schema.getDistribution(), _schema.getResidency()));
 
-            return arr;
-
-
-            /*vector<int64_t> startingCell;
+            }*/
+            vector<int64_t> startingCell;
             vector<int64_t> endingCell;
             vector<double> outputs;
-            *
-             * Get parameters
 
             for (size_t i = 0; i < nDims; i ++) {
                 int64_t dimension =
@@ -152,45 +142,48 @@ namespace scidb {
             }
                     ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
 
-            std::shared_ptr<ConstArrayIterator> arrayIterator = inputArray->getConstIterator(inputAttrID);
-            while (!arrayIterator->end()) {//현재 instance가 가지고 있는 chunk들을 순회(현재는 전체 array가 하나의 chunk로 구성되어 있음)
-
+            std::shared_ptr<ConstArrayIterator> arrayIterator = inputArray->getConstIterator(attributeID);
+            while (!arrayIterator->end())
+            {//현재 instance가 가지고 있는 chunk들을 순회(현재는 전체 array가 하나의 chunk로 구성되어 있음)
                 ConstChunk const &chunk = arrayIterator->getChunk();//arrayIterator로부터 chunk를 읽어옴
+                if(chunk.contains(startingCell,false))
+                {
+                    std::shared_ptr<ConstChunkIterator> chunkIterator = chunk.getConstIterator();
+                    chunkIterator->setPosition(startingCell);
+                    while(!chunkIterator->end()|| !(chunkIterator->getPosition()== endingCell)){//cell 순회
+                        double cell = chunkIterator->getItem().getDouble();//read cell
+                        outputs.push_back(cell);
+                        ++(*chunkIterator);
+                    }
 
-                std::shared_ptr<ConstChunkIterator> chunkIterator = chunk.getConstIterator();
-
-                while(!chunkIterator->end()){//cell 순회
-                    double cell = chunkIterator->getItem().getDouble();//read cell
-
-                    ++(*chunkIterator);
                 }
 
                 ++(*arrayIterator);
             }
 
-
+/*
             *
-             * 결과 반환
+             * 결과 반환*/
 
             if (query->getInstanceID() == 0)
-            {
+            {/*
                 *
-                 * Instance 0번일 경우 local top-k들 중에서 최종적으로 top-k를 선택함.
+                 * Instance 0번일 경우 local top-k들 중에서 최종적으로 top-k를 선택함.*/
 
-                return makeFinalTopKArray(startingCell,endingCell,outputs,query);
+                return Exercise1Array(startingCell,endingCell,outputs,query);
             }
             else
-            {
+            {/*
                 *
-                 * Instance 0번이 아닐 경우 empty array 반환
+                 * Instance 0번이 아닐 경우 empty array 반환*/
 
                 return std::shared_ptr<Array>(new MemArray(_schema, query));
-            }*/
+            }
         }
 
 
-        std::shared_ptr<Array> makeFinalTopKArray
-                (Coordinates startingCell,Coordinates endingCell,vector<double> attributeValues,std::shared_ptr<Query>& query){
+        std::shared_ptr<Array>  Exercise1Array
+            (Coordinates startingCell,Coordinates endingCell,vector<double> attributeValues,std::shared_ptr<Query>& query){
             LOG4CXX_INFO(logger,"makeFinalTopKArray called");
             std::shared_ptr<Array> outputArray(new MemArray(_schema, query));
             //Coordinates startingPosition(1, query->getInstanceID());
@@ -201,7 +194,16 @@ namespace scidb {
             outputChunkIter->setPosition(startingCell);
 
             //"Example" of writing cells
-            Value value;
+            for(size_t i = 0; i <attributeValues.size() ;i++)
+            {
+                Value value;
+                value.setDouble(attributeValues[i]);
+                outputChunkIter->writeItem(value);
+                ++(*outputChunkIter);
+            }
+            outputChunkIter->flush();
+
+         /*   Value value;
             value.setDouble(attributeValues[0]);
             outputChunkIter->writeItem(value);
 
@@ -210,7 +212,7 @@ namespace scidb {
             value.setDouble(attributeValues[1]);
             outputChunkIter->writeItem(value);
 
-            outputChunkIter->flush(); // After completing a chunk, you have to flush.
+            outputChunkIter->flush(); // After completing a chunk, you have to flush.*/
 
             LOG4CXX_INFO(logger,"makeFinalTopKArray finished");
 

@@ -124,13 +124,17 @@ namespace scidb
     {
     protected:
         bool setInputPosition(size_t i);
-
+        void fillSparseChunk(size_t i);
         Exercise1 const& array;
         Coordinates outPos;
         Coordinates inPos;
         bool hasCurrent;
 
         Coordinates outChunkPos;
+        MemChunk sparseBitmapChunk;
+        MemChunk sparseChunk;
+        // outIterator must be defined AFTER sparseXChunk because it needs to be destroyed BEFORE
+        std::shared_ptr<ChunkIterator> outIterator;
     public:
         Exercise1Iterator(Exercise1 const& exercise1, AttributeID attrID, bool doRestart = true);
         virtual ~Exercise1Iterator()
