@@ -191,9 +191,9 @@ set(ops_lib_src
     index_lookup/IndexLookupSettings.cpp
     limit/LogicalLimit.cpp
     limit/PhysicalLimit.cpp
-        Exercise1/Exercise1.cpp
-        Exercise1/LogicalExercise1.cpp
-        Exercise1/PhysicalExercise1.cpp
+    Exercise1/Exercise1.cpp
+    Exercise1/LogicalExercise1.cpp
+    Exercise1/PhysicalExercise1.cpp
         )
 
 find_package(Libcsv REQUIRED)

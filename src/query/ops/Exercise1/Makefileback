@@ -1,4 +1,4 @@
-ifeq ($(SCIDB),) 
+ifeq ($(SCIDB),)
   X := $(shell which scidb 2>/dev/null)
   ifneq ($(X),)
     X := $(shell dirname ${X})
@@ -38,8 +38,9 @@ LIBS = -shared -Wl,-soname,libExercise1.so -ldl -L. \
        -L"$(SCIDB_THIRDPARTY_PREFIX)/3rdparty/boost/lib" -L"$(SCIDB)/lib" \
        -Wl,-rpath,$(SCIDB)/lib:$(RPATH)
 
-SRCS = LogicalExercise1.cpp \
-       PhysicalExercise1.cpp 
+SRCS = Exercise1.cpp \
+       LogicalExercise1.cpp \
+       PhysicalExercise1.cpp
 
 
 # Compiler settings for SciDB version >= 15.7
@@ -63,10 +64,10 @@ clean:
 
 libExercise1.so: $(SRCS)
 	@if test ! -d "$(SCIDB)"; then echo  "Error. Try:\n\nmake SCIDB=<PATH TO SCIDB INSTALL PATH>"; exit 1; fi
+	$(CXX) $(CCFLAGS) $(INC) -o Exercise1.o -c Exercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o LogicalExercise1.o -c LogicalExercise1.cpp
 	$(CXX) $(CCFLAGS) $(INC) -o PhysicalExercise1.o -c PhysicalExercise1.cpp
-	$(CXX) $(CCFLAGS) $(INC) -o libExercise1.so plugin.cpp LogicalExercise1.o PhysicalExercise1.o $(LIBS)
-
+	$(CXX) $(CCFLAGS) $(INC) -o libExercise1.so plugin.cpp Exercise1.o LogicalExercise1.o PhysicalExercise1.o $(LIBS)
 	sudo cp libExercise1.so /opt/scidb/18.1/lib/scidb/plugins
 	#scp libExercise1.so scidb@master1.korea.ac.kr:~
 	#scp libExercise1.so scidb@master2.korea.ac.kr:~

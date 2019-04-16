@@ -207,7 +207,7 @@ set(PYTHON_SAMPLE_DIRECTORY "${CMAKE_BINARY_DIR}/bin/pythonexamples")
 ## 3. (ELF only) Using the directories specified in the DT_RUNPATH dynamic section attribute of the binary if
 ## present.
 ##
-## 4. From the cache file /etc/ld.so.cache which contains a compiled list of candidate libraries previously
+## 4. From the cache file /etc/ld.so.cache which s a compiled list of candidate libraries previously
 ## found in the augmented library path. If, however, the binary was linked with the -z nodeflib linker
 ## option, libraries in the default library paths are skipped.
 ##

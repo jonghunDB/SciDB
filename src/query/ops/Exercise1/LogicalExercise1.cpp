@@ -120,12 +120,14 @@ class LogicalExercise1 : public LogicalOperator {
             size_t i = _parameters.size();
             Dimensions const& dims = schemas[0].getDimensions();
             size_t nDims = dims.size();
+            if(!(i == nDims))
+                LOG4CXX_DEBUG(logger,"parameter size and dimension size is not matched "<< i <<  " < para" << nDims + 1 << "Dims +1 "  );
             // example) 2-D array input, nDims = 2, i = 4 , para0~3 = coord, para4 = attrId
             if( i < nDims*2) {                                  //starting cell, ending cell
                 res.push_back(PARAM_CONSTANT(TID_INT64));
             } else if(i == nDims*2) {                           //attribute id
                 res.push_back(PARAM_CONSTANT(TID_INT32));
-            } else {                                            //add the other parameters
+            } else {                                            // end
                 res.push_back(END_OF_VARIES_PARAMS());
             }
 /*            // push_back: std::vector의 멤버함수, vector res의 끝에 추가함.
@@ -151,8 +153,6 @@ class LogicalExercise1 : public LogicalOperator {
                 assert(((std::shared_ptr<OperatorParam>&)*it)->getParamType() == PARAM_LOGICAL_EXPRESSION);
                 assert(((std::shared_ptr<OperatorParamLogicalExpression>&)*it)->isConstant());
             }
-
-
 
             ArrayDesc& desc = schemas[0];
             Dimensions const& dims = desc.getDimensions();
@@ -185,21 +185,21 @@ class LogicalExercise1 : public LogicalOperator {
                     highPos[i] = lowPos[i] - 1;
                 }
             }
+            LOG4CXX_DEBUG(logger,"LowPos and HighPos size"<< highPos.size()<<"  " <<lowPos.size());
 
             // Attribute의 Vector.
             Attributes outputAttr;
-            //Value const& attrID = evaluate(((std::shared_ptr<OperatorParamLogicalExpression>&)_parameters[nDims*2])->getExpression(),TID_UINT32);
-            AttributeID attributeID = ((std::shared_ptr<OperatorParamPhysicalExpression>&)_parameters[nDims * 2])->getExpression()->evaluate().getUint32();
-            outputAttr.push_back(AttributeDesc(attributeID, "attributeName", TID_DOUBLE, 0, CompressorType::NONE));
+            Value const& attrID = evaluate(((std::shared_ptr<OperatorParamLogicalExpression>&)_parameters[nDims*2])->getExpression(),TID_UINT32);
+            outputAttr.push_back(AttributeDesc( attrID.getUint32(), "attributeName", TID_DOUBLE, 0, CompressorType::NONE));
             outputAttr = addEmptyTagAttribute(outputAttr);
 
             for(size_t i = 0 , n = dims.size(); i< n ;i++) {
                 DimensionDesc const &srcDim = dims[i];
-                size_t end =(size_t)std::max(highPos[i] - lowPos[i], 0L);
+                size_t end = (size_t)std::max(highPos[i] - lowPos[i], 0L);
                 //각각의 dimension에 DimensionDesc의 결과값을 넘겨준다.
-                newDims[i] = DimensionDesc(srcDim.getBaseName(), srcDim.getNamesAndAliases(), 0, 0, end, end,
-                                           srcDim.getRawChunkInterval(), srcDim.getChunkOverlap());
+                newDims[i] = DimensionDesc(srcDim.getBaseName(), srcDim.getNamesAndAliases(), 0, 0, (Coordinate)end, (Coordinate)end, srcDim.getRawChunkInterval(), srcDim.getChunkOverlap());
             }
+            LOG4CXX_DEBUG(logger," return array description with outputattributes  ");
             return ArrayDesc(desc.getName(), outputAttr , newDims, createDistribution(psUndefined),desc.getResidency());
 
             //return setDimensionsiAndAttribute(desc,lowPos,highPos,query);
@@ -238,9 +238,6 @@ class LogicalExercise1 : public LogicalOperator {
             //-----------------------------------------------------------------------------
         }
 
-
     };
-
     REGISTER_LOGICAL_OPERATOR_FACTORY(LogicalExercise1, "Exercise1");
-
 }  // namespace scidb
