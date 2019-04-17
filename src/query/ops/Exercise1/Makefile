@@ -68,5 +68,9 @@ libExercise1.so: $(SRCS)
 	$(CXX) $(CCFLAGS) $(INC) -o libExercise1.so plugin.cpp LogicalExercise1.o PhysicalExercise1.o $(LIBS)
 
 	sudo cp libExercise1.so /opt/scidb/18.1/lib/scidb/plugins
+
+	iquery -aq "load_library('Exercise1');"
+	iquery -aq "Exercise1(ex3,0,0,5,5,0);"
+
 	#scp libExercise1.so scidb@master1.korea.ac.kr:~
 	#scp libExercise1.so scidb@master2.korea.ac.kr:~
